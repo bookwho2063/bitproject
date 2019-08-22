@@ -3,7 +3,7 @@ from PySide2 import QtGui, QtWidgets, QtCore
 class extract(object):
 
     def __init__(self, ui):
-        self.table = ui.tableWidget
+        self.table = ui.ext_tableWidget
 
     def add_list(self):
         # list = [4, "01:13", 3, "아이린", "...", "4"]
