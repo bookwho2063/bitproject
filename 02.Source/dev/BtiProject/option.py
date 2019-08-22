@@ -9,13 +9,13 @@ class option(QtWidgets.QWidget):
         selected_directory = QtWidgets.QFileDialog.getExistingDirectory()
         print(button.objectName())
 
-        if button.objectName() == "pushButton_6":
-            self.ui.lineEdit.setText(selected_directory)
-        elif button.objectName() is "pushButton_7":
-            self.ui.lineEdit_2.setText(selected_directory)
+        if button.objectName() == "opt_pushButton_6":
+            self.ui.opt_lineEdit.setText(selected_directory)
+        elif button.objectName() == "opt_pushButton_7":
+            self.ui.opt_lineEdit_2.setText(selected_directory)
 
     def get_coord(self):
-        return self.ui.spinBox.value(), self.ui.spinBox_2.value()
+        return self.ui.opt_spinBox.value(), self.ui.opt_spinBox_2.value()
 
     def get_buffertime(self):
-        return self.ui.comboBox_4.currentText()
+        return self.ui.opt_comboBox_4.currentText()
