@@ -15,7 +15,6 @@ class Thread(QtCore.QThread):
         while True:
 
             if self.play:
-                self.player.set_pause(False)
                 ret,frame = self.cap.read()
 
                 if ret:
@@ -29,14 +28,11 @@ class Thread(QtCore.QThread):
             time.sleep(0.025)
 
 
-
     def pauseVideo(self):
         self.play = False
-        self.player.set_pause(True)
 
     def playVideo(self):
         self.play = True
-        self.player.set_pause(False)
 
 
     def stopVideo(self):
