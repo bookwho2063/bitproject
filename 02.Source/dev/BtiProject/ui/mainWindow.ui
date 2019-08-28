@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>840</height>
+    <width>1325</width>
+    <height>879</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -74,30 +74,6 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="ext_pushButton_mdDown">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>57</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>영상 내려받기</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="ext_pushButton_urlUpload">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -118,6 +94,30 @@
              </property>
              <property name="text">
               <string>URL 업로드</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="ext_pushButton_mdDown">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>57</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>영상 내려받기</string>
              </property>
             </widget>
            </item>
@@ -146,10 +146,16 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="opaqueResize">
+          <bool>true</bool>
+         </property>
+         <property name="childrenCollapsible">
           <bool>false</bool>
          </property>
          <widget class="QWidget" name="ext_widget_video_Md" native="true">
@@ -157,6 +163,21 @@
            <string notr="true">border: 1px solid gray;</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QLabel" name="ext_label_extMd">
              <property name="sizePolicy">
@@ -167,7 +188,7 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>160</width>
+               <width>480</width>
                <height>0</height>
               </size>
              </property>
@@ -205,7 +226,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>play</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -218,7 +249,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>pause</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -231,7 +272,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>stop</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -252,8 +303,23 @@
              </item>
              <item>
               <widget class="QLabel" name="ext_video_time">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="text">
-                <string>000:00:00 / 000:00:00</string>
+                <string>00:00:00 / 00:00:00</string>
+               </property>
+               <property name="textFormat">
+                <enum>Qt::AutoText</enum>
+               </property>
+               <property name="scaledContents">
+                <bool>false</bool>
+               </property>
+               <property name="margin">
+                <number>0</number>
                </property>
               </widget>
              </item>
@@ -266,8 +332,23 @@
            <string notr="true">border: 1px solid gray;</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_6">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_3">
                <item>
@@ -288,6 +369,9 @@
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
                  </property>
+                 <property name="margin">
+                  <number>3</number>
+                 </property>
                 </widget>
                </item>
                <item>
@@ -306,7 +390,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QTableWidget" name="ext_tableWidget_extResultList">
+              <widget class="QTableView" name="ext_tableView_extResultList">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                  <horstretch>0</horstretch>
@@ -315,308 +399,30 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>160</width>
+                 <width>480</width>
                  <height>0</height>
                 </size>
                </property>
-               <row>
-                <property name="text">
-                 <string/>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string/>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string/>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string/>
-                </property>
-               </row>
-               <column>
-                <property name="text">
-                 <string>썸네일</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕 ExtraBold</family>
-                  <pointsize>8</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>검출구간</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕 ExtraBold</family>
-                  <pointsize>8</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>검출구간수정</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕 ExtraBold</family>
-                  <pointsize>8</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>라벨명</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕 ExtraBold</family>
-                  <pointsize>8</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>기타정보</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕 ExtraBold</family>
-                  <pointsize>8</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>선택</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕 ExtraBold</family>
-                  <pointsize>8</pointsize>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <item row="0" column="0">
-                <property name="text">
-                 <string>썸네일 이미지 추가예정</string>
-                </property>
-               </item>
-               <item row="0" column="1">
-                <property name="text">
-                 <string>00:22-00:27</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="0" column="2">
-                <property name="text">
-                 <string>셀렉트바 추가</string>
-                </property>
-               </item>
-               <item row="0" column="3">
-                <property name="text">
-                 <string>아이린</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="0" column="4">
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕코딩</family>
-                  <pointsize>7</pointsize>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="0" column="5">
-                <property name="text">
-                 <string>체크박스 추가</string>
-                </property>
-               </item>
-               <item row="1" column="0">
-                <property name="text">
-                 <string>1</string>
-                </property>
-               </item>
-               <item row="1" column="1">
-                <property name="text">
-                 <string>00:35-00:40</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="1" column="2">
-                <property name="text">
-                 <string>1</string>
-                </property>
-               </item>
-               <item row="1" column="3">
-                <property name="text">
-                 <string>아이린</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="1" column="4">
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕코딩</family>
-                  <pointsize>7</pointsize>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="1" column="5">
-                <property name="text">
-                 <string>1</string>
-                </property>
-               </item>
-               <item row="2" column="0">
-                <property name="text">
-                 <string>2</string>
-                </property>
-               </item>
-               <item row="2" column="1">
-                <property name="text">
-                 <string>00:50-00:55</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="2" column="2">
-                <property name="text">
-                 <string>2</string>
-                </property>
-               </item>
-               <item row="2" column="3">
-                <property name="text">
-                 <string>아이린</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="2" column="4">
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕코딩</family>
-                  <pointsize>7</pointsize>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="2" column="5">
-                <property name="text">
-                 <string>2</string>
-                </property>
-               </item>
-               <item row="3" column="0">
-                <property name="text">
-                 <string>3</string>
-                </property>
-               </item>
-               <item row="3" column="1">
-                <property name="text">
-                 <string>01:13-01:18</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="3" column="2">
-                <property name="text">
-                 <string>3</string>
-                </property>
-               </item>
-               <item row="3" column="3">
-                <property name="text">
-                 <string>아이린</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="3" column="4">
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>나눔고딕코딩</family>
-                  <pointsize>7</pointsize>
-                 </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
-               <item row="3" column="5">
-                <property name="text">
-                 <string>3</string>
-                </property>
-               </item>
               </widget>
              </item>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetFixedSize</enum>
+               </property>
+               <item>
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
                <item>
                 <widget class="QPushButton" name="ext_pushButton_allClear">
                  <property name="font">
@@ -626,6 +432,12 @@
                  </property>
                  <property name="text">
                   <string>초기화</string>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -792,8 +604,8 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>95</width>
-               <height>57</height>
+               <width>16777215</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="font">
@@ -803,36 +615,6 @@
              </property>
              <property name="text">
               <string>로컬 업로드</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="afc_pushButton_mdDown">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>57</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>105</width>
-               <height>57</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>영상 내려받기</string>
              </property>
             </widget>
            </item>
@@ -852,8 +634,8 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>95</width>
-               <height>57</height>
+               <width>16777215</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="font">
@@ -863,6 +645,36 @@
              </property>
              <property name="text">
               <string>URL 업로드</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="afc_pushButton_mdDown">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>57</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>영상 내려받기</string>
              </property>
             </widget>
            </item>
@@ -897,9 +709,12 @@
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
+         <property name="childrenCollapsible">
+          <bool>false</bool>
+         </property>
          <widget class="QWidget" name="afc_widget_before_Md" native="true">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -908,6 +723,21 @@
            <string notr="true">border: 1px solid gray;</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QLabel" name="afc_label_before_Md">
              <property name="sizePolicy">
@@ -918,7 +748,7 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>160</width>
+               <width>480</width>
                <height>450</height>
               </size>
              </property>
@@ -956,7 +786,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>play</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -969,7 +809,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>pause</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -982,7 +832,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>stop</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -1004,7 +864,7 @@
              <item>
               <widget class="QLabel" name="afc_before_time">
                <property name="text">
-                <string>000:00:00 / 000:00:00</string>
+                <string>00:00:00 / 00:00:00</string>
                </property>
               </widget>
              </item>
@@ -1023,6 +883,21 @@
            <string notr="true">border: 1px solid gray;</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QLabel" name="afc_label_after_Md">
              <property name="sizePolicy">
@@ -1033,7 +908,7 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>160</width>
+               <width>480</width>
                <height>450</height>
               </size>
              </property>
@@ -1071,7 +946,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>play</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -1084,7 +969,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>pause</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -1097,7 +992,17 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>stop</string>
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>32</width>
+                   <height>32</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -1119,7 +1024,7 @@
              <item>
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>000:00:00 / 000:00:00</string>
+                <string>00:00:00 / 00:00:00</string>
                </property>
               </widget>
              </item>
@@ -1798,10 +1703,9 @@
  </widget>
  <tabstops>
   <tabstop>ext_pushButton_localUpload</tabstop>
-  <tabstop>ext_pushButton_urlUpload</tabstop>
   <tabstop>ext_pushButton_mdDown</tabstop>
   <tabstop>ext_pushButton_startExt</tabstop>
-  <tabstop>ext_tableWidget_extResultList</tabstop>
+  <tabstop>ext_tableView_extResultList</tabstop>
   <tabstop>ext_pushButton_allClear</tabstop>
   <tabstop>ext_pushButton_selectDelete</tabstop>
   <tabstop>ext_pushButton_allSave</tabstop>
