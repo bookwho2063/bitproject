@@ -40,22 +40,23 @@ class cv_video_player(QThread):
         print("thread start")
         while True:
 
-            if self.play:
+            if self.play and self.cap.isOpened():
                 ret,frame = self.cap.read()
                 self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
 
                 if ret:
                     rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-                    h,w,ch = rgbImage.shape
-                    bytesPerLine = ch * w
-                    convertToQtFormat = QImage(rgbImage.data,w,h,bytesPerLine,QImage.Format_RGB888)
-                    p = convertToQtFormat.scaled(1280,1040,Qt.KeepAspectRatio)
-                    self.changePixmap.emit(p)
+                    convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
+                                               rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
+                    self.changePixmap.emit(convertToQtFormat.copy())
+                else:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+                    self.play = False
 
             if not self.cur_frame % round(self.fps):
-                print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
-                print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
-                self.changeTime.emit(int(self.cur_frame / self.fps), int(self.duration))
+                # print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
+                # print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
+                self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
 
             time.sleep(0.025)
 
@@ -63,7 +64,10 @@ class cv_video_player(QThread):
         self.play = False
 
     def playVideo(self):
-        self.play = True
+        if not self.isRunning():
+            self.start()
+        else:
+            self.play = True
 
     def stopVideo(self):
         pass
@@ -71,7 +75,7 @@ class cv_video_player(QThread):
     def openVideo(self,file_path):
         print(file_path)
         self.cap = cv2.VideoCapture(file_path)
-        self.cap.set(cv2.CAP_PROP_POS_FRAMES,1)
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
         if file_path:
             self.total_frame = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
             self.cur_frame = self.cap.get(cv2.CAP_PROP_POS_FRAMES)
