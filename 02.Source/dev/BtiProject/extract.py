@@ -1,32 +1,35 @@
 from PySide2 import QtGui, QtWidgets, QtCore
+from common import common
 
-class extract(object):
+class Extract(object):
 
     def __init__(self, ui):
-        self.table = ui.ext_tableWidget
+        self.table = ui.ext_tableView_extResultList
+        self.cm = common(ui)
 
-    def add_list(self):
-        # list = [4, "01:13", 3, "아이린", "...", "4"]
-        count_row = self.table.rowCount()
+    def add_tRowData(self):
+        """
+        # 영상검출 내역 테이블에 데이터를 추가한다.
+        :return:
+        """
+        dModel = self.table.model()
+        rowCnt = self.table.model().rowCount()
 
-        self.table.insertRow(count_row)
+        # 데이터 생성 #1
+        # (CheckBox + colData)
+        chkItem = QtGui.QStandardItem()
+        chkItem.setCheckable(True)
+        chkItem.setEditable(False)
+        dModel.setItem(rowCnt, 0, chkItem)
 
-        item = QtWidgets.QTableWidgetItem()
-        self.table.setItem(count_row,0,item)
-        item = QtWidgets.QTableWidgetItem()
-        self.table.setItem(count_row,1,item)
-        item = QtWidgets.QTableWidgetItem()
-        self.table.setItem(count_row,2,item)
-        item = QtWidgets.QTableWidgetItem()
-        self.table.setItem(count_row,3,item)
-        item = QtWidgets.QTableWidgetItem()
-        self.table.setItem(count_row,4,item)
-        item = QtWidgets.QTableWidgetItem()
-        self.table.setItem(count_row,5,item)
+        # 썸네일 이미지 생성
+        #thumnailImg = self.cm.createThumnail_filePath("D:/sampleImg/image2.jpg", 50, 50, 50)
 
-        self.table.item(count_row,0).setText(QtWidgets.QApplication.translate("Form","3",None,-1))
-        self.table.item(count_row,1).setText(QtWidgets.QApplication.translate("Form","01:13-01:18",None,-1))
-        self.table.item(count_row,2).setText(QtWidgets.QApplication.translate("Form","3",None,-1))
-        self.table.item(count_row,3).setText(QtWidgets.QApplication.translate("Form","아이린",None,-1))
-        self.table.item(count_row,4).setText(QtWidgets.QApplication.translate("Form","...",None,-1))
-        self.table.item(count_row,5).setText(QtWidgets.QApplication.translate("Form","3",None,-1))
+        # 썸네일 넣고나면 2,6 으로 변경해야함
+        for colCnt in range(1,6):
+            item = QtGui.QStandardItem("Input Result Value")
+            item.setEditable(False)
+            dModel.setItem(rowCnt, colCnt, item)
+
+        # Row Height 설정 (썸네일 이미지 뷰를 위하여 크기조정)
+        self.table.setRowHeight(rowCnt, 70)

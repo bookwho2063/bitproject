@@ -1,7 +1,9 @@
+from PySide2 import QtGui, QtWidgets, QtCore
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 import cv2,time
+import os
 
 """
 # Default Flow Task 
@@ -97,17 +99,34 @@ class common(object):
     uploadUrl = ""
     callTabObjNm = ""
     savePath = ""
+    saveOptFilePath = ""
+    saveUrlPath = ""
     saveFileNm = ""
     saveFmt = ""
     saveResol = ""
     saveProgressPer = ""
     video_player = cv_video_player()
 
+    def __init__(self, ui):
+        self.form = ui
+
+    def optUrlSaveFileDir(self):
+        """
+        TITLE : 설정.URL저장파일경로 정보 설정
+        :return: URL PATH String
+        """
+        self.saveUrlPath = QFileDialog.getExistingDirectory(None, "폴더선택", "/", QFileDialog.ShowDirsOnly)
+        print("select folder :: ", self.saveUrlPath)
+        return self.saveUrlPath
+
+
+
     def local_upload(self):
         '''
         Title : 로컬 경로의 파일의 경로를 읽어온다
         '''
         self.uploadPath = QFileDialog.getOpenFileName(QFileDialog(),"비디오 선택","","Video Files (*.avi, *.mp4)")[0]
+        return self.uploadPath
 
     def url_upload(self):
         self.uploadUrl = self.create_input_dialog("text","URL 입력창","URL 주소")
@@ -153,6 +172,105 @@ class common(object):
         if type == "text":
             text,ok = QInputDialog().getText(QInputDialog(),title,text,QLineEdit.Normal)
             return text
+
+    def selectClassImgList(self):
+        """
+        학습된 검출 대상 리스트 내역을 조회한다
+        조회내역은 1.라벨명 2.썸네일이미지경로 및 파일명
+        :return: 딕셔너리로 리턴한다
+        """
+        # 조회부 (조회할 경로는 설정.URL저장파일경로 로 우선 설정한다)
+        classListDir = os.listdir(self.opt_lineEdit_urlSaveDir.text())
+        jpgFileList = [file for file in classListDir if file.endswith(".jpg")]
+
+        # 딕셔너리 생성부
+        resultDict = {}
+        for classData in jpgFileList:
+            splitData = classData.split(".")
+            # DICT 에 KEY(라벨명) : VALUE(경로/파일명.확장자) 형식으로 입력
+            resultDict[splitData[0]] = self.opt_lineEdit_urlSaveDir.text()+"/"+classData
+
+        print("resultDict :: ".format(resultDict))
+
+        return resultDict
+
+
+    def createThumnail_QImage(self, qImage, width, height, radius, antialiasing=True):
+        """
+        qImage 형식의 img 데이터를 이용하여 width/height 크기로
+        원형 썸네일 QPixmap 생성 후 Label에 입력하여 리턴
+        :param qImage:
+        :param width:
+        :param height:
+        :return: img in Label(QPixmap)
+        """
+
+        resultLabel = QtWidgets.QLabel()
+        resultLabel.setMaximumSize(width, height)
+        resultLabel.setMinimumSize(width, height)
+        target = QtGui.QPixmap(resultLabel.size())
+        target.fill(QtCore.Qt.transparent)
+
+        opt_radius = 25
+        opt_antialiasing = True
+
+        # imgData = QtGui.QPixmap(QtGui.QImage(qImage))\
+        #     .scaled(width, height, QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
+
+        imgData = QtGui.QPixmap(QtGui.QImage(qImage)).scaled(width, height)
+        painter = QtGui.QPainter(target)
+        if antialiasing:
+            painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+            painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing, True)
+            painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
+
+        path = QtGui.QPainterPath()
+        path.addRoundedRect(
+            0, 0, resultLabel.width(), resultLabel.height(), radius, radius
+        )
+
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, imgData)
+        resultLabel.setPixmap(target)
+
+        return resultLabel
+
+    def createThumnail_filePath(self, fullPath, width, height, radius, antialiasing=True):
+        """
+        filePath 형식의 img 데이터를 이용하여 width/height 크기로
+        원형 썸네일 QPixmap 생성 후 Label에 입력하여 리턴
+        :param fullPath: 경로/파일명.확장자
+        :param width: 넓이(썸네일이미지)
+        :param height: 높이(썸네일이미지)
+        :return: img in Label(QPixmap)
+        """
+
+        resultLabel = QtWidgets.QLabel()
+        resultLabel.setMaximumSize(width, height)
+        resultLabel.setMinimumSize(width, height)
+        target = QtGui.QPixmap(resultLabel.size())
+        target.fill(QtCore.Qt.transparent)
+
+        # imgData = QtGui.QPixmap(QtGui.QImage(qImage))\
+        #     .scaled(width, height, QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
+
+        imgData = QtGui.QPixmap(fullPath).scaled(width, height)
+        painter = QtGui.QPainter(target)
+        if antialiasing:
+            painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+            painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing, True)
+            painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
+
+        path = QtGui.QPainterPath()
+        path.addRoundedRect(
+            0, 0, resultLabel.width(), resultLabel.height(), radius, radius
+        )
+
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, imgData)
+        resultLabel.setPixmap(target)
+
+        return resultLabel
 
     '''
     - 로컬 업로드 : local 경로에 있는 영상을 읽어온다.(opencv 등을 이용해 읽어옴)

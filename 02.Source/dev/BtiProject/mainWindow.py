@@ -17,6 +17,7 @@
 
 from PySide2 import QtCore, QtGui, QtWidgets
 from common import common, cv_video_player
+from extract import Extract
 
 
 class Ui_Form(object):
@@ -223,6 +224,17 @@ class Ui_Form(object):
         self.ext_tableView_extResultList.setSizePolicy(sizePolicy)
         self.ext_tableView_extResultList.setMinimumSize(QtCore.QSize(480, 0))
         self.ext_tableView_extResultList.setObjectName("ext_tableView_extResultList")
+        # 테이블 Row 데이터 색상
+        self.ext_tableView_extResultList.setAlternatingRowColors(True)
+        
+        # 추출결과테이블 헤더정보 설정
+        self.ext_default_tHeader_setting()
+
+
+
+        # 테이블 Row Grid show()
+        self.ext_tableView_extResultList.setShowGrid(False)
+
         self.verticalLayout_3.addWidget(self.ext_tableView_extResultList)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
@@ -670,6 +682,9 @@ class Ui_Form(object):
         self.opt_lineEdit_urlSaveDir = QtWidgets.QLineEdit(self.layoutWidget3)
         self.opt_lineEdit_urlSaveDir.setEnabled(True)
         self.opt_lineEdit_urlSaveDir.setObjectName("opt_lineEdit_urlSaveDir")
+
+
+
         self.opt_horizontalLayout_1.addWidget(self.opt_lineEdit_urlSaveDir)
         self.opt_pushButton_urlDownDir = QtWidgets.QPushButton(self.layoutWidget3)
         font = QtGui.QFont()
@@ -849,9 +864,9 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         """
-                	# 테이블 데이터 / 버튼명 데이터  label text 데이터 입력 처리부
-                	# 확인 후 해당 형태로 데이터 입력
-                """
+            # 테이블 데이터 / 버튼명 데이터  label text 데이터 입력 처리부
+            # 확인 후 해당 형태로 데이터 입력
+        """
         # 어플리케이션 네임
         Form.setWindowTitle(QtWidgets.QApplication.translate("Form","Human?",None,-1))
 
@@ -1015,8 +1030,11 @@ class Ui_Form(object):
         self.cv_player = cv_video_player(self)
         self.cv_player.changePixmap.connect(lambda p: self.setPixMap(p))
 
-        # common class 생성
-        self.cm = common()
+        # 작업 클래스 생성
+        self.cm = common(self)
+        self.extClass = Extract(self)
+
+
 
     def change_opt_comboBox_downFileFmt(self):
         """
@@ -1045,6 +1063,34 @@ class Ui_Form(object):
         :return:
         """
         print("opt_comboBox_bufTime_Change 변경 값 ::", self.opt_comboBox_bufTime.currentText())
+
+    def ext_default_tHeader_setting(self):
+        """
+        MEMO : 추출 -> 결과내역 테이블 헤더 및 기본 모델정보 셋팅
+        :return:
+        """
+        self.modelAttr = QtGui.QStandardItemModel()
+        self.modelAttr.setColumnCount(6)
+        self.modelAttr.setHeaderData(0, QtCore.Qt.Horizontal, "선택")
+        self.modelAttr.setHeaderData(1, QtCore.Qt.Horizontal, "썸네일")
+        self.modelAttr.setHeaderData(2, QtCore.Qt.Horizontal, "대상명")
+        self.modelAttr.setHeaderData(3, QtCore.Qt.Horizontal, "검출위치")
+        self.modelAttr.setHeaderData(4, QtCore.Qt.Horizontal, "검출길이")
+        self.modelAttr.setHeaderData(5, QtCore.Qt.Horizontal, "검출중심점")
+
+        self.ext_tableView_extResultList.setModel(self.modelAttr)
+
+        # ※모델을 정의(setModel)한 뒤부터 컬럼에 대한 설정 가능(아래)
+
+        # 체크박스 컬럼 넓이 조정
+        self.ext_tableView_extResultList.setColumnWidth(0, 20)
+        # 테이블 row 단위 selection
+        self.ext_tableView_extResultList.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        #self.ext_tableView_extResultList.setDragDropMode()
+
+
+
+
 
 
     ###########
@@ -1155,10 +1201,15 @@ class Ui_Form(object):
 
     def click_ext_pushButton_allSave(self):
         """
-        MEMO : 영상검출.검출내역테이블 전체 내려받기 버튼 클릭
+        MEMO : 영상검출.검출내역테이블 전체 내려받기 버튼 클릭 (임시 테스트로 검출내역 데이터 삽입 버튼으로 활용함)
         :return:
         """
         print("click_ext_pushButton_allSave")
+        # self.extClass.add_tHeader(self.ext_tableView_extResultList)
+        print("click_ext_pushButton_allSave2")
+        print("cntcnt :: ", self.ext_tableView_extResultList.model().rowCount())
+        self.extClass.add_tRowData()
+
 
     def click_ext_pushButton_selectSave(self):
         """
@@ -1298,6 +1349,7 @@ class Ui_Form(object):
         :return:
         """
         print("opt_pushButton_urlDownDir")
+        self.opt_lineEdit_urlSaveDir.setText(self.cm.optUrlSaveFileDir())
 
     def click_opt_pushButton_saveDir(self):
         """
@@ -1305,6 +1357,8 @@ class Ui_Form(object):
         :return:
         """
         print("opt_pushButton_saveDir")
+        self.opt_lineEdit_saveDir.setText(self.cm.optUrlSaveFileDir())
+
 
     ###########
     # 클릭 이벤트 설정 탭 end
@@ -1347,6 +1401,15 @@ class Ui_Form(object):
 
 if __name__ == "__main__":
     import sys
+    from os import path
+
+    if __package__ is None:
+        print(path.dirname(path.dirname(path.abspath(__file__))))
+        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+        from extract import Extract
+    else:
+        from .extract import Extract
+
     app = QtWidgets.QApplication(sys.argv)
     Form = QtWidgets.QWidget()
     ui = Ui_Form()
