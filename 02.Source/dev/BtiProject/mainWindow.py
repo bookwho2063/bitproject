@@ -18,9 +18,9 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 from common import common, cv_video_player
 from extract import Extract
+from option import Option
 
-
-class Ui_Form(object):
+class Ui_Form(QtCore.QObject):
     def setupUi(self, Form):
         ########
         #	Main Form Default
@@ -144,7 +144,7 @@ class Ui_Form(object):
         self.ext_pushButton_play.setSizePolicy(sizePolicy)
         self.ext_pushButton_play.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("icon/play.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.ext_pushButton_play.setIcon(icon)
         self.ext_pushButton_play.setIconSize(QtCore.QSize(32, 32))
         self.ext_pushButton_play.setObjectName("ext_pushButton_play")
@@ -157,7 +157,7 @@ class Ui_Form(object):
         self.ext_pushButton_pause.setSizePolicy(sizePolicy)
         self.ext_pushButton_pause.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("icon/pause.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.ext_pushButton_pause.setIcon(icon1)
         self.ext_pushButton_pause.setIconSize(QtCore.QSize(32, 32))
         self.ext_pushButton_pause.setObjectName("ext_pushButton_pause")
@@ -170,7 +170,7 @@ class Ui_Form(object):
         self.ext_pushButton_stop.setSizePolicy(sizePolicy)
         self.ext_pushButton_stop.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("icon/stop.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.ext_pushButton_stop.setIcon(icon2)
         self.ext_pushButton_stop.setIconSize(QtCore.QSize(32, 32))
         self.ext_pushButton_stop.setObjectName("ext_pushButton_stop")
@@ -522,9 +522,9 @@ class Ui_Form(object):
         self.afc_horizontalLayout_mid1_2.addLayout(self.afc_horizontalLayout_mid2_2)
         spacerItem8 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.afc_horizontalLayout_mid1_2.addItem(spacerItem8)
-        self.label_3 = QtWidgets.QLabel(self.afc_widget_after_Md)
-        self.label_3.setObjectName("label_3")
-        self.afc_horizontalLayout_mid1_2.addWidget(self.label_3)
+        self.afc_after_time = QtWidgets.QLabel(self.afc_widget_after_Md)
+        self.afc_after_time.setObjectName("afc_after_time")
+        self.afc_horizontalLayout_mid1_2.addWidget(self.afc_after_time)
         self.verticalLayout_2.addLayout(self.afc_horizontalLayout_mid1_2)
         self.verticalLayout_5.addWidget(self.afc_splitter_Md)
         self.afc_horizontalLayout_bot_main = QtWidgets.QHBoxLayout()
@@ -794,15 +794,15 @@ class Ui_Form(object):
         self.opt_label_afcBoxHei.setWordWrap(True)
         self.opt_label_afcBoxHei.setObjectName("opt_label_afcBoxHei")
         self.opt_horizontalLayout_7.addWidget(self.opt_label_afcBoxHei)
-        self.opt_spinBox_widthValue = QtWidgets.QSpinBox(self.layoutWidget6)
+        self.opt_spinBox_heightValue = QtWidgets.QSpinBox(self.layoutWidget6)
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.opt_spinBox_widthValue.setFont(font)
-        self.opt_spinBox_widthValue.setAlignment(QtCore.Qt.AlignCenter)
-        self.opt_spinBox_widthValue.setMaximum(2000)
-        self.opt_spinBox_widthValue.setProperty("value", 600)
-        self.opt_spinBox_widthValue.setObjectName("opt_spinBox_widthValue")
-        self.opt_horizontalLayout_7.addWidget(self.opt_spinBox_widthValue)
+        self.opt_spinBox_heightValue.setFont(font)
+        self.opt_spinBox_heightValue.setAlignment(QtCore.Qt.AlignCenter)
+        self.opt_spinBox_heightValue.setMaximum(2000)
+        self.opt_spinBox_heightValue.setProperty("value", 600)
+        self.opt_spinBox_heightValue.setObjectName("opt_spinBox_heightValue")
+        self.opt_horizontalLayout_7.addWidget(self.opt_spinBox_heightValue)
         self.layoutWidget7 = QtWidgets.QWidget(self.opt_groupBox_bot)
         self.layoutWidget7.setGeometry(QtCore.QRect(50, 80, 177, 25))
         self.layoutWidget7.setObjectName("layoutWidget7")
@@ -818,15 +818,15 @@ class Ui_Form(object):
         self.opt_label_afcBoxWid.setWordWrap(True)
         self.opt_label_afcBoxWid.setObjectName("opt_label_afcBoxWid")
         self.opt_horizontalLayout_8.addWidget(self.opt_label_afcBoxWid)
-        self.opt_spinBox_heightValue = QtWidgets.QSpinBox(self.layoutWidget7)
+        self.opt_spinBox_widthValue = QtWidgets.QSpinBox(self.layoutWidget7)
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.opt_spinBox_heightValue.setFont(font)
-        self.opt_spinBox_heightValue.setAlignment(QtCore.Qt.AlignCenter)
-        self.opt_spinBox_heightValue.setMaximum(2000)
-        self.opt_spinBox_heightValue.setProperty("value", 300)
-        self.opt_spinBox_heightValue.setObjectName("opt_spinBox_heightValue")
-        self.opt_horizontalLayout_8.addWidget(self.opt_spinBox_heightValue)
+        self.opt_spinBox_widthValue.setFont(font)
+        self.opt_spinBox_widthValue.setAlignment(QtCore.Qt.AlignCenter)
+        self.opt_spinBox_widthValue.setMaximum(2000)
+        self.opt_spinBox_widthValue.setProperty("value", 300)
+        self.opt_spinBox_widthValue.setObjectName("opt_spinBox_widthValue")
+        self.opt_horizontalLayout_8.addWidget(self.opt_spinBox_widthValue)
         ######## 설정.오토 포커싱 옵션 설정 end
 
         ######## 탭 정보 생성 처리
@@ -858,8 +858,8 @@ class Ui_Form(object):
         Form.setTabOrder(self.opt_comboBox_downFileFmt, self.opt_comboBox_downFileDef)
         Form.setTabOrder(self.opt_comboBox_downFileDef, self.opt_comboBox_coordFmt)
         Form.setTabOrder(self.opt_comboBox_coordFmt, self.opt_comboBox_bufTime)
-        Form.setTabOrder(self.opt_comboBox_bufTime, self.opt_spinBox_widthValue)
-        Form.setTabOrder(self.opt_spinBox_widthValue, self.opt_spinBox_heightValue)
+        Form.setTabOrder(self.opt_comboBox_bufTime, self.opt_spinBox_heightValue)
+        Form.setTabOrder(self.opt_spinBox_heightValue, self.opt_spinBox_widthValue)
         ######## tab key로 인한 이동 순서 설정 end
 
     def retranslateUi(self, Form):
@@ -891,7 +891,7 @@ class Ui_Form(object):
         self.afc_label_before_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.afc_before_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
         self.afc_label_after_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
-        self.label_3.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
+        self.afc_after_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
         self.afc_label_classList.setText(QtWidgets.QApplication.translate("Form", "검출 대상 리스트", None, -1))
         self.afc_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
 
@@ -1033,7 +1033,20 @@ class Ui_Form(object):
         # 작업 클래스 생성
         self.cm = common(self)
         self.extClass = Extract(self)
+        self.opt = Option(self)
 
+    #   이미지 리사이즈 기능은 수행되지만 원본 이미지가 손상된다.
+    #     self.ext_label_extMd.installEventFilter(self)
+    #     self.afc_label_before_Md.installEventFilter(self)
+    #
+    # def eventFilter(self, widget,event):
+    #     if event.type() == QtCore.QEvent.Resize and widget is self.ext_label_extMd:
+    #         print("ext resize")
+    #         widget.setPixmap(widget.pixmap().scaled(widget.size(), QtCore.Qt.KeepAspectRatio))
+    #     elif widget is self.afc_label_before_Md:
+    #         print("afc resize")
+    #
+    #     return QtCore.QObject.eventFilter(self,widget,event)
 
 
     def change_opt_comboBox_downFileFmt(self):
@@ -1168,7 +1181,7 @@ class Ui_Form(object):
             self.cm.video_player.playVideo()
         else:
             self.cm.video_player.changePixmap.connect(self.setPixMap)
-            self.cm.video_player.start()
+            self.cm.video_player.playVideo()
 
     def click_ext_pushButton_pause(self):
         """
@@ -1244,6 +1257,20 @@ class Ui_Form(object):
         MEMO : 오토포커싱 로컬 업로드 버튼 클릭
         :return:
         """
+        self.cm.local_upload()
+        print(self.cm.uploadPath)
+        self.cm.video_player.changeTime.connect(self.set_afc_before_time)
+        self.cm.video_player.changeTime.connect(self.set_afc_after_time)
+
+        if self.cm.video_player.isRunning():
+            # video player thread 종료 후 재시작
+            self.cm.quit_videoPlayer()
+            self.cm.create_videoPlayer()
+            self.cm.video_player.changeTime.connect(self.set_afc_before_time)
+            self.cm.video_player.changeTime.connect(self.set_afc_after_time)
+            self.cm.video_player.openVideo(self.cm.uploadPath)
+        else:
+            self.cm.video_player.openVideo(self.cm.uploadPath)
         print("afc_pushButton_localUpload")
 
     def click_afc_pushButton_mdDown(self):
@@ -1258,6 +1285,8 @@ class Ui_Form(object):
         MEMO : 오토포커싱 URL 업로드 버튼 클릭
         :return:
         """
+        self.cm.url_upload()
+        print(self.cm.uploadUrl)
         print("afc_pushButton_urlUpload")
 
     def click_afc_pushButton_play(self):
@@ -1270,7 +1299,7 @@ class Ui_Form(object):
             self.cm.video_player.playVideo()
         else:
             self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
-            self.cm.video_player.start()
+            self.cm.video_player.playVideo()
 
     def click_afc_pushButton_pause(self):
         """
@@ -1293,6 +1322,12 @@ class Ui_Form(object):
         :return:
         """
         print("click_afc_pushButton_play_2")
+        if self.cm.video_player.isRunning():
+            self.cm.video_player.playVideo()
+        else:
+            self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
+            self.cm.video_player.changePixmap.connect(self.set_after_PixMap)
+            self.cm.video_player.playVideo()
 
     def click_afc_pushButton_pause_2(self):
         """
@@ -1300,6 +1335,7 @@ class Ui_Form(object):
         :return:
         """
         print("click_afc_pushButton_pause_2")
+        self.cm.video_player.pauseVideo()
 
     def click_afc_pushButton_stop_2(self):
         """
@@ -1349,7 +1385,9 @@ class Ui_Form(object):
         :return:
         """
         print("opt_pushButton_urlDownDir")
-        self.opt_lineEdit_urlSaveDir.setText(self.cm.optUrlSaveFileDir())
+        # self.opt_lineEdit_urlSaveDir.setText(self.cm.optUrlSaveFileDir())
+        button = self.sender()
+        self.opt.set_directory(button)
 
     def click_opt_pushButton_saveDir(self):
         """
@@ -1357,7 +1395,9 @@ class Ui_Form(object):
         :return:
         """
         print("opt_pushButton_saveDir")
-        self.opt_lineEdit_saveDir.setText(self.cm.optUrlSaveFileDir())
+        # self.opt_lineEdit_saveDir.setText(self.cm.optUrlSaveFileDir())
+        button = self.sender()
+        self.opt.set_directory(button)
 
 
     ###########
@@ -1370,33 +1410,61 @@ class Ui_Form(object):
     @QtCore.Slot(QtGui.QImage)
     def setPixMap(self,image):
         image = QtGui.QPixmap.fromImage(image)
-        # print(self.ext_label_extMd.size())
         image = image.scaled(self.ext_label_extMd.size(),QtCore.Qt.KeepAspectRatio)
         self.ext_label_extMd.setPixmap(image)
 
     @QtCore.Slot(QtGui.QImage)
     def set_before_PixMap(self,image):
         image = QtGui.QPixmap.fromImage(image)
-        image = image.scaled(640,480,QtCore.Qt.KeepAspectRatio)
         image = image.scaled(self.afc_label_before_Md.size(),QtCore.Qt.KeepAspectRatio)
         self.afc_label_before_Md.setPixmap(image)
 
     @QtCore.Slot(QtGui.QImage)
     def set_after_PixMap(self,image):
         image = QtGui.QPixmap.fromImage(image)
-        image = image.scaled(640,480,QtCore.Qt.KeepAspectRatio)
-        self.afc_label_after_Md.setPixmap(image)
+        afc_image = image.copy(QtCore.QRect(500,0,450,700))
+        afc_image = afc_image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
+        # self.afc_label_before_Md.setPixmap(image)
+        self.afc_label_after_Md.setPixmap(afc_image)
 
     @QtCore.Slot(int, int)
     def set_time(self, cur_time, total_time):
         cur_seconds = int(cur_time % 60)
-        cur_minutes = int((cur_time / 60)%60)
+        cur_minutes = int((cur_time / 60) % 60)
         cur_hours = int(cur_time / 3600)
         total_seconds = int(total_time % 60)
-        total_minutes = int((total_time / 60)%60)
+        total_minutes = int((total_time / 60) % 60)
         total_hours = int(total_time / 3600)
-        update_time="{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours, cur_minutes, cur_seconds, total_hours, total_minutes, total_seconds)
+        update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
+                                                                                 total_hours,total_minutes,
+                                                                                 total_seconds)
         self.ext_video_time.setText(update_time)
+
+    @QtCore.Slot(int,int)
+    def set_afc_before_time(self,cur_time,total_time):
+        cur_seconds = int(cur_time % 60)
+        cur_minutes = int((cur_time / 60) % 60)
+        cur_hours = int(cur_time / 3600)
+        total_seconds = int(total_time % 60)
+        total_minutes = int((total_time / 60) % 60)
+        total_hours = int(total_time / 3600)
+        update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
+                                                                                 total_hours,total_minutes,
+                                                                                 total_seconds)
+        self.afc_before_time.setText(update_time)
+
+    @QtCore.Slot(int,int)
+    def set_afc_after_time(self,cur_time,total_time):
+        cur_seconds = int(cur_time % 60)
+        cur_minutes = int((cur_time / 60) % 60)
+        cur_hours = int(cur_time / 3600)
+        total_seconds = int(total_time % 60)
+        total_minutes = int((total_time / 60) % 60)
+        total_hours = int(total_time / 3600)
+        update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
+                                                                                 total_hours,total_minutes,
+                                                                                 total_seconds)
+        self.afc_after_time.setText(update_time)
 
 
 if __name__ == "__main__":
