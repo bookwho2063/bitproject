@@ -258,7 +258,7 @@ class common(object):
         # imgData = QtGui.QPixmap(QtGui.QImage(qImage))\
         #     .scaled(width, height, QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
 
-        imgData = QtGui.QPixmap(fullPath).scaled(width, height)
+        imgData = QtGui.QPixmap(fullPath).scaled(QSize(width, height), QtCore.Qt.KeepAspectRatio)
         painter = QtGui.QPainter(target)
         if antialiasing:
             painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
@@ -272,9 +272,13 @@ class common(object):
 
         painter.setClipPath(path)
         painter.drawPixmap(0, 0, imgData)
+        painter.end()
         resultLabel.setPixmap(target)
 
-        return resultLabel
+        # return to pixmap
+        return target
+        # return to label in pixmap
+        #return resultLabel
 
     '''
     - 로컬 업로드 : local 경로에 있는 영상을 읽어온다.(opencv 등을 이용해 읽어옴)

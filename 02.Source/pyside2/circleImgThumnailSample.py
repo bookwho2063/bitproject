@@ -7,9 +7,9 @@ class Label(QLabel):
     def __init__(self, *args, antialiasing=True, **kwargs):
         super(Label, self).__init__(*args, **kwargs)
         self.Antialiasing = antialiasing
-        self.setMaximumSize(50, 50)
-        self.setMinimumSize(50, 50)
-        self.radius = 50
+        self.setMaximumSize(100, 100)
+        self.setMinimumSize(100, 100)
+        self.radius = 100
 
         self.target = QPixmap(self.size())
         self.target.fill(Qt.transparent)
@@ -17,7 +17,7 @@ class Label(QLabel):
         # p = QPixmap("D:/sampleImg/image2.jpg").scaled(
         #     50, 50, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
 
-        p = QPixmap("D:/sampleImg/image2.jpg").scaled(50, 50)
+        p = QPixmap("D:/sampleImg/image2.jpg").scaled(100, 100)
 
         painter = QPainter(self.target)
         if self.Antialiasing:
@@ -38,7 +38,7 @@ class Window(QWidget):
         super(Window, self).__init__(*args, **kwargs)
         layout = QHBoxLayout(self)
         layout.addWidget(Label(self))
-        layout.addWidget(Label(self, antialiasing=False))
+        # layout.addWidget(Label(self, antialiasing=False))
         self.setStyleSheet("background: blue;")
 
     def createThumnail(self, qImage, width, height, radius, antialiasing=True):

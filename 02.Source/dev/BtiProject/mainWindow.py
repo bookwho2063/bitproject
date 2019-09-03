@@ -15,6 +15,7 @@
 #   LASY MOD    : 19.08.27
 """
 
+from time import sleep
 from PySide2 import QtCore, QtGui, QtWidgets
 from common import common, cv_video_player
 from extract import Extract
@@ -1097,12 +1098,14 @@ class Ui_Form(QtCore.QObject):
 
         # 체크박스 컬럼 넓이 조정
         self.ext_tableView_extResultList.setColumnWidth(0, 20)
+        self.ext_tableView_extResultList.setColumnWidth(1, 50)
+        self.ext_tableView_extResultList.setColumnWidth(2, 100)
+        self.ext_tableView_extResultList.setColumnWidth(3, 150)
+        self.ext_tableView_extResultList.setColumnWidth(4, 100)
+        self.ext_tableView_extResultList.setColumnWidth(5, 200)
+
         # 테이블 row 단위 selection
         self.ext_tableView_extResultList.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        #self.ext_tableView_extResultList.setDragDropMode()
-
-
-
 
 
 
@@ -1153,8 +1156,13 @@ class Ui_Form(QtCore.QObject):
             self.cm.create_videoPlayer()
             self.cm.video_player.changeTime.connect(self.set_time)
             self.cm.video_player.openVideo(self.cm.uploadPath)
+            sleep(0.5)
+            self.click_ext_pushButton_play()
+
         else:
             self.cm.video_player.openVideo(self.cm.uploadPath)
+            sleep(0.5)
+            self.click_ext_pushButton_play()
 
     def click_ext_pushButton_mdDown(self):
         """
