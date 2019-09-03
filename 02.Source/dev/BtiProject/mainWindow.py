@@ -19,6 +19,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from common import common,cv_video_player
 from extract import Extract
 from option import Option
+from time import sleep
 
 class Ui_Form(QtCore.QObject):
     def setupUi(self, Form):
@@ -133,7 +134,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_splitter_Md.setChildrenCollapsible(False)
         self.ext_splitter_Md.setObjectName("ext_splitter_Md")
         self.ext_widget_video_Md = QtWidgets.QWidget(self.ext_splitter_Md)
-        self.ext_widget_video_Md.setStyleSheet("border: 1px solid gray;")
+        # self.ext_widget_video_Md.setStyleSheet("border: 1px solid gray;")
         self.ext_widget_video_Md.setObjectName("ext_widget_video_Md")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.ext_widget_video_Md)
         self.verticalLayout_7.setSpacing(0)
@@ -152,7 +153,7 @@ class Ui_Form(QtCore.QObject):
         font.setBold(True)
         self.ext_label_extMd.setFont(font)
         self.ext_label_extMd.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.ext_label_extMd.setStyleSheet("border: 1px solid gray;")
+        # self.ext_label_extMd.setStyleSheet("border: 1px solid gray;")
         self.ext_label_extMd.setAlignment(QtCore.Qt.AlignCenter)
         self.ext_label_extMd.setObjectName("ext_label_extMd")
         self.verticalLayout_7.addWidget(self.ext_label_extMd)
@@ -1021,10 +1022,21 @@ class Ui_Form(QtCore.QObject):
         # ※모델을 정의(setModel)한 뒤부터 컬럼에 대한 설정 가능(아래)
 
         # 체크박스 컬럼 넓이 조정
-        self.ext_tableView_extResultList.setColumnWidth(0,20)
+        self.ext_tableView_extResultList.setColumnWidth(0, 20)
+        self.ext_tableView_extResultList.setColumnWidth(1, 50)
+        self.ext_tableView_extResultList.setColumnWidth(2, 100)
+        self.ext_tableView_extResultList.setColumnWidth(3, 150)
+        self.ext_tableView_extResultList.setColumnWidth(4, 100)
+        self.ext_tableView_extResultList.setColumnWidth(5, 200)
+
         # 테이블 row 단위 selection
         self.ext_tableView_extResultList.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        # self.ext_tableView_extResultList.setDragDropMode()
+
+        # 헤더 사이즈 고정처리
+        self.ext_tableView_extResultList.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.ext_tableView_extResultList.verticalHeader().hide()
+        self.ext_tableView_extResultList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+
 
         ###########
         # 공통 클릭 이벤트
@@ -1076,6 +1088,10 @@ class Ui_Form(QtCore.QObject):
             self.cm.video_player.openVideo(self.cm.uploadPath)
         else:
             self.cm.video_player.openVideo(self.cm.uploadPath)
+
+        sleep(0.5)
+        self.click_ext_pushButton_play()
+
 
     def click_ext_pushButton_mdDown(self):
         """
@@ -1393,6 +1409,20 @@ class Ui_Form(QtCore.QObject):
 
 if __name__ == "__main__":
     import sys
+    from os import path
+
+    # 패키지 경로(절대/상대) Validation Proc
+    if __package__ is None:
+        print(path.dirname(path.dirname(path.abspath(__file__))))
+        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+        from extract import Extract
+        from option import Option
+        from autofocus import autofocus
+    else:
+        from .extract import Extract
+        from .option import Option
+        from .autofocus import autofocus
+
     app = QtWidgets.QApplication(sys.argv)
     Form = QtWidgets.QWidget()
     ui = Ui_Form()
