@@ -3,8 +3,8 @@
 # Form implementation generated from reading ui file 'C:/Users/bit/PycharmProjects/BtiProject/ui/mainWindow.ui',
 # licensing of 'C:/Users/bit/PycharmProjects/BtiProject/ui/mainWindow.ui' applies.
 #
-# Created: Wed Aug 28 17:00:17 2019
-#      by: pyside2-uic  running on PySide2 5.13.0
+# Created: Tue Sep  3 14:13:37 2019
+#      by: pyside2-uic  running on PySide2 5.9.0~a1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -15,9 +15,8 @@
 #   LASY MOD    : 19.08.27
 """
 
-from time import sleep
 from PySide2 import QtCore, QtGui, QtWidgets
-from common import common, cv_video_player
+from common import common,cv_video_player
 from extract import Extract
 from option import Option
 
@@ -83,6 +82,18 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_urlUpload.setFont(font)
         self.ext_pushButton_urlUpload.setObjectName("ext_pushButton_urlUpload")
         self.ext_horizontalLayout_top.addWidget(self.ext_pushButton_urlUpload)
+        self.ext_pushButton_startExt = QtWidgets.QPushButton(self.tab_ext)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.ext_pushButton_startExt.sizePolicy().hasHeightForWidth())
+        self.ext_pushButton_startExt.setSizePolicy(sizePolicy)
+        self.ext_pushButton_startExt.setMaximumSize(QtCore.QSize(16777215, 57))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.ext_pushButton_startExt.setFont(font)
+        self.ext_pushButton_startExt.setObjectName("ext_pushButton_startExt")
+        self.ext_horizontalLayout_top.addWidget(self.ext_pushButton_startExt)
         self.ext_pushButton_mdDown = QtWidgets.QPushButton(self.tab_ext)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -97,6 +108,17 @@ class Ui_Form(QtCore.QObject):
         self.ext_horizontalLayout_top.addWidget(self.ext_pushButton_mdDown)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.ext_horizontalLayout_top.addItem(spacerItem)
+        self.ext_tableWidget_classList = QtWidgets.QTableWidget(self.tab_ext)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.ext_tableWidget_classList.sizePolicy().hasHeightForWidth())
+        self.ext_tableWidget_classList.setSizePolicy(sizePolicy)
+        self.ext_tableWidget_classList.setMaximumSize(QtCore.QSize(16777215, 80))
+        self.ext_tableWidget_classList.setObjectName("ext_tableWidget_classList")
+        self.ext_tableWidget_classList.setColumnCount(0)
+        self.ext_tableWidget_classList.setRowCount(0)
+        self.ext_horizontalLayout_top.addWidget(self.ext_tableWidget_classList)
         self.ext_verticalLayout_top.addLayout(self.ext_horizontalLayout_top)
         self.verticalLayout_8.addLayout(self.ext_verticalLayout_top)
         self.ext_splitter_Md = QtWidgets.QSplitter(self.tab_ext)
@@ -107,10 +129,11 @@ class Ui_Form(QtCore.QObject):
         self.ext_splitter_Md.setSizePolicy(sizePolicy)
         self.ext_splitter_Md.setFrameShadow(QtWidgets.QFrame.Plain)
         self.ext_splitter_Md.setOrientation(QtCore.Qt.Horizontal)
+        self.ext_splitter_Md.setOpaqueResize(True)
         self.ext_splitter_Md.setChildrenCollapsible(False)
         self.ext_splitter_Md.setObjectName("ext_splitter_Md")
         self.ext_widget_video_Md = QtWidgets.QWidget(self.ext_splitter_Md)
-        # self.ext_widget_video_Md.setStyleSheet("border: 1px solid gray;")
+        self.ext_widget_video_Md.setStyleSheet("border: 1px solid gray;")
         self.ext_widget_video_Md.setObjectName("ext_widget_video_Md")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.ext_widget_video_Md)
         self.verticalLayout_7.setSpacing(0)
@@ -192,33 +215,14 @@ class Ui_Form(QtCore.QObject):
         self.ext_horizontalLayout_mid1.addWidget(self.ext_video_time)
         self.verticalLayout_7.addLayout(self.ext_horizontalLayout_mid1)
         self.ext_widget_result_Md = QtWidgets.QWidget(self.ext_splitter_Md)
-        # self.ext_widget_result_Md.setStyleSheet("border: 1px solid gray;")
+        self.ext_widget_result_Md.setStyleSheet("border: 1px solid gray;")
         self.ext_widget_result_Md.setObjectName("ext_widget_result_Md")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.ext_widget_result_Md)
+        self.verticalLayout_6.setSpacing(0)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_3.setSpacing(0)
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.ext_label_extResultList = QtWidgets.QLabel(self.ext_widget_result_Md)
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        font.setWeight(75)
-        font.setBold(True)
-        self.ext_label_extResultList.setFont(font)
-        self.ext_label_extResultList.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.ext_label_extResultList.setAlignment(QtCore.Qt.AlignCenter)
-        self.ext_label_extResultList.setMargin(3)
-        self.ext_label_extResultList.setObjectName("ext_label_extResultList")
-        self.horizontalLayout_3.addWidget(self.ext_label_extResultList)
-        spacerItem2 = QtWidgets.QSpacerItem(198, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem2)
-        self.verticalLayout_3.addLayout(self.horizontalLayout_3)
         self.ext_tableView_extResultList = QtWidgets.QTableView(self.ext_widget_result_Md)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.ext_tableView_extResultList.sizePolicy().hasHeightForWidth())
@@ -227,22 +231,22 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setObjectName("ext_tableView_extResultList")
         # 테이블 Row 데이터 색상
         self.ext_tableView_extResultList.setAlternatingRowColors(True)
-        
+
         # 추출결과테이블 헤더정보 설정
         self.ext_default_tHeader_setting()
-
-
 
         # 테이블 Row Grid show()
         self.ext_tableView_extResultList.setShowGrid(False)
 
-        self.verticalLayout_3.addWidget(self.ext_tableView_extResultList)
+        self.verticalLayout_6.addWidget(self.ext_tableView_extResultList)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem3)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 34, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
         self.ext_pushButton_allClear = QtWidgets.QPushButton(self.ext_widget_result_Md)
+        self.ext_pushButton_allClear.setMinimumSize(QtCore.QSize(0, 34))
+        self.ext_pushButton_allClear.setMaximumSize(QtCore.QSize(16777215, 57))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.ext_pushButton_allClear.setFont(font)
@@ -250,71 +254,28 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_allClear.setObjectName("ext_pushButton_allClear")
         self.horizontalLayout.addWidget(self.ext_pushButton_allClear)
         self.ext_pushButton_selectDelete = QtWidgets.QPushButton(self.ext_widget_result_Md)
+        self.ext_pushButton_selectDelete.setMaximumSize(QtCore.QSize(16777215, 57))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.ext_pushButton_selectDelete.setFont(font)
         self.ext_pushButton_selectDelete.setObjectName("ext_pushButton_selectDelete")
         self.horizontalLayout.addWidget(self.ext_pushButton_selectDelete)
         self.ext_pushButton_allSave = QtWidgets.QPushButton(self.ext_widget_result_Md)
+        self.ext_pushButton_allSave.setMaximumSize(QtCore.QSize(16777215, 57))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.ext_pushButton_allSave.setFont(font)
         self.ext_pushButton_allSave.setObjectName("ext_pushButton_allSave")
         self.horizontalLayout.addWidget(self.ext_pushButton_allSave)
         self.ext_pushButton_selectSave = QtWidgets.QPushButton(self.ext_widget_result_Md)
+        self.ext_pushButton_selectSave.setMaximumSize(QtCore.QSize(16777215, 57))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.ext_pushButton_selectSave.setFont(font)
         self.ext_pushButton_selectSave.setObjectName("ext_pushButton_selectSave")
         self.horizontalLayout.addWidget(self.ext_pushButton_selectSave)
-        self.verticalLayout_3.addLayout(self.horizontalLayout)
-        self.verticalLayout_6.addLayout(self.verticalLayout_3)
+        self.verticalLayout_6.addLayout(self.horizontalLayout)
         self.verticalLayout_8.addWidget(self.ext_splitter_Md)
-        self.ext_horizontalLayout_bot_main = QtWidgets.QHBoxLayout()
-        self.ext_horizontalLayout_bot_main.setObjectName("ext_horizontalLayout_bot_main")
-        self.ext_verticalLayout_bot_content = QtWidgets.QVBoxLayout()
-        self.ext_verticalLayout_bot_content.setObjectName("ext_verticalLayout_bot_content")
-        self.ext_horizontalLayout_bot_titleHeader = QtWidgets.QHBoxLayout()
-        self.ext_horizontalLayout_bot_titleHeader.setObjectName("ext_horizontalLayout_bot_titleHeader")
-        self.ext_label_classList = QtWidgets.QLabel(self.tab_ext)
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        font.setWeight(75)
-        font.setBold(True)
-        self.ext_label_classList.setFont(font)
-        self.ext_label_classList.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.ext_label_classList.setAlignment(QtCore.Qt.AlignCenter)
-        self.ext_label_classList.setObjectName("ext_label_classList")
-        self.ext_horizontalLayout_bot_titleHeader.addWidget(self.ext_label_classList)
-        spacerItem4 = QtWidgets.QSpacerItem(338, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.ext_horizontalLayout_bot_titleHeader.addItem(spacerItem4)
-        self.ext_verticalLayout_bot_content.addLayout(self.ext_horizontalLayout_bot_titleHeader)
-        self.ext_tableWidget_classList = QtWidgets.QTableWidget(self.tab_ext)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.ext_tableWidget_classList.sizePolicy().hasHeightForWidth())
-        self.ext_tableWidget_classList.setSizePolicy(sizePolicy)
-        self.ext_tableWidget_classList.setMaximumSize(QtCore.QSize(16777215, 160))
-        self.ext_tableWidget_classList.setObjectName("ext_tableWidget_classList")
-        self.ext_tableWidget_classList.setColumnCount(0)
-        self.ext_tableWidget_classList.setRowCount(0)
-        self.ext_verticalLayout_bot_content.addWidget(self.ext_tableWidget_classList)
-        self.ext_horizontalLayout_bot_main.addLayout(self.ext_verticalLayout_bot_content)
-        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.ext_horizontalLayout_bot_main.addItem(spacerItem5)
-        self.ext_pushButton_startExt = QtWidgets.QPushButton(self.tab_ext)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.ext_pushButton_startExt.sizePolicy().hasHeightForWidth())
-        self.ext_pushButton_startExt.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        self.ext_pushButton_startExt.setFont(font)
-        self.ext_pushButton_startExt.setObjectName("ext_pushButton_startExt")
-        self.ext_horizontalLayout_bot_main.addWidget(self.ext_pushButton_startExt)
-        self.verticalLayout_8.addLayout(self.ext_horizontalLayout_bot_main)
         self.mainTabWidget.addTab(self.tab_ext, "영상검출")
 
         ########
@@ -335,8 +296,8 @@ class Ui_Form(QtCore.QObject):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.afc_pushButton_localUpload.sizePolicy().hasHeightForWidth())
         self.afc_pushButton_localUpload.setSizePolicy(sizePolicy)
-        self.afc_pushButton_localUpload.setMinimumSize(QtCore.QSize(0, 57))
-        self.afc_pushButton_localUpload.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.afc_pushButton_localUpload.setMinimumSize(QtCore.QSize(0, 0))
+        self.afc_pushButton_localUpload.setMaximumSize(QtCore.QSize(16777215, 57))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.afc_pushButton_localUpload.setFont(font)
@@ -348,28 +309,53 @@ class Ui_Form(QtCore.QObject):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.afc_pushButton_urlUpload.sizePolicy().hasHeightForWidth())
         self.afc_pushButton_urlUpload.setSizePolicy(sizePolicy)
-        self.afc_pushButton_urlUpload.setMinimumSize(QtCore.QSize(0, 57))
-        self.afc_pushButton_urlUpload.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.afc_pushButton_urlUpload.setMinimumSize(QtCore.QSize(0, 0))
+        self.afc_pushButton_urlUpload.setMaximumSize(QtCore.QSize(16777215, 57))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.afc_pushButton_urlUpload.setFont(font)
         self.afc_pushButton_urlUpload.setObjectName("afc_pushButton_urlUpload")
         self.afc_horizontalLayout_top.addWidget(self.afc_pushButton_urlUpload)
+        self.afc_pushButton_startExt = QtWidgets.QPushButton(self.tab_afc)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.afc_pushButton_startExt.sizePolicy().hasHeightForWidth())
+        self.afc_pushButton_startExt.setSizePolicy(sizePolicy)
+        self.afc_pushButton_startExt.setMinimumSize(QtCore.QSize(0, 0))
+        self.afc_pushButton_startExt.setMaximumSize(QtCore.QSize(16777215, 57))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.afc_pushButton_startExt.setFont(font)
+        self.afc_pushButton_startExt.setObjectName("afc_pushButton_startExt")
+        self.afc_horizontalLayout_top.addWidget(self.afc_pushButton_startExt)
         self.afc_pushButton_mdDown = QtWidgets.QPushButton(self.tab_afc)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.afc_pushButton_mdDown.sizePolicy().hasHeightForWidth())
         self.afc_pushButton_mdDown.setSizePolicy(sizePolicy)
-        self.afc_pushButton_mdDown.setMinimumSize(QtCore.QSize(0, 57))
-        self.afc_pushButton_mdDown.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.afc_pushButton_mdDown.setMinimumSize(QtCore.QSize(0, 0))
+        self.afc_pushButton_mdDown.setMaximumSize(QtCore.QSize(16777215, 57))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.afc_pushButton_mdDown.setFont(font)
         self.afc_pushButton_mdDown.setObjectName("afc_pushButton_mdDown")
         self.afc_horizontalLayout_top.addWidget(self.afc_pushButton_mdDown)
-        spacerItem6 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.afc_horizontalLayout_top.addItem(spacerItem6)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.afc_horizontalLayout_top.addItem(spacerItem3)
+        self.afc_tableWidget_classList = QtWidgets.QTableWidget(self.tab_afc)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.afc_tableWidget_classList.sizePolicy().hasHeightForWidth())
+        self.afc_tableWidget_classList.setSizePolicy(sizePolicy)
+        self.afc_tableWidget_classList.setMaximumSize(QtCore.QSize(16777215, 80))
+        self.afc_tableWidget_classList.setSizeIncrement(QtCore.QSize(0, 80))
+        self.afc_tableWidget_classList.setObjectName("afc_tableWidget_classList")
+        self.afc_tableWidget_classList.setColumnCount(0)
+        self.afc_tableWidget_classList.setRowCount(0)
+        self.afc_horizontalLayout_top.addWidget(self.afc_tableWidget_classList)
         self.afc_verticalLayout_top.addLayout(self.afc_horizontalLayout_top)
         self.verticalLayout_5.addLayout(self.afc_verticalLayout_top)
         self.afc_splitter_Md = QtWidgets.QSplitter(self.tab_afc)
@@ -448,8 +434,8 @@ class Ui_Form(QtCore.QObject):
         self.afc_pushButton_stop.setObjectName("afc_pushButton_stop")
         self.afc_horizontalLayout_mid2.addWidget(self.afc_pushButton_stop)
         self.afc_horizontalLayout_mid1.addLayout(self.afc_horizontalLayout_mid2)
-        spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.afc_horizontalLayout_mid1.addItem(spacerItem7)
+        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.afc_horizontalLayout_mid1.addItem(spacerItem4)
         self.afc_before_time = QtWidgets.QLabel(self.afc_widget_before_Md)
         self.afc_before_time.setObjectName("afc_before_time")
         self.afc_horizontalLayout_mid1.addWidget(self.afc_before_time)
@@ -484,6 +470,7 @@ class Ui_Form(QtCore.QObject):
         self.afc_label_after_Md.setObjectName("afc_label_after_Md")
         self.verticalLayout_2.addWidget(self.afc_label_after_Md)
         self.afc_horizontalLayout_mid1_2 = QtWidgets.QHBoxLayout()
+        self.afc_horizontalLayout_mid1_2.setSpacing(0)
         self.afc_horizontalLayout_mid1_2.setObjectName("afc_horizontalLayout_mid1_2")
         self.afc_horizontalLayout_mid2_2 = QtWidgets.QHBoxLayout()
         self.afc_horizontalLayout_mid2_2.setObjectName("afc_horizontalLayout_mid2_2")
@@ -521,66 +508,14 @@ class Ui_Form(QtCore.QObject):
         self.afc_pushButton_stop_2.setObjectName("afc_pushButton_stop_2")
         self.afc_horizontalLayout_mid2_2.addWidget(self.afc_pushButton_stop_2)
         self.afc_horizontalLayout_mid1_2.addLayout(self.afc_horizontalLayout_mid2_2)
-        spacerItem8 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.afc_horizontalLayout_mid1_2.addItem(spacerItem8)
+        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.afc_horizontalLayout_mid1_2.addItem(spacerItem5)
         self.afc_after_time = QtWidgets.QLabel(self.afc_widget_after_Md)
         self.afc_after_time.setObjectName("afc_after_time")
         self.afc_horizontalLayout_mid1_2.addWidget(self.afc_after_time)
         self.verticalLayout_2.addLayout(self.afc_horizontalLayout_mid1_2)
         self.verticalLayout_5.addWidget(self.afc_splitter_Md)
-        self.afc_horizontalLayout_bot_main = QtWidgets.QHBoxLayout()
-        self.afc_horizontalLayout_bot_main.setObjectName("afc_horizontalLayout_bot_main")
-        self.afc_verticalLayout_bot_content = QtWidgets.QVBoxLayout()
-        self.afc_verticalLayout_bot_content.setObjectName("afc_verticalLayout_bot_content")
-        self.afc_horizontalLayout_bot_titleHeader = QtWidgets.QHBoxLayout()
-        self.afc_horizontalLayout_bot_titleHeader.setObjectName("afc_horizontalLayout_bot_titleHeader")
-        self.afc_label_classList = QtWidgets.QLabel(self.tab_afc)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.afc_label_classList.sizePolicy().hasHeightForWidth())
-        self.afc_label_classList.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        font.setWeight(75)
-        font.setBold(True)
-        self.afc_label_classList.setFont(font)
-        self.afc_label_classList.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.afc_label_classList.setAlignment(QtCore.Qt.AlignCenter)
-        self.afc_label_classList.setObjectName("afc_label_classList")
-        self.afc_horizontalLayout_bot_titleHeader.addWidget(self.afc_label_classList)
-        spacerItem9 = QtWidgets.QSpacerItem(338, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.afc_horizontalLayout_bot_titleHeader.addItem(spacerItem9)
-        self.afc_verticalLayout_bot_content.addLayout(self.afc_horizontalLayout_bot_titleHeader)
-        self.afc_tableWidget_classList = QtWidgets.QTableWidget(self.tab_afc)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.afc_tableWidget_classList.sizePolicy().hasHeightForWidth())
-        self.afc_tableWidget_classList.setSizePolicy(sizePolicy)
-        self.afc_tableWidget_classList.setMaximumSize(QtCore.QSize(16777215, 160))
-        self.afc_tableWidget_classList.setObjectName("afc_tableWidget_classList")
-        self.afc_tableWidget_classList.setColumnCount(0)
-        self.afc_tableWidget_classList.setRowCount(0)
-        self.afc_verticalLayout_bot_content.addWidget(self.afc_tableWidget_classList)
-        self.afc_horizontalLayout_bot_main.addLayout(self.afc_verticalLayout_bot_content)
-        spacerItem10 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.afc_horizontalLayout_bot_main.addItem(spacerItem10)
-        self.afc_pushButton_startExt = QtWidgets.QPushButton(self.tab_afc)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.afc_pushButton_startExt.sizePolicy().hasHeightForWidth())
-        self.afc_pushButton_startExt.setSizePolicy(sizePolicy)
-        self.afc_pushButton_startExt.setMaximumSize(QtCore.QSize(16777215, 160))
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        self.afc_pushButton_startExt.setFont(font)
-        self.afc_pushButton_startExt.setObjectName("afc_pushButton_startExt")
-        self.afc_horizontalLayout_bot_main.addWidget(self.afc_pushButton_startExt)
-        self.verticalLayout_5.addLayout(self.afc_horizontalLayout_bot_main)
         self.mainTabWidget.addTab(self.tab_afc, "오토포커싱")
-
 
         ########
         #	optTab Default
@@ -683,9 +618,6 @@ class Ui_Form(QtCore.QObject):
         self.opt_lineEdit_urlSaveDir = QtWidgets.QLineEdit(self.layoutWidget3)
         self.opt_lineEdit_urlSaveDir.setEnabled(True)
         self.opt_lineEdit_urlSaveDir.setObjectName("opt_lineEdit_urlSaveDir")
-
-
-
         self.opt_horizontalLayout_1.addWidget(self.opt_lineEdit_urlSaveDir)
         self.opt_pushButton_urlDownDir = QtWidgets.QPushButton(self.layoutWidget3)
         font = QtGui.QFont()
@@ -727,7 +659,7 @@ class Ui_Form(QtCore.QObject):
         self.opt_groupBox_4.setGeometry(QtCore.QRect(250, 170, 1161, 171))
         self.opt_groupBox_4.setObjectName("opt_groupBox_4")
         self.opt_label_cn1 = QtWidgets.QLabel(self.opt_groupBox_mid)
-        self.opt_label_cn1.setGeometry(QtCore.QRect(340, 54, 701, 75))
+        self.opt_label_cn1.setGeometry(QtCore.QRect(340, 54, 731, 75))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setWeight(75)
@@ -828,6 +760,7 @@ class Ui_Form(QtCore.QObject):
         self.opt_spinBox_widthValue.setProperty("value", 300)
         self.opt_spinBox_widthValue.setObjectName("opt_spinBox_widthValue")
         self.opt_horizontalLayout_8.addWidget(self.opt_spinBox_widthValue)
+
         ######## 설정.오토 포커싱 옵션 설정 end
 
         ######## 탭 정보 생성 처리
@@ -844,14 +777,11 @@ class Ui_Form(QtCore.QObject):
 
         ######## tab key로 인한 이동 순서 설정 start / Form.setTabOrder(A, B) -> Form.setTabOrder(B, C)
         Form.setTabOrder(self.ext_pushButton_localUpload, self.ext_pushButton_mdDown)
-        Form.setTabOrder(self.ext_pushButton_mdDown, self.ext_pushButton_startExt)
-        Form.setTabOrder(self.ext_pushButton_startExt, self.ext_tableView_extResultList)
-        Form.setTabOrder(self.ext_tableView_extResultList, self.ext_pushButton_allClear)
+        Form.setTabOrder(self.ext_pushButton_mdDown, self.ext_pushButton_allClear)
         Form.setTabOrder(self.ext_pushButton_allClear, self.ext_pushButton_selectDelete)
         Form.setTabOrder(self.ext_pushButton_selectDelete, self.ext_pushButton_allSave)
         Form.setTabOrder(self.ext_pushButton_allSave, self.ext_pushButton_selectSave)
-        Form.setTabOrder(self.ext_pushButton_selectSave, self.ext_tableWidget_classList)
-        Form.setTabOrder(self.ext_tableWidget_classList, self.opt_lineEdit_urlSaveDir)
+        Form.setTabOrder(self.ext_pushButton_selectSave, self.opt_lineEdit_urlSaveDir)
         Form.setTabOrder(self.opt_lineEdit_urlSaveDir, self.opt_pushButton_urlDownDir)
         Form.setTabOrder(self.opt_pushButton_urlDownDir, self.opt_lineEdit_saveDir)
         Form.setTabOrder(self.opt_lineEdit_saveDir, self.opt_pushButton_saveDir)
@@ -863,38 +793,36 @@ class Ui_Form(QtCore.QObject):
         Form.setTabOrder(self.opt_spinBox_heightValue, self.opt_spinBox_widthValue)
         ######## tab key로 인한 이동 순서 설정 end
 
+
     def retranslateUi(self, Form):
         """
             # 테이블 데이터 / 버튼명 데이터  label text 데이터 입력 처리부
             # 확인 후 해당 형태로 데이터 입력
-        """
+         """
         # 어플리케이션 네임
-        Form.setWindowTitle(QtWidgets.QApplication.translate("Form","Human?",None,-1))
+        Form.setWindowTitle(QtWidgets.QApplication.translate("Form", "Human?", None, -1))
 
         # 영상검출 버튼 및  비디오 제어 라벨 설정
         self.ext_pushButton_localUpload.setText(QtWidgets.QApplication.translate("Form", "로컬 업로드", None, -1))
         self.ext_pushButton_urlUpload.setText(QtWidgets.QApplication.translate("Form", "URL 업로드", None, -1))
+        self.ext_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
         self.ext_pushButton_mdDown.setText(QtWidgets.QApplication.translate("Form", "영상 내려받기", None, -1))
         self.ext_label_extMd.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.ext_video_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
-        self.ext_label_extResultList.setText(QtWidgets.QApplication.translate("Form", "검출 내역", None, -1))
         self.ext_pushButton_allClear.setText(QtWidgets.QApplication.translate("Form", "초기화", None, -1))
         self.ext_pushButton_selectDelete.setText(QtWidgets.QApplication.translate("Form", "선택 삭제", None, -1))
         self.ext_pushButton_allSave.setText(QtWidgets.QApplication.translate("Form", "전체 내려받기", None, -1))
         self.ext_pushButton_selectSave.setText(QtWidgets.QApplication.translate("Form", "선택 내려받기", None, -1))
-        self.ext_label_classList.setText(QtWidgets.QApplication.translate("Form", "검출 대상 리스트", None, -1))
-        self.ext_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
 
         # 오토 포커싱탭 버튼 및 라벨 설정
         self.afc_pushButton_localUpload.setText(QtWidgets.QApplication.translate("Form", "로컬 업로드", None, -1))
         self.afc_pushButton_urlUpload.setText(QtWidgets.QApplication.translate("Form", "URL 업로드", None, -1))
+        self.afc_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
         self.afc_pushButton_mdDown.setText(QtWidgets.QApplication.translate("Form", "영상 내려받기", None, -1))
         self.afc_label_before_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.afc_before_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
         self.afc_label_after_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.afc_after_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
-        self.afc_label_classList.setText(QtWidgets.QApplication.translate("Form", "검출 대상 리스트", None, -1))
-        self.afc_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
 
         # 설정탭 버튼 및 라벨
         self.opt_groupBox_top.setTitle(QtWidgets.QApplication.translate("Form", "공통 옵션 설정", None, -1))
@@ -902,9 +830,9 @@ class Ui_Form(QtCore.QObject):
         self.opt_comboBox_downFileFmt.setItemText(0, QtWidgets.QApplication.translate("Form", "확장자 선택", None, -1))
         self.opt_comboBox_downFileFmt.setItemText(1, QtWidgets.QApplication.translate("Form", "mp4", None, -1))
         self.opt_label_coordFmt.setText(QtWidgets.QApplication.translate("Form", "좌표파일 확장자 선택", None, -1))
-        self.opt_comboBox_coordFmt.setItemText(2, QtWidgets.QApplication.translate("Form", "확장자 선택", None, -1))
+        self.opt_comboBox_coordFmt.setItemText(0, QtWidgets.QApplication.translate("Form", "확장자 선택", None, -1))
         self.opt_label_saveMdQual.setText(QtWidgets.QApplication.translate("Form", "내려받기 화질 선택", None, -1))
-        self.opt_comboBox_downFileDef.setItemText(3, QtWidgets.QApplication.translate("Form", "화질 선택", None, -1))
+        self.opt_comboBox_downFileDef.setItemText(0, QtWidgets.QApplication.translate("Form", "화질 선택", None, -1))
         self.opt_label_urlSaveDir.setText(QtWidgets.QApplication.translate("Form", "URL 저장 파일 경로", None, -1))
         self.opt_pushButton_urlDownDir.setText(QtWidgets.QApplication.translate("Form", "폴더찾기", None, -1))
         self.opt_label_localSaveDir.setText(QtWidgets.QApplication.translate("Form", "내려받기 저장 경로", None, -1))
@@ -913,17 +841,16 @@ class Ui_Form(QtCore.QObject):
         self.opt_groupBox_4.setTitle(QtWidgets.QApplication.translate("Form", "GroupBox", None, -1))
         self.opt_label_cn1.setText(QtWidgets.QApplication.translate("Form", "<html><head/><body><p><span style=\" color:#ff0000;\">※ 검출 내역 한 건당 설정 할 수 있는 버퍼의 범위는 00:01 ~ 00:05 초 사이로 설정 할 수 있습니다.</span></p></body></html>", None, -1))
         self.opt_label_extButTm.setText(QtWidgets.QApplication.translate("Form", "추출 영상 버퍼 시간", None, -1))
-        self.opt_comboBox_bufTime.setItemText(4, QtWidgets.QApplication.translate("Form", "버퍼(초)선택", None, -1))
-        self.opt_comboBox_bufTime.setItemText(5, QtWidgets.QApplication.translate("Form", "1초", None, -1))
-        self.opt_comboBox_bufTime.setItemText(6, QtWidgets.QApplication.translate("Form", "3초", None, -1))
-        self.opt_comboBox_bufTime.setItemText(7, QtWidgets.QApplication.translate("Form", "5초", None, -1))
+        self.opt_comboBox_bufTime.setItemText(0, QtWidgets.QApplication.translate("Form", "버퍼(초)선택", None, -1))
+        self.opt_comboBox_bufTime.setItemText(1, QtWidgets.QApplication.translate("Form", "1초", None, -1))
+        self.opt_comboBox_bufTime.setItemText(2, QtWidgets.QApplication.translate("Form", "3초", None, -1))
+        self.opt_comboBox_bufTime.setItemText(3, QtWidgets.QApplication.translate("Form", "5초", None, -1))
         self.opt_groupBox_bot.setTitle(QtWidgets.QApplication.translate("Form", "오토 포커싱 옵션 설정", None, -1))
         self.opt_label_cn2.setText(QtWidgets.QApplication.translate("Form", "<html><head/><body><p><span style=\" color:#ff0000;\">※ 포커싱 박스의 넓이 및 높이는 포커싱 영상의 해상도 보다 클 수 없습니다.</span></p></body></html>", None, -1))
         self.opt_label_afcBoxHei.setText(QtWidgets.QApplication.translate("Form", "포커싱 박스 높이", None, -1))
         self.opt_label_afcBoxWid.setText(QtWidgets.QApplication.translate("Form", "포커싱 박스 넓이", None, -1))
         self.action.setText(QtWidgets.QApplication.translate("Form", "테스트", None, -1))
         self.action.setToolTip(QtWidgets.QApplication.translate("Form", "<html><head/><body><p>툴팁화면</p></body></html>", None, -1))
-
 
         self.opt_lineEdit_urlSaveDir.setEnabled(False)
         self.opt_lineEdit_saveDir.setEnabled(False)
@@ -988,7 +915,7 @@ class Ui_Form(QtCore.QObject):
         ###########
         # 영상검출탭 클릭이벤트 핸들러 설정
         ###########
-        QtCore.QObject.connect(self.tab_ext, QtCore.SIGNAL('clicked()'), self.click_tab_ext)
+        QtCore.QObject.connect(self.tab_ext,QtCore.SIGNAL('clicked()'),self.click_tab_ext)
         self.ext_pushButton_localUpload.clicked.connect(self.click_ext_pushButton_localUpload)
         self.ext_pushButton_urlUpload.clicked.connect(self.click_ext_pushButton_urlUpload)
         self.ext_pushButton_play.clicked.connect(self.click_ext_pushButton_play)
@@ -1003,7 +930,7 @@ class Ui_Form(QtCore.QObject):
         ###########
         # 오토포커싱탭 클릭이벤트 핸들러 설정
         ###########
-        QtCore.QObject.connect(self.tab_afc, QtCore.SIGNAL('clicked()'), self.click_tab_afc)
+        QtCore.QObject.connect(self.tab_afc,QtCore.SIGNAL('clicked()'),self.click_tab_afc)
         self.afc_pushButton_localUpload.clicked.connect(self.click_afc_pushButton_localUpload)
         self.afc_pushButton_mdDown.clicked.connect(self.click_afc_pushButton_mdDown)
         self.afc_pushButton_urlUpload.clicked.connect(self.click_afc_pushButton_urlUpload)
@@ -1015,14 +942,12 @@ class Ui_Form(QtCore.QObject):
         self.afc_pushButton_stop_2.clicked.connect(self.click_afc_pushButton_stop_2)
         self.afc_pushButton_startExt.clicked.connect(self.click_afc_pushButton_startExt)
 
-
         ###########
         # 설정탭 클릭이벤트 핸들러 설정
         ###########
-        #QtCore.QObject.connect(self.tab_opt, QtCore.SIGNAL('clicked()'), self.click_tab_opt)
-        #self.tab_opt.connect(self.tab_opt, QtCore.SIGNAL("currentChanged(int)"), self, QtCore.SLOT("self.click_tab_opt()"))
+        # QtCore.QObject.connect(self.tab_opt, QtCore.SIGNAL('clicked()'), self.click_tab_opt)
+        # self.tab_opt.connect(self.tab_opt, QtCore.SIGNAL("currentChanged(int)"), self, QtCore.SLOT("self.click_tab_opt()"))
         self.mainTabWidget.currentChanged.connect(self.click_tab)
-
 
         self.opt_pushButton_urlDownDir.clicked.connect(self.click_opt_pushButton_urlDownDir)
         self.opt_pushButton_saveDir.clicked.connect(self.click_opt_pushButton_saveDir)
@@ -1036,47 +961,46 @@ class Ui_Form(QtCore.QObject):
         self.extClass = Extract(self)
         self.opt = Option(self)
 
-    #   이미지 리사이즈 기능은 수행되지만 원본 이미지가 손상된다.
-    #     self.ext_label_extMd.installEventFilter(self)
-    #     self.afc_label_before_Md.installEventFilter(self)
-    #
-    # def eventFilter(self, widget,event):
-    #     if event.type() == QtCore.QEvent.Resize and widget is self.ext_label_extMd:
-    #         print("ext resize")
-    #         widget.setPixmap(widget.pixmap().scaled(widget.size(), QtCore.Qt.KeepAspectRatio))
-    #     elif widget is self.afc_label_before_Md:
-    #         print("afc resize")
-    #
-    #     return QtCore.QObject.eventFilter(self,widget,event)
-
+        #   이미지 리사이즈 기능은 수행되지만 원본 이미지가 손상된다.
+        #     self.ext_label_extMd.installEventFilter(self)
+        #     self.afc_label_before_Md.installEventFilter(self)
+        #
+        # def eventFilter(self, widget,event):
+        #     if event.type() == QtCore.QEvent.Resize and widget is self.ext_label_extMd:
+        #         print("ext resize")
+        #         widget.setPixmap(widget.pixmap().scaled(widget.size(), QtCore.Qt.KeepAspectRatio))
+        #     elif widget is self.afc_label_before_Md:
+        #         print("afc resize")
+        #
+        #     return QtCore.QObject.eventFilter(self,widget,event)
 
     def change_opt_comboBox_downFileFmt(self):
         """
         MEMO : 내려받기 확장자 변경 이벤트
         :return:
         """
-        print("opt_comboBox_bufTime_Change 변경 값 ::", self.opt_comboBox_bufTime.currentText())
+        print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
     def change_opt_comboBox_downFileDef(self):
         """
         MEMO : 내려받기 화질 선택 변경 이벤트
         :return:
         """
-        print("opt_comboBox_bufTime_Change 변경 값 ::", self.opt_comboBox_bufTime.currentText())
+        print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
     def change_opt_comboBox_coordFmt(self):
         """
         MEMO : 좌표파일 확장자 선택 변경 이벤트
         :return:
         """
-        print("opt_comboBox_bufTime_Change 변경 값 ::", self.opt_comboBox_bufTime.currentText())
+        print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
     def change_opt_comboBox_bufTime(self):
         """
         MEMO : 추출 영상 버퍼시간 변경 이벤트
         :return:
         """
-        print("opt_comboBox_bufTime_Change 변경 값 ::", self.opt_comboBox_bufTime.currentText())
+        print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
     def ext_default_tHeader_setting(self):
         """
@@ -1085,33 +1009,27 @@ class Ui_Form(QtCore.QObject):
         """
         self.modelAttr = QtGui.QStandardItemModel()
         self.modelAttr.setColumnCount(6)
-        self.modelAttr.setHeaderData(0, QtCore.Qt.Horizontal, "선택")
-        self.modelAttr.setHeaderData(1, QtCore.Qt.Horizontal, "썸네일")
-        self.modelAttr.setHeaderData(2, QtCore.Qt.Horizontal, "대상명")
-        self.modelAttr.setHeaderData(3, QtCore.Qt.Horizontal, "검출위치")
-        self.modelAttr.setHeaderData(4, QtCore.Qt.Horizontal, "검출길이")
-        self.modelAttr.setHeaderData(5, QtCore.Qt.Horizontal, "검출중심점")
+        self.modelAttr.setHeaderData(0,QtCore.Qt.Horizontal,"선택")
+        self.modelAttr.setHeaderData(1,QtCore.Qt.Horizontal,"썸네일")
+        self.modelAttr.setHeaderData(2,QtCore.Qt.Horizontal,"대상명")
+        self.modelAttr.setHeaderData(3,QtCore.Qt.Horizontal,"검출위치")
+        self.modelAttr.setHeaderData(4,QtCore.Qt.Horizontal,"검출길이")
+        self.modelAttr.setHeaderData(5,QtCore.Qt.Horizontal,"검출중심점")
 
         self.ext_tableView_extResultList.setModel(self.modelAttr)
 
         # ※모델을 정의(setModel)한 뒤부터 컬럼에 대한 설정 가능(아래)
 
         # 체크박스 컬럼 넓이 조정
-        self.ext_tableView_extResultList.setColumnWidth(0, 20)
-        self.ext_tableView_extResultList.setColumnWidth(1, 50)
-        self.ext_tableView_extResultList.setColumnWidth(2, 100)
-        self.ext_tableView_extResultList.setColumnWidth(3, 150)
-        self.ext_tableView_extResultList.setColumnWidth(4, 100)
-        self.ext_tableView_extResultList.setColumnWidth(5, 200)
-
+        self.ext_tableView_extResultList.setColumnWidth(0,20)
         # 테이블 row 단위 selection
         self.ext_tableView_extResultList.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        # self.ext_tableView_extResultList.setDragDropMode()
 
+        ###########
+        # 공통 클릭 이벤트
+        ###########
 
-
-    ###########
-    # 공통 클릭 이벤트
-    ###########
     def click_tab(self):
         """
         MEMO : 탭 클릭 시 클릭 이벤트
@@ -1126,14 +1044,14 @@ class Ui_Form(QtCore.QObject):
         else:
             self.click_tab_opt()
 
-    ###########
-    # 공통 설정 경로 LineEdit 클릭 이벤트
-    ###########
+        ###########
+        # 공통 설정 경로 LineEdit 클릭 이벤트
+        ###########
 
+        ###########
+        # 클릭 이벤트 영상검출 탭 start
+        ###########
 
-    ###########
-    # 클릭 이벤트 영상검출 탭 start
-    ###########
     def click_tab_ext(self):
         """
         MEMO : 영상검출 탭 클릭
@@ -1156,13 +1074,8 @@ class Ui_Form(QtCore.QObject):
             self.cm.create_videoPlayer()
             self.cm.video_player.changeTime.connect(self.set_time)
             self.cm.video_player.openVideo(self.cm.uploadPath)
-            sleep(0.5)
-            self.click_ext_pushButton_play()
-
         else:
             self.cm.video_player.openVideo(self.cm.uploadPath)
-            sleep(0.5)
-            self.click_ext_pushButton_play()
 
     def click_ext_pushButton_mdDown(self):
         """
@@ -1228,9 +1141,8 @@ class Ui_Form(QtCore.QObject):
         print("click_ext_pushButton_allSave")
         # self.extClass.add_tHeader(self.ext_tableView_extResultList)
         print("click_ext_pushButton_allSave2")
-        print("cntcnt :: ", self.ext_tableView_extResultList.model().rowCount())
+        print("cntcnt :: ",self.ext_tableView_extResultList.model().rowCount())
         self.extClass.add_tRowData()
-
 
     def click_ext_pushButton_selectSave(self):
         """
@@ -1246,13 +1158,14 @@ class Ui_Form(QtCore.QObject):
         """
         print("click_ext_pushButton_startExt")
 
-    ###########
-    # 클릭 이벤트 영상검출 탭 end
-    ###########
+        ###########
+        # 클릭 이벤트 영상검출 탭 end
+        ###########
 
-    ###########
-    # 클릭 이벤트 오토포커싱 탭 start
-    ###########
+        ###########
+        # 클릭 이벤트 오토포커싱 탭 start
+        ###########
+
     def click_tab_afc(self):
         """
         MEMO : 오토포커싱 탭 클릭
@@ -1359,6 +1272,7 @@ class Ui_Form(QtCore.QObject):
         """
         print("afc_pushButton_startExt")
 
+
     def click_afc_label_before_Md(self):
         """
         MEMO : 오토포커싱. 원본 영상 화면라벨영역 클릭
@@ -1373,13 +1287,14 @@ class Ui_Form(QtCore.QObject):
         """
         print("afc_label_after_Md")
 
-    ###########
-    # 클릭 이벤트 오토포커싱 탭 end
-    ###########
+        ###########
+        # 클릭 이벤트 오토포커싱 탭 end
+        ###########
 
-    ###########
-    # 클릭 이벤트 설정 탭 start
-    ###########
+        ###########
+        # 클릭 이벤트 설정 탭 start
+        ###########
+
     def click_tab_opt(self):
         """
         MEMO : 설정탭 클릭
@@ -1407,14 +1322,14 @@ class Ui_Form(QtCore.QObject):
         button = self.sender()
         self.opt.set_directory(button)
 
+        ###########
+        # 클릭 이벤트 설정 탭 end
+        ###########
 
-    ###########
-    # 클릭 이벤트 설정 탭 end
-    ###########
+        ##########
+        # img label update
+        ##########
 
-    ##########
-    # img label update
-    ##########
     @QtCore.Slot(QtGui.QImage)
     def setPixMap(self,image):
         image = QtGui.QPixmap.fromImage(image)
@@ -1430,13 +1345,14 @@ class Ui_Form(QtCore.QObject):
     @QtCore.Slot(QtGui.QImage)
     def set_after_PixMap(self,image):
         image = QtGui.QPixmap.fromImage(image)
+        # 좌표 처리
         afc_image = image.copy(QtCore.QRect(500,0,450,700))
         afc_image = afc_image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
         # self.afc_label_before_Md.setPixmap(image)
         self.afc_label_after_Md.setPixmap(afc_image)
 
-    @QtCore.Slot(int, int)
-    def set_time(self, cur_time, total_time):
+    @QtCore.Slot(int,int)
+    def set_time(self,cur_time,total_time):
         cur_seconds = int(cur_time % 60)
         cur_minutes = int((cur_time / 60) % 60)
         cur_hours = int(cur_time / 3600)
@@ -1477,15 +1393,6 @@ class Ui_Form(QtCore.QObject):
 
 if __name__ == "__main__":
     import sys
-    from os import path
-
-    if __package__ is None:
-        print(path.dirname(path.dirname(path.abspath(__file__))))
-        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-        from extract import Extract
-    else:
-        from .extract import Extract
-
     app = QtWidgets.QApplication(sys.argv)
     Form = QtWidgets.QWidget()
     ui = Ui_Form()
