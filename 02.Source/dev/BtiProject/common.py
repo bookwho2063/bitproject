@@ -5,8 +5,6 @@ from PySide2.QtCore import *
 import cv2,time
 import os
 
-
-
 """
 # Default Flow Task 
 # 1. 로컬업로드 선택 -> 파일업로드 다이얼로그(영상 확장자 선택) -> 해당 업로드 탭 영상 실행(영상 핸들링) ->
@@ -32,12 +30,13 @@ import os
 class cv_video_player(QThread):
     changePixmap = Signal(QImage)
     changeTime = Signal(int,int)
-    changeExtFrame = Signal(QImage, list)
+    changeExtFrame = Signal(QImage,list)
 
     def __init__(self,parent=None):
         QThread.__init__(self)
         # self.openVideo()
         self.play = True
+        self.cap = None
 
     def run(self):
         while True:
@@ -56,17 +55,16 @@ class cv_video_player(QThread):
                     self.play = False
 
             if not self.cur_frame % round(self.fps):
-                print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
-                print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
+                print("cur frame : {} total frame : {} ".format(self.cur_frame,self.total_frame))
+                print("fps : {} {}".format(round(self.fps),self.cur_frame / round(self.fps)))
                 self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
 
                 # 3초에 한번씩 프레임데이터를 검출결과테이블로 전달(데모를 위함)
                 if int(self.cur_frame / round(self.fps)) % 3 == 0:
                     print("프레임 emit 실행")
                     # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
-                    resultData = ["1", "2", "3", "4"]
-                    self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
-
+                    resultData = ["1","2","3","4"]
+                    self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
 
             time.sleep(0.025)
 
@@ -74,15 +72,20 @@ class cv_video_player(QThread):
         self.play = False
 
     def playVideo(self):
+        if self.cap is None:
+            return
+
         if not self.isRunning():
             self.start()
-        else:
-            self.play = True
+
+        self.play = True
 
     def stopVideo(self):
         pass
 
+
     def openVideo(self,file_path):
+        print(file_path)
         self.cap = cv2.VideoCapture(file_path)
         self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
         if file_path:
@@ -100,14 +103,58 @@ class cv_video_player(QThread):
         # self.changePixmap(p)
 
     def moveFrame(self, frame):
-        """
-
-        :param frame:
-        :return:
-        """
         self.cap.set(cv2.CAP_PROP_POS_FRAMES,frame)
 
+    def initScreen(self):
+        black_image = QImage(1920,1280, QImage.Format_Indexed8)
+        black_image.fill(QtGui.qRgb(0,0,0))
+        self.changePixmap.emit(black_image.copy())
 
+    def play_Real(self):
+        while True:
+            if self.play and self.cap.isOpened():
+                ret,frame = self.cap.read()
+                self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+
+                if ret:
+                    rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+                    convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
+                                               rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
+                    self.changePixmap.emit(convertToQtFormat.copy())
+                else:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+                    self.play = False
+
+            if not self.cur_frame % round(self.fps):
+                # print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
+                # print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
+                self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
+
+            time.sleep(0.025)
+
+    def play_Demo(self):
+        print("thread start")
+        while True:
+
+            if self.play and self.cap.isOpened():
+                ret,frame = self.cap.read()
+                self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+
+                if ret:
+                    rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+                    convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
+                                               rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
+                    self.changePixmap.emit(convertToQtFormat.copy())
+                else:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+                    self.play = False
+
+            if not self.cur_frame % round(self.fps):
+                # print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
+                # print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
+                self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
+
+            time.sleep(0.025)
 
 
 class common(object):
@@ -343,6 +390,99 @@ class common(object):
             self.form.afc_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWAfc)
             self.classImgCount = self.classImgCount + 1
 
+
+
+
+    def downloadYouTubeUrl(self, url):
+        """
+        youtube-dl 을 사용하여 URL 영상 다운로드
+        :param url:
+        :return:
+        """
+        import youtube_dl
+
+        # ydl_opts = {
+        #     'format': 'bestaudio/best',
+        #     'postprocessors': [{
+        #         'key': 'FFmpegExtractAudio',
+        #         'preferredcodec': 'mp3',
+        #         'preferredquality': '192',
+        #     }]
+        # }
+
+        # ffmpeg 설치법
+        # git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+        # https://ffmpeg.zeranoe.com/builds/
+
+
+        ydl_opts = {
+            'outtmpl': './videoList/%(title)s.%(ext)s'
+        }
+
+
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            infoList = ydl.extract_info("{}".format(url))
+            temp = infoList.get("title", None)
+            title = temp.replace("/", "_")
+            format = infoList.get("format", None)
+            ext = infoList.get("ext", None)
+            print("ext :: {}".format(ext))
+
+
+            if title is not None or title is not "":
+                if ydl.download([str(url)]) == 1:
+                    self.create_massage_box("confirm", "URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
+                else:
+                    self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
+                    targetPath = os.path.abspath("./videoList")
+                    # oPath = targetPath+"/"+title+".mkv"
+                    oPath = targetPath + "/" + title + "." + ext
+                    print("oPath :: {}".format(oPath))
+                    return oPath
+
+                # 경로 및 타이틀 정보를 리턴해서 영상재생 객체에 던져야함
+                # 경로 + / + 파일명 + ".mp4"
+
+
+                ## 경로 조정 해봐라 고정 경로주니까 잘되네
+                ## 경로 조합하는게 잘못되서 위에꺼 안맞는듯
+
+                # oPath = "D:/박준욱/## 00.BIT_PROJECT/9999.github/bitproject/02.Source/dev/BtiProject/videoList/"+title+".mp4"
+
+
+    def setup_Download(self,file_path,resolution,format,fps):
+        self.file_path = file_path
+        self.resolution = resolution
+        self.format = format
+        self.fps = fps
+
+        self.file_name = os.path.splitext(file_path)[0] + self.format
+
+        if self.format == ".avi":
+            self.fourcc = cv2.VideoWriter_fourcc("D","I","V","X")
+        elif self.format == ".mp4":
+            self.fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
+
+    def open_VideoWriter(self):
+        print("file name : {}".format(self.file_name))
+        print("fps : {}".format(self.fps))
+        print(self.fourcc)
+        print("fps : {}".format(self.resolution))
+        self.out = cv2.VideoWriter(self.file_name,self.fourcc,self.fps,self.resolution)
+
+    def write_VideoFrame(self,frame):
+        print("frame 저장")
+        y,x,_ = frame.shape
+
+        if not x == self.resolution[0] or not y == self.resolution[1]:
+            frame = cv2.resize(frame,self.resolution,interpolation=cv2.cv2.INTER_AREA)
+
+        self.out.write(frame)
+
+    def close_VideoWriter(self):
+        print("종료")
+        self.out.release()
+
     def downloadCoordList(self, saveFileNm, coordList, type="csv"):
         """
         검출 좌표 결과 파일 다운로드
@@ -398,58 +538,3 @@ class common(object):
 
                 self.create_massage_box("confirm", "{} 에 저장을 완료 하였습니다.".format(saveFullPath))
                 saveFile.close()
-
-
-    def downloadYouTubeUrl(self, url):
-        """
-        youtube-dl 을 사용하여 URL 영상 다운로드
-        :param url:
-        :return:
-        """
-        import youtube_dl
-
-        # ydl_opts = {
-        #     'format': 'bestaudio/best',
-        #     'postprocessors': [{
-        #         'key': 'FFmpegExtractAudio',
-        #         'preferredcodec': 'mp3',
-        #         'preferredquality': '192',
-        #     }]
-        # }
-
-        # ffmpeg 설치법
-        # git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
-        # https://ffmpeg.zeranoe.com/builds/
-
-
-        ydl_opts = {
-            'outtmpl': './videoList/%(title)s.%(ext)s'
-        }
-
-
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            infoList = ydl.extract_info("{}".format(url))
-            temp = infoList.get("title", None)
-            title = temp.replace("/", "_")
-            format = infoList.get("format", None)
-            ext = infoList.get("ext", None)
-
-
-            if title is not None or title is not "":
-                if ydl.download([str(url)]) == 1:
-                    self.create_massage_box("confirm", "URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
-                else:
-                    self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
-                    targetPath = os.path.abspath("./videoList")
-                    oPath = targetPath+"/"+title+".mkv"
-                    print("oPath :: {}".format(oPath))
-                    return oPath
-
-                # 경로 및 타이틀 정보를 리턴해서 영상재생 객체에 던져야함
-                # 경로 + / + 파일명 + ".mp4"
-
-
-                ## 경로 조정 해봐라 고정 경로주니까 잘되네
-                ## 경로 조합하는게 잘못되서 위에꺼 안맞는듯
-
-                # oPath = "D:/박준욱/## 00.BIT_PROJECT/9999.github/bitproject/02.Source/dev/BtiProject/videoList/"+title+".mp4"
