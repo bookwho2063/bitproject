@@ -18,6 +18,7 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 from common import common,cv_video_player
 from extract import Extract
+from extract import ModelCreater
 from option import Option
 from time import sleep
 
@@ -117,8 +118,13 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableWidget_classList.setSizePolicy(sizePolicy)
         self.ext_tableWidget_classList.setMaximumSize(QtCore.QSize(16777215, 80))
         self.ext_tableWidget_classList.setObjectName("ext_tableWidget_classList")
-        self.ext_tableWidget_classList.setColumnCount(0)
-        self.ext_tableWidget_classList.setRowCount(0)
+
+        self.ext_tableWidget_classList.setColumnCount(10)
+        self.ext_tableWidget_classList.setRowCount(1)
+        self.ext_tableWidget_classList.horizontalHeader().hide()
+        self.ext_tableWidget_classList.verticalHeader().hide()
+        self.ext_tableWidget_classList.setShowGrid(False)
+
         self.ext_horizontalLayout_top.addWidget(self.ext_tableWidget_classList)
         self.ext_verticalLayout_top.addLayout(self.ext_horizontalLayout_top)
         self.verticalLayout_8.addLayout(self.ext_verticalLayout_top)
@@ -232,6 +238,8 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setObjectName("ext_tableView_extResultList")
         # 테이블 Row 데이터 색상
         self.ext_tableView_extResultList.setAlternatingRowColors(True)
+
+
 
         # 추출결과테이블 헤더정보 설정
         self.ext_default_tHeader_setting()
@@ -354,8 +362,13 @@ class Ui_Form(QtCore.QObject):
         self.afc_tableWidget_classList.setMaximumSize(QtCore.QSize(16777215, 80))
         self.afc_tableWidget_classList.setSizeIncrement(QtCore.QSize(0, 80))
         self.afc_tableWidget_classList.setObjectName("afc_tableWidget_classList")
-        self.afc_tableWidget_classList.setColumnCount(0)
-        self.afc_tableWidget_classList.setRowCount(0)
+
+        self.afc_tableWidget_classList.setColumnCount(10)
+        self.afc_tableWidget_classList.setRowCount(1)
+        self.afc_tableWidget_classList.horizontalHeader().hide()
+        self.afc_tableWidget_classList.verticalHeader().hide()
+        self.afc_tableWidget_classList.setShowGrid(False)
+
         self.afc_horizontalLayout_top.addWidget(self.afc_tableWidget_classList)
         self.afc_verticalLayout_top.addLayout(self.afc_horizontalLayout_top)
         self.verticalLayout_5.addLayout(self.afc_verticalLayout_top)
@@ -764,6 +777,10 @@ class Ui_Form(QtCore.QObject):
 
         ######## 설정.오토 포커싱 옵션 설정 end
 
+        ######## 검출, 오토포커싱 공통 옵션 설정
+        # 검출대상리스트 헤더 및 기본 설정 (검출 / 오토포커싱 공통)
+        self.comm_tableWidget_classList_tHeader_setting()
+
         ######## 탭 정보 생성 처리
         self.mainTabWidget.addTab(self.tab_opt, "설정")
 
@@ -782,7 +799,8 @@ class Ui_Form(QtCore.QObject):
         Form.setTabOrder(self.ext_pushButton_allClear, self.ext_pushButton_selectDelete)
         Form.setTabOrder(self.ext_pushButton_selectDelete, self.ext_pushButton_allSave)
         Form.setTabOrder(self.ext_pushButton_allSave, self.ext_pushButton_selectSave)
-        Form.setTabOrder(self.ext_pushButton_selectSave, self.opt_lineEdit_urlSaveDir)
+        Form.setTabOrder(self.ext_pushButton_selectSave, self.ext_tableWidget_classList)
+        Form.setTabOrder(self.ext_tableWidget_classList, self.opt_lineEdit_urlSaveDir)
         Form.setTabOrder(self.opt_lineEdit_urlSaveDir, self.opt_pushButton_urlDownDir)
         Form.setTabOrder(self.opt_pushButton_urlDownDir, self.opt_lineEdit_saveDir)
         Form.setTabOrder(self.opt_lineEdit_saveDir, self.opt_pushButton_saveDir)
@@ -794,6 +812,8 @@ class Ui_Form(QtCore.QObject):
         Form.setTabOrder(self.opt_spinBox_heightValue, self.opt_spinBox_widthValue)
         ######## tab key로 인한 이동 순서 설정 end
 
+    def callBackSample(self):
+        print("callBackSample :: ")
 
     def retranslateUi(self, Form):
         """
@@ -927,6 +947,8 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_allSave.clicked.connect(self.click_ext_pushButton_allSave)
         self.ext_pushButton_selectSave.clicked.connect(self.click_ext_pushButton_selectSave)
         self.ext_pushButton_startExt.clicked.connect(self.click_ext_pushButton_startExt)
+        self.ext_pushButton_mdDown.clicked.connect(self.click_ext_pushButton_mdDown)
+
 
         ###########
         # 오토포커싱탭 클릭이벤트 핸들러 설정
@@ -938,29 +960,23 @@ class Ui_Form(QtCore.QObject):
         self.afc_pushButton_play.clicked.connect(self.click_afc_pushButton_play)
         self.afc_pushButton_pause.clicked.connect(self.click_afc_pushButton_pause)
         self.afc_pushButton_stop.clicked.connect(self.click_afc_pushButton_stop)
-        self.afc_pushButton_play_2.clicked.connect(self.click_afc_pushButton_play_2)
-        self.afc_pushButton_pause_2.clicked.connect(self.click_afc_pushButton_pause_2)
-        self.afc_pushButton_stop_2.clicked.connect(self.click_afc_pushButton_stop_2)
         self.afc_pushButton_startExt.clicked.connect(self.click_afc_pushButton_startExt)
 
         ###########
         # 설정탭 클릭이벤트 핸들러 설정
         ###########
-        # QtCore.QObject.connect(self.tab_opt, QtCore.SIGNAL('clicked()'), self.click_tab_opt)
-        # self.tab_opt.connect(self.tab_opt, QtCore.SIGNAL("currentChanged(int)"), self, QtCore.SLOT("self.click_tab_opt()"))
         self.mainTabWidget.currentChanged.connect(self.click_tab)
 
         self.opt_pushButton_urlDownDir.clicked.connect(self.click_opt_pushButton_urlDownDir)
         self.opt_pushButton_saveDir.clicked.connect(self.click_opt_pushButton_saveDir)
 
-        # cv_video_player 생성
-        self.cv_player = cv_video_player(self)
-        self.cv_player.changePixmap.connect(lambda p: self.setPixMap(p))
-
         # 작업 클래스 생성
         self.cm = common(self)
         self.extClass = Extract(self)
         self.opt = Option(self)
+
+        # 검출 대상 리스트 생성
+        self.cm.createTargetClassList()
 
         #   이미지 리사이즈 기능은 수행되지만 원본 이미지가 손상된다.
         #     self.ext_label_extMd.installEventFilter(self)
@@ -1003,11 +1019,31 @@ class Ui_Form(QtCore.QObject):
         """
         print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
+    def comm_tableWidget_classList_tHeader_setting(self):
+        """
+        MEMO : 추출 -> 검출대상리스트 테이블 기본 모델정보 셋팅
+        :return:
+        """
+        # 헤더 사이즈 고정
+        self.ext_tableWidget_classList.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.ext_tableWidget_classList.verticalHeader().hide()
+        self.ext_tableWidget_classList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+
+        self.afc_tableWidget_classList.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.afc_tableWidget_classList.verticalHeader().hide()
+        self.afc_tableWidget_classList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+
+        # 컬럼 높이 테이블 고정사이즈로 변경
+        self.ext_tableWidget_classList.setRowHeight(0, int(self.ext_tableWidget_classList.maximumHeight()))
+        self.afc_tableWidget_classList.setRowHeight(0, int(self.afc_tableWidget_classList.maximumHeight()))
+
+
     def ext_default_tHeader_setting(self):
         """
         MEMO : 추출 -> 결과내역 테이블 헤더 및 기본 모델정보 셋팅
         :return:
         """
+        # QStandardItemModel 로 모델 생성
         self.modelAttr = QtGui.QStandardItemModel()
         self.modelAttr.setColumnCount(6)
         self.modelAttr.setHeaderData(0,QtCore.Qt.Horizontal,"선택")
@@ -1016,8 +1052,15 @@ class Ui_Form(QtCore.QObject):
         self.modelAttr.setHeaderData(3,QtCore.Qt.Horizontal,"검출위치")
         self.modelAttr.setHeaderData(4,QtCore.Qt.Horizontal,"검출길이")
         self.modelAttr.setHeaderData(5,QtCore.Qt.Horizontal,"검출중심점")
-
         self.ext_tableView_extResultList.setModel(self.modelAttr)
+
+
+        # 별도 생성한 tableView 용 체크플래그 검출 모델클래스로 모델 생성 (이거는 아직안된다)
+        # self.headersNm = ["선택", "썸네일", "대상명", "검출위치", "검출길이", "검출중심점"]
+        # self.extModel = ModelCreater(cycles = [[]], headers = self.headersNm)
+        # self.ext_tableView_extResultList.setModel(self.extModel)
+
+        # dModel = self.ext_tableView_extResultList.model().index(0,0)
 
         # ※모델을 정의(setModel)한 뒤부터 컬럼에 대한 설정 가능(아래)
 
@@ -1036,7 +1079,6 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ext_tableView_extResultList.verticalHeader().hide()
         self.ext_tableView_extResultList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
-
 
         ###########
         # 공통 클릭 이벤트
@@ -1082,15 +1124,20 @@ class Ui_Form(QtCore.QObject):
 
         if self.cm.video_player.isRunning():
             # video player thread 종료 후 재시작
-            self.cm.quit_videoPlayer()
-            self.cm.create_videoPlayer()
-            self.cm.video_player.changeTime.connect(self.set_time)
-            self.cm.video_player.openVideo(self.cm.uploadPath)
+            if self.cm.create_massage_box("yesno", text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
+                self.extClass.clearRowData()
+                self.cm.quit_videoPlayer()
+                self.cm.create_videoPlayer()
+                self.cm.video_player.changeTime.connect(self.set_time)
+                self.cm.video_player.openVideo(self.cm.uploadPath)
         else:
             self.cm.video_player.openVideo(self.cm.uploadPath)
 
         sleep(0.5)
         self.click_ext_pushButton_play()
+
+        # play 이후 추출 connect 실행
+        self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
 
 
     def click_ext_pushButton_mdDown(self):
@@ -1099,14 +1146,38 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_mdDown")
+        self.sampleCoord = ["111","222","333","444","555","666","777","888","999","000"]
+        # self.cm.downloadCoordList(self.cm.uploadPath, self.sampleCoord, type="CSV")
+        self.cm.downloadCoordList("sampleTest", self.sampleCoord, type="json")
 
     def click_ext_pushButton_urlUpload(self):
         """
-        MEMO : 영상검출.URL 업로드 버튼 클릭
+        MEMO : 영상검출.유튜브 URL 업로드 버튼 클릭
         :return:
         """
         self.cm.url_upload()
         print(self.cm.uploadUrl)
+        self.cm.uploadPath = self.cm.downloadYouTubeUrl(self.cm.uploadUrl)
+        # self.cm.uploadPath = "D:/박준욱/## 00.BIT_PROJECT/9999.github/bitproject/02.Source/dev/BtiProject/videoList/PSY - GANGNAM STYLE(강남스타일) M_V.mp4"
+        print(self.cm.uploadPath)
+        self.cm.video_player.changeTime.connect(self.set_time)
+
+        if self.cm.video_player.isRunning():
+            # video player thread 종료 후 재시작
+            if self.cm.create_massage_box("yesno", "기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+                self.extClass.clearRowData()
+                self.cm.quit_videoPlayer()
+                self.cm.create_videoPlayer()
+                self.cm.video_player.changeTime.connect(self.set_time)
+                self.cm.video_player.openVideo(self.cm.uploadPath)
+        else:
+            self.cm.video_player.openVideo(self.cm.uploadPath)
+
+        sleep(0.5)
+        self.click_ext_pushButton_play()
+
+        # play 이후 추출 connect 실행
+        self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
 
     def click_ext_pushButton_play(self):
         """
@@ -1115,7 +1186,9 @@ class Ui_Form(QtCore.QObject):
         """
         print("click_ext_pushButton_play")
         if self.cm.video_player.isRunning():
-            self.cm.video_player.playVideo()
+            if self.cm.create_massage_box("yesno", "기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+                self.extClass.clearRowData()
+                self.cm.video_player.playVideo()
         else:
             self.cm.video_player.changePixmap.connect(self.setPixMap)
             self.cm.video_player.playVideo()
@@ -1141,6 +1214,10 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_allClear")
+        self.clearYN = self.cm.create_massage_box("YesNo", "모든 검출 내역이 초기화 됩니다 계속하시겠습니까?")
+
+        if self.clearYN:
+            self.extClass.clearRowData()
 
     def click_ext_pushButton_selectDelete(self):
         """
@@ -1149,15 +1226,18 @@ class Ui_Form(QtCore.QObject):
         """
         print("click_ext_pushButton_selectDelete")
 
+        ## 체크한 인덱스 혹은 modelrow 추출
+
+        self.clearYN = self.cm.create_massage_box("YesNo", "선택 내역을 삭제하시겠습니까?")
+
+        if self.clearYN:
+            self.extClass.deleteRowData()
+
     def click_ext_pushButton_allSave(self):
         """
         MEMO : 영상검출.검출내역테이블 전체 내려받기 버튼 클릭 (임시 테스트로 검출내역 데이터 삽입 버튼으로 활용함)
         :return:
         """
-        print("click_ext_pushButton_allSave")
-        # self.extClass.add_tHeader(self.ext_tableView_extResultList)
-        print("click_ext_pushButton_allSave2")
-        print("cntcnt :: ",self.ext_tableView_extResultList.model().rowCount())
         self.extClass.add_tRowData()
 
     def click_ext_pushButton_selectSave(self):
@@ -1200,12 +1280,14 @@ class Ui_Form(QtCore.QObject):
         self.cm.video_player.changeTime.connect(self.set_afc_after_time)
 
         if self.cm.video_player.isRunning():
-            # video player thread 종료 후 재시작
-            self.cm.quit_videoPlayer()
-            self.cm.create_videoPlayer()
-            self.cm.video_player.changeTime.connect(self.set_afc_before_time)
-            self.cm.video_player.changeTime.connect(self.set_afc_after_time)
-            self.cm.video_player.openVideo(self.cm.uploadPath)
+            if self.cm.create_massage_box("yesno", "기 추출된 오토포커싱 영상이 모두 삭제됩니다.\n계속하시겠습니까?"):
+                self.extClass.clearRowData()
+                # video player thread 종료 후 재시작
+                self.cm.quit_videoPlayer()
+                self.cm.create_videoPlayer()
+                self.cm.video_player.changeTime.connect(self.set_afc_before_time)
+                self.cm.video_player.changeTime.connect(self.set_afc_after_time)
+                self.cm.video_player.openVideo(self.cm.uploadPath)
         else:
             self.cm.video_player.openVideo(self.cm.uploadPath)
         print("afc_pushButton_localUpload")
@@ -1233,6 +1315,10 @@ class Ui_Form(QtCore.QObject):
         """
         print("afc_pushButton_play")
         if self.cm.video_player.isRunning():
+            # Validation Check 필요함
+            # 포커싱 된 영상이 존재할 경우 메시지박스 띄우고
+            # 포커싱 영상이 없을 경우 메시지박스 없이 원본 영상만 교체
+            # if self.cm.create_massage_box("yesno", "기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
             self.cm.video_player.playVideo()
         else:
             self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
@@ -1253,33 +1339,6 @@ class Ui_Form(QtCore.QObject):
         """
         print("afc_pushButton_stop")
 
-    def click_afc_pushButton_play_2(self):
-        """
-        MEMO : 오토포커싱. 포커싱 영상 플레이 버튼 클릭
-        :return:
-        """
-        print("click_afc_pushButton_play_2")
-        if self.cm.video_player.isRunning():
-            self.cm.video_player.playVideo()
-        else:
-            self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
-            self.cm.video_player.changePixmap.connect(self.set_after_PixMap)
-            self.cm.video_player.playVideo()
-
-    def click_afc_pushButton_pause_2(self):
-        """
-        MEMO : 오토포커싱. 포커싱 영상 일시정지 버튼 클릭
-        :return:
-        """
-        print("click_afc_pushButton_pause_2")
-        self.cm.video_player.pauseVideo()
-
-    def click_afc_pushButton_stop_2(self):
-        """
-        MEMO : 오토포커싱. 포커싱 영상 정지 버튼 클릭
-        :return:
-        """
-        print("click_afc_pushButton_stop_2")
 
     def click_afc_pushButton_startExt(self):
         """
@@ -1345,6 +1404,21 @@ class Ui_Form(QtCore.QObject):
         ##########
         # img label update
         ##########
+
+    @QtCore.Slot(list)
+    def insertAtResultListData(self, image, dataList):
+        """
+        미디어 플레이어를 통해 검출된 데이터 처리
+        :param dataList:
+        :return:
+        """
+        print("call insertAtResultListData")
+        print("dataList :: {}".format(dataList))
+
+        print("call insertAtResultListData")
+        print("image :: {}".format(image))
+
+        self.extClass.extAddRowData(image, dataList)
 
     @QtCore.Slot(QtGui.QImage)
     def setPixMap(self,image):
@@ -1417,7 +1491,7 @@ if __name__ == "__main__":
         sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
         from extract import Extract
         from option import Option
-        from autofocus import autofocus
+        from autofocus import Autofocus
     else:
         from .extract import Extract
         from .option import Option
