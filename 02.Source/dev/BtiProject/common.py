@@ -5,6 +5,8 @@ from PySide2.QtCore import *
 import cv2,time
 import os
 
+
+
 """
 # Default Flow Task 
 # 1. 로컬업로드 선택 -> 파일업로드 다이얼로그(영상 확장자 선택) -> 해당 업로드 탭 영상 실행(영상 핸들링) ->
@@ -30,6 +32,7 @@ import os
 class cv_video_player(QThread):
     changePixmap = Signal(QImage)
     changeTime = Signal(int,int)
+    changeExtFrame = Signal(QImage, list)
 
     def __init__(self,parent=None):
         QThread.__init__(self)
@@ -37,9 +40,8 @@ class cv_video_player(QThread):
         self.play = True
 
     def run(self):
-        print("thread start")
         while True:
-
+            convertToQtFormat = ""
             if self.play and self.cap.isOpened():
                 ret,frame = self.cap.read()
                 self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
@@ -54,9 +56,17 @@ class cv_video_player(QThread):
                     self.play = False
 
             if not self.cur_frame % round(self.fps):
-                # print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
-                # print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
+                print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
+                print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
                 self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
+
+                # 3초에 한번씩 프레임데이터를 검출결과테이블로 전달(데모를 위함)
+                if int(self.cur_frame / round(self.fps)) % 3 == 0:
+                    print("프레임 emit 실행")
+                    # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
+                    resultData = ["1", "2", "3", "4"]
+                    self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
+
 
             time.sleep(0.025)
 
@@ -73,7 +83,6 @@ class cv_video_player(QThread):
         pass
 
     def openVideo(self,file_path):
-        print(file_path)
         self.cap = cv2.VideoCapture(file_path)
         self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
         if file_path:
@@ -90,11 +99,15 @@ class cv_video_player(QThread):
         # p = convertToQtFormat.scaled(1280,1040,Qt.KeepAspectRatio)
         # self.changePixmap(p)
 
-
-
-
     def moveFrame(self, frame):
+        """
+
+        :param frame:
+        :return:
+        """
         self.cap.set(cv2.CAP_PROP_POS_FRAMES,frame)
+
+
 
 
 class common(object):
@@ -142,7 +155,7 @@ class common(object):
         self.video_player.cap.release()
         self.video_player.terminate()
 
-    def create_massage_box(self,type,text=""):
+    def create_massage_box(self, type, text=""):
         '''
         메시지 박스를 생성
         :param type: 메시지 박스 종류 선택( Confirm, YesNo)
@@ -152,11 +165,19 @@ class common(object):
         msgbox = QMessageBox()
         msgbox.setText(text)
 
-        if type == "Confirm":
+        if type == "Confirm" or type == "confirm" or type == "CONFIRM":
+            msgbox.setStandardButtons(QMessageBox.Yes)
+            msgbox.setWindowTitle("알림")
+            buttonY = msgbox.button(QMessageBox.Yes)
             msgbox.exec_()
 
-        elif type == "YesNo":
+            # YES pressed
+            if msgbox.clickedButton() == buttonY:
+                return True
+
+        elif type == "YesNo" or type == "yesno" or type == "YESNO":
             msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msgbox.setWindowTitle("선택")
             buttonY = msgbox.button(QMessageBox.Yes)
             buttonN = msgbox.button(QMessageBox.No)
             msgbox.exec_()
@@ -183,30 +204,30 @@ class common(object):
         조회내역은 1.라벨명 2.썸네일이미지경로 및 파일명
         :return: 딕셔너리로 리턴한다
         """
-        # 조회부 (조회할 경로는 설정.URL저장파일경로 로 우선 설정한다)
-        classListDir = os.listdir(self.opt_lineEdit_urlSaveDir.text())
-        jpgFileList = [file for file in classListDir if file.endswith(".jpg")]
+        # 조회부
+        # classListDir = os.listdir(self.opt_lineEdit_urlSaveDir.text())
+        classListDir = os.listdir("./LabelList")
+        jpgFileList = [file for file in classListDir if file.endswith(".jpg") or file.endswith(".jpeg") or file.endswith(".png")
+                       or file.endswith(".JPG") or file.endswith(".JPEG") or file.endswith(".PNG")]
 
         # 딕셔너리 생성부
         resultDict = {}
         for classData in jpgFileList:
             splitData = classData.split(".")
-            # DICT 에 KEY(라벨명) : VALUE(경로/파일명.확장자) 형식으로 입력
-            resultDict[splitData[0]] = self.opt_lineEdit_urlSaveDir.text()+"/"+classData
-
-        print("resultDict :: ".format(resultDict))
+            # DICT 에 KEY(라벨명) : VALUE(경로/파일명.확장자) 형식으로 라벨 데이터 설정
+            resultDict[splitData[0]] = "./LabelList/" + classData
 
         return resultDict
 
 
-    def createThumnail_QImage(self, qImage, width, height, radius, antialiasing=True):
+    def createThumnail_QImage(self, resultType, qImage, width, height, radius, antialiasing=True):
         """
         qImage 형식의 img 데이터를 이용하여 width/height 크기로
         원형 썸네일 QPixmap 생성 후 Label에 입력하여 리턴
-        :param qImage:
-        :param width:
-        :param height:
-        :return: img in Label(QPixmap)
+        :param qImage: 이미지데이터
+        :param width: 넓이
+        :param height: 높이
+        :return: 썸네일 QImage / pixmap
         """
 
         resultLabel = QtWidgets.QLabel()
@@ -237,26 +258,27 @@ class common(object):
         painter.drawPixmap(0, 0, imgData)
         resultLabel.setPixmap(target)
 
-        return resultLabel
+        if resultType is "image":
+            return resultLabel
+        elif resultType is "pixmap":
+            return target
 
-    def createThumnail_filePath(self, fullPath, width, height, radius, antialiasing=True):
+    def createThumnail_filePath(self, returnType, fullPath, width, height, radius, antialiasing=True):
         """
         filePath 형식의 img 데이터를 이용하여 width/height 크기로
         원형 썸네일 QPixmap 생성 후 Label에 입력하여 리턴
+        :param returnType: label, pixmap
         :param fullPath: 경로/파일명.확장자
         :param width: 넓이(썸네일이미지)
         :param height: 높이(썸네일이미지)
         :return: img in Label(QPixmap)
         """
-
         resultLabel = QtWidgets.QLabel()
         resultLabel.setMaximumSize(width, height)
         resultLabel.setMinimumSize(width, height)
+
         target = QtGui.QPixmap(resultLabel.size())
         target.fill(QtCore.Qt.transparent)
-
-        # imgData = QtGui.QPixmap(QtGui.QImage(qImage))\
-        #     .scaled(width, height, QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
 
         imgData = QtGui.QPixmap(fullPath).scaled(QSize(width, height), QtCore.Qt.KeepAspectRatio)
         painter = QtGui.QPainter(target)
@@ -275,102 +297,159 @@ class common(object):
         painter.end()
         resultLabel.setPixmap(target)
 
-        # return to pixmap
-        return target
-        # return to label in pixmap
-        #return resultLabel
-
-    '''
-    - 로컬 업로드 : local 경로에 있는 영상을 읽어온다.(opencv 등을 이용해 읽어옴)
-    - url 업로드 : url 경로(youtube 등)의 영상의 읽어온다. ( pytube 등을 이용해 읽어옴)
-      ## mediaUpload(type, addr):   
-         type : local/url
-         addr : address
+        if returnType is "label" or returnType is "LABEL":
+            return resultLabel
+        elif returnType is "pixmap" or returnType is "PIXMAP":
+            return target
 
 
-    - url 다운로드 저장 : url 업로드를 통해 받아온 영상을 저장, 경로는 설정파일에서 설정 가능 
-      ## saveStream(frame, ...):
+    def createTargetClassList(self):
+        """
+        # 검출 대상 클래스 썸네일 이미지 및 목록을 생성하여 출력한다
+        :return: bool (Class Create Success boolean)
+
+        Step.
+        this->selectClassImgList(self)->
+        loop->createThumnail_filePath()->CreateClassList in
+        """
+        # 학습 대상 클래스 리스트 불러오기
+        self.classImgCount = 0
+        self.classListDict = self.selectClassImgList()
+
+        for classListDictKey, classListDictValue in self.classListDict.items():
+            # 썸네일 생성
+            thumbnailImgInExt = self.createThumnail_filePath("label", os.path.abspath(classListDictValue), 50, 50, 80)
+            thumbnailImgInAfc = self.createThumnail_filePath("label", os.path.abspath(classListDictValue), 50, 50, 80)
+
+            # VLayout을 생성하여 이미지 라벨 및 이름라벨 입력
+            vBoxExt = QVBoxLayout()
+            vBoxExt.setAlignment(Qt.AlignCenter)
+            vBoxExt.addWidget(thumbnailImgInExt)
+            vBoxExt.addWidget(QLabel(str(classListDictKey), alignment=Qt.AlignHCenter))
+
+            vBoxAfc = QVBoxLayout()
+            vBoxAfc.setAlignment(Qt.AlignCenter)
+            vBoxAfc.addWidget(thumbnailImgInAfc)
+            vBoxAfc.addWidget(QLabel(str(classListDictKey), alignment=Qt.AlignHCenter))
+
+            # Layout Widget 생성
+            qWExt = QWidget()
+            qWAfc = QWidget()
+            qWExt.setLayout(vBoxExt)
+            qWAfc.setLayout(vBoxAfc)
+
+            # 레이아웃(썸네일+이름라벨) 테이블 적용
+            self.form.ext_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWExt)
+            self.form.afc_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWAfc)
+            self.classImgCount = self.classImgCount + 1
+
+    def downloadCoordList(self, saveFileNm, coordList, type="csv"):
+        """
+        검출 좌표 결과 파일 다운로드
+            :param saveFileNm: 확장자를 제외한 저장 파일명 (Default 는 영상파일명)
+            :param coordList: 좌표 리스트(X,Y 조합이므로 홀수가 될 수 없음)
+            :param type: 저장 확장자 명 (CSV, JSON 지원)
+            :return: bool
+        """
+        import platform
+        # OS 별 File Seperator 설정
+        pSysNm = platform.system()
+        seperator = ""
+        if pSysNm is "Windows":
+            seperator = "/"
+        elif pSysNm is "Darwin" or pSysNm is "Linux":
+            seperator = "\\"
+
+        # 설정 > 내려받기 저장 경로 추출
+        saveFileDir = self.form.opt_lineEdit_saveDir.text()
+
+        # DIR Validation Check
+        if saveFileDir == "" or saveFileDir == None or saveFileDir == "업로드 경로":
+            self.create_massage_box("Confirm", "'내려받기 저장 경로' 가 지정되지 않았습니다.\n 설정 > 공통 옵션 설정 > 내려받기 저장 경로 를 지정해주세요.")
+            return False
+        else:
+            saveFullPath = saveFileDir + seperator + saveFileNm + "." + type
+
+            # File Open
+            with open(saveFullPath, mode='wt', encoding='utf-8') as saveFile:
+                # Type = CSV
+                if type is "csv" or type is "CSV":
+                    for coordData in coordList:
+                        if coordData is coordList[-1]:
+                            saveFile.write(coordData)
+                        else:
+                            saveFile.write(coordData+",")
+                # Type = JSON
+                elif type is "json" or type is "JSON":
+                    import json
+                    from collections import OrderedDict
+                    # JSON 데이터 입력 변수
+                    jsonData = OrderedDict()
+
+                    # if coordList = 10 -> 5 , rowCnt 0~5
+                    for rowCnt in range(int(len(coordList) / 2)):
+                        targetCnt = int(rowCnt+rowCnt)
+                        jsonData[str(rowCnt)] = {'X':str(coordList[int(targetCnt)]), 'Y':str(coordList[int(targetCnt+1)])}
+
+                    # JSON 덤프 저장
+                    json.dump(jsonData, saveFile, ensure_ascii=False, indent="\t")
+                else:
+                    self.create_massage_box("confirm", "해당 확장자 형식은 지원하지 않습니다. ({})".format(type))
+
+                self.create_massage_box("confirm", "{} 에 저장을 완료 하였습니다.".format(saveFullPath))
+                saveFile.close()
 
 
-   QT : QMediaPlayer player / realtime
-   opencv : 
-    - 업로드 영상처리 (media plyaer) : 업로드를 통해 받은 영상 데이터 핸들링(재생, 일시정지, 정지 등)
-        - play()
-        - stop()
-        - pause()
-        - 현재 플레이 시간    ( opencv 는 프레임 시간 계산 필요 )
+    def downloadYouTubeUrl(self, url):
+        """
+        youtube-dl 을 사용하여 URL 영상 다운로드
+        :param url:
+        :return:
+        """
+        import youtube_dl
 
-   - (1)검출 대상 리스트 조회 : 총 라벨 및 학습 썸네일 정보 조회
-      List getClassList():
-         """
-            TITLE   :   학습된 클래스 리스트를 반환한다
-            MEMO   :   
-            return   :   list
-         """
-         pass
+        # ydl_opts = {
+        #     'format': 'bestaudio/best',
+        #     'postprocessors': [{
+        #         'key': 'FFmpegExtractAudio',
+        #         'preferredcodec': 'mp3',
+        #         'preferredquality': '192',
+        #     }]
+        # }
 
-    - (2)검출 대상 리스트 생성 : 특정 경로에 있는 대상 정보와 대상의 이미지를 읽어와 widget을 추가한다
-      addClass(getClassList, objName):
-         """
-            TITLE   :   학습된 클래스 리스트를 인자로 받아 objName에 해당하는 layer에 입력한다
-         """
-         pass
-
-    - 영상 검출
-      (1) mediaExtProc(objName):
-            """
-               #   TITLE   :   검출한 결과만 리턴
-               #   NOTE   :
-            """
-            player
-            while{
-               if(20FP)
-               frame = data
-
-               if flag == ext
-                  {
-
-                  }
-               else
-                  afc.aksd()
+        # ffmpeg 설치법
+        # git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+        # https://ffmpeg.zeranoe.com/builds/
 
 
-            }
-            pass
+        ydl_opts = {
+            'outtmpl': './videoList/%(title)s.%(ext)s'
+        }
 
 
-    - 검출 결과 내역 생성 : 영상 검출 결과와 추가 정보들을 리스트로 생성
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            infoList = ydl.extract_info("{}".format(url))
+            temp = infoList.get("title", None)
+            title = temp.replace("/", "_")
+            format = infoList.get("format", None)
+            ext = infoList.get("ext", None)
 
 
-    - 설정 데이터 로드 : 설정값을 읽어 온다.
-    - 설정 데이터 확인 : 추출, 오토포커싱 이전에 설정값이 세팅되어 있는지 확인
-    - 학습된 모델 
+            if title is not None or title is not "":
+                if ydl.download([str(url)]) == 1:
+                    self.create_massage_box("confirm", "URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
+                else:
+                    self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
+                    targetPath = os.path.abspath("./videoList")
+                    oPath = targetPath+"/"+title+".mkv"
+                    print("oPath :: {}".format(oPath))
+                    return oPath
+
+                # 경로 및 타이틀 정보를 리턴해서 영상재생 객체에 던져야함
+                # 경로 + / + 파일명 + ".mp4"
 
 
-    '''
+                ## 경로 조정 해봐라 고정 경로주니까 잘되네
+                ## 경로 조합하는게 잘못되서 위에꺼 안맞는듯
 
-
-"""
-   <AddMethodList>
-
-   getAttr(objName):
-      """
-# TITLE   :   오브젝트명에 해당하는 값 조회
-# NOTE   :
-"""
-pass
-
-setAttr(objName, value):
-"""
-# TITLE   :   오브젝트명에 대상 값 삽입
-# NOTE   :
-"""
-pass
-
-
-
-"""
-
-
-
-
+                # oPath = "D:/박준욱/## 00.BIT_PROJECT/9999.github/bitproject/02.Source/dev/BtiProject/videoList/"+title+".mp4"
