@@ -239,8 +239,6 @@ class Ui_Form(QtCore.QObject):
         # 테이블 Row 데이터 색상
         self.ext_tableView_extResultList.setAlternatingRowColors(True)
 
-
-
         # 추출결과테이블 헤더정보 설정
         self.ext_default_tHeader_setting()
 
@@ -781,6 +779,7 @@ class Ui_Form(QtCore.QObject):
         # 검출대상리스트 헤더 및 기본 설정 (검출 / 오토포커싱 공통)
         self.comm_tableWidget_classList_tHeader_setting()
 
+
         ######## 탭 정보 생성 처리
         self.mainTabWidget.addTab(self.tab_opt, "설정")
 
@@ -799,7 +798,7 @@ class Ui_Form(QtCore.QObject):
         Form.setTabOrder(self.ext_pushButton_allClear, self.ext_pushButton_selectDelete)
         Form.setTabOrder(self.ext_pushButton_selectDelete, self.ext_pushButton_allSave)
         Form.setTabOrder(self.ext_pushButton_allSave, self.ext_pushButton_selectSave)
-        Form.setTabOrder(self.ext_pushButton_selectSave, self.ext_tableWidget_classList)
+        Form.setTabOrder(self.ext_pushButton_selectSave,self.ext_tableWidget_classList)
         Form.setTabOrder(self.ext_tableWidget_classList, self.opt_lineEdit_urlSaveDir)
         Form.setTabOrder(self.opt_lineEdit_urlSaveDir, self.opt_pushButton_urlDownDir)
         Form.setTabOrder(self.opt_pushButton_urlDownDir, self.opt_lineEdit_saveDir)
@@ -811,6 +810,7 @@ class Ui_Form(QtCore.QObject):
         Form.setTabOrder(self.opt_comboBox_bufTime, self.opt_spinBox_heightValue)
         Form.setTabOrder(self.opt_spinBox_heightValue, self.opt_spinBox_widthValue)
         ######## tab key로 인한 이동 순서 설정 end
+
 
     def callBackSample(self):
         print("callBackSample :: ")
@@ -949,7 +949,6 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_startExt.clicked.connect(self.click_ext_pushButton_startExt)
         self.ext_pushButton_mdDown.clicked.connect(self.click_ext_pushButton_mdDown)
 
-
         ###########
         # 오토포커싱탭 클릭이벤트 핸들러 설정
         ###########
@@ -974,6 +973,7 @@ class Ui_Form(QtCore.QObject):
         self.cm = common(self)
         self.extClass = Extract(self)
         self.opt = Option(self)
+        self.afc = Autofocus()
 
         # 검출 대상 리스트 생성
         self.cm.createTargetClassList()
@@ -1019,6 +1019,7 @@ class Ui_Form(QtCore.QObject):
         """
         print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
+
     def comm_tableWidget_classList_tHeader_setting(self):
         """
         MEMO : 추출 -> 검출대상리스트 테이블 기본 모델정보 셋팅
@@ -1037,7 +1038,6 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableWidget_classList.setRowHeight(0, int(self.ext_tableWidget_classList.maximumHeight()))
         self.afc_tableWidget_classList.setRowHeight(0, int(self.afc_tableWidget_classList.maximumHeight()))
 
-
     def ext_default_tHeader_setting(self):
         """
         MEMO : 추출 -> 결과내역 테이블 헤더 및 기본 모델정보 셋팅
@@ -1054,7 +1054,6 @@ class Ui_Form(QtCore.QObject):
         self.modelAttr.setHeaderData(5,QtCore.Qt.Horizontal,"검출중심점")
         self.ext_tableView_extResultList.setModel(self.modelAttr)
 
-
         # 별도 생성한 tableView 용 체크플래그 검출 모델클래스로 모델 생성 (이거는 아직안된다)
         # self.headersNm = ["선택", "썸네일", "대상명", "검출위치", "검출길이", "검출중심점"]
         # self.extModel = ModelCreater(cycles = [[]], headers = self.headersNm)
@@ -1065,7 +1064,7 @@ class Ui_Form(QtCore.QObject):
         # ※모델을 정의(setModel)한 뒤부터 컬럼에 대한 설정 가능(아래)
 
         # 체크박스 컬럼 넓이 조정
-        self.ext_tableView_extResultList.setColumnWidth(0, 20)
+        self.ext_tableView_extResultList.setColumnWidth(0, 50)
         self.ext_tableView_extResultList.setColumnWidth(1, 50)
         self.ext_tableView_extResultList.setColumnWidth(2, 100)
         self.ext_tableView_extResultList.setColumnWidth(3, 150)
@@ -1079,6 +1078,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ext_tableView_extResultList.verticalHeader().hide()
         self.ext_tableView_extResultList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+
 
         ###########
         # 공통 클릭 이벤트
@@ -1124,7 +1124,7 @@ class Ui_Form(QtCore.QObject):
 
         if self.cm.video_player.isRunning():
             # video player thread 종료 후 재시작
-            if self.cm.create_massage_box("yesno", text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
+            if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
                 self.extClass.clearRowData()
                 self.cm.quit_videoPlayer()
                 self.cm.create_videoPlayer()
@@ -1134,7 +1134,8 @@ class Ui_Form(QtCore.QObject):
             self.cm.video_player.openVideo(self.cm.uploadPath)
 
         sleep(0.5)
-        self.click_ext_pushButton_play()
+
+        # self.click_ext_pushButton_play()
 
         # play 이후 추출 connect 실행
         self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
@@ -1148,36 +1149,39 @@ class Ui_Form(QtCore.QObject):
         print("click_ext_pushButton_mdDown")
         self.sampleCoord = ["111","222","333","444","555","666","777","888","999","000"]
         # self.cm.downloadCoordList(self.cm.uploadPath, self.sampleCoord, type="CSV")
-        self.cm.downloadCoordList("sampleTest", self.sampleCoord, type="json")
+        self.cm.downloadCoordList("sampleTest",self.sampleCoord,type="json")
 
     def click_ext_pushButton_urlUpload(self):
         """
-        MEMO : 영상검출.유튜브 URL 업로드 버튼 클릭
+        MEMO : 영상검출.URL 업로드 버튼 클릭
         :return:
         """
         self.cm.url_upload()
         print(self.cm.uploadUrl)
-        self.cm.uploadPath = self.cm.downloadYouTubeUrl(self.cm.uploadUrl)
-        # self.cm.uploadPath = "D:/박준욱/## 00.BIT_PROJECT/9999.github/bitproject/02.Source/dev/BtiProject/videoList/PSY - GANGNAM STYLE(강남스타일) M_V.mp4"
-        print(self.cm.uploadPath)
-        self.cm.video_player.changeTime.connect(self.set_time)
 
-        if self.cm.video_player.isRunning():
-            # video player thread 종료 후 재시작
-            if self.cm.create_massage_box("yesno", "기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
-                self.extClass.clearRowData()
-                self.cm.quit_videoPlayer()
-                self.cm.create_videoPlayer()
-                self.cm.video_player.changeTime.connect(self.set_time)
+        if self.cm.uploadUrl is not "" and self.cm.uploadUrl is not None:
+            self.cm.uploadPath = self.cm.downloadYouTubeUrl(self.cm.uploadUrl)
+            print(self.cm.uploadPath)
+
+            if self.cm.video_player.isRunning():
+                # video player thread 종료 후 재시작
+                if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+                    self.extClass.clearRowData()
+                    self.cm.quit_videoPlayer()
+                    self.cm.create_videoPlayer()
+                    self.cm.video_player.changeTime.connect(self.set_time)
+                    self.cm.video_player.openVideo(self.cm.uploadPath)
+            else:
                 self.cm.video_player.openVideo(self.cm.uploadPath)
-        else:
-            self.cm.video_player.openVideo(self.cm.uploadPath)
 
-        sleep(0.5)
-        self.click_ext_pushButton_play()
+            sleep(0.5)
+            self.click_ext_pushButton_play()
 
-        # play 이후 추출 connect 실행
-        self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
+            # play 이후 추출 connect 실행
+            self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
+
+
+
 
     def click_ext_pushButton_play(self):
         """
@@ -1186,7 +1190,7 @@ class Ui_Form(QtCore.QObject):
         """
         print("click_ext_pushButton_play")
         if self.cm.video_player.isRunning():
-            if self.cm.create_massage_box("yesno", "기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+            if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
                 self.extClass.clearRowData()
                 self.cm.video_player.playVideo()
         else:
@@ -1214,7 +1218,7 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_allClear")
-        self.clearYN = self.cm.create_massage_box("YesNo", "모든 검출 내역이 초기화 됩니다 계속하시겠습니까?")
+        self.clearYN = self.cm.create_massage_box("YesNo","모든 검출 내역이 초기화 됩니다 계속하시겠습니까?")
 
         if self.clearYN:
             self.extClass.clearRowData()
@@ -1228,7 +1232,7 @@ class Ui_Form(QtCore.QObject):
 
         ## 체크한 인덱스 혹은 modelrow 추출
 
-        self.clearYN = self.cm.create_massage_box("YesNo", "선택 내역을 삭제하시겠습니까?")
+        self.clearYN = self.cm.create_massage_box("YesNo","선택 내역을 삭제하시겠습니까?")
 
         if self.clearYN:
             self.extClass.deleteRowData()
@@ -1269,6 +1273,8 @@ class Ui_Form(QtCore.QObject):
         """
         print("click_tab_afc")
 
+
+
     def click_afc_pushButton_localUpload(self):
         """
         MEMO : 오토포커싱 로컬 업로드 버튼 클릭
@@ -1280,7 +1286,7 @@ class Ui_Form(QtCore.QObject):
         self.cm.video_player.changeTime.connect(self.set_afc_after_time)
 
         if self.cm.video_player.isRunning():
-            if self.cm.create_massage_box("yesno", "기 추출된 오토포커싱 영상이 모두 삭제됩니다.\n계속하시겠습니까?"):
+            if self.cm.create_massage_box("yesno","기 추출된 오토포커싱 영상이 모두 삭제됩니다.\n계속하시겠습니까?"):
                 self.extClass.clearRowData()
                 # video player thread 종료 후 재시작
                 self.cm.quit_videoPlayer()
@@ -1292,12 +1298,36 @@ class Ui_Form(QtCore.QObject):
             self.cm.video_player.openVideo(self.cm.uploadPath)
         print("afc_pushButton_localUpload")
 
+
+    def click_afc_pushButton_startExt(self):
+        """
+        MEMO : 오토포커싱, 검출 시작 버튼
+        :return:
+        """
+        print("afc_pushButton_startExt")
+        #################
+        ###기존 미디어 플레이어 쓰레드 종료
+        ################
+        if self.cm.video_player.isRunning():
+            self.cm.video_player.initScreen()
+            self.cm.quit_videoPlayer()
+            print("player thread quit")
+
+        if not self.cm.uploadPath == "" and not self.afc.afc_state == 2:
+            self.afc.setUp(self)
+            self.afc.changePixmap.connect(self.process_afc)
+            self.afc.start()
+            print("afc thread start")
+
+
     def click_afc_pushButton_mdDown(self):
         """
         MEMO : 오토포커싱 영상 내려받기 버튼 클릭
         :return:
         """
         print("afc_pushButton_mdDown")
+
+
 
     def click_afc_pushButton_urlUpload(self):
         """
@@ -1313,16 +1343,21 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱. 원본 영상 플레이 버튼 클릭
         :return:
         """
-        print("afc_pushButton_play")
-        if self.cm.video_player.isRunning():
-            # Validation Check 필요함
-            # 포커싱 된 영상이 존재할 경우 메시지박스 띄우고
-            # 포커싱 영상이 없을 경우 메시지박스 없이 원본 영상만 교체
-            # if self.cm.create_massage_box("yesno", "기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
-            self.cm.video_player.playVideo()
+        # Validation Check 필요함
+        # 포커싱 된 영상이 존재할 경우 메시지박스 띄우고
+        # 포커싱 영상이 없을 경우 메시지박스 없이 원본 영상만 교체
+        # if self.cm.create_massage_box("yesno", "기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+
+        if not self.afc.afc_state:
+            if self.cm.video_player.isRunning():
+                self.cm.video_player.playVideo()
+            else:
+                self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
+                self.cm.video_player.playVideo()
         else:
-            self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
-            self.cm.video_player.playVideo()
+            if self.afc.isRunning() and self.afc.afc_play == 0:
+                self.afc.changePixmap.connect(self.play_afc)
+                self.afc.afc_play = 1
 
     def click_afc_pushButton_pause(self):
         """
@@ -1330,7 +1365,7 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("afc_pushButton_pause")
-        self.cm.video_player.pauseVideo()
+        self.afc.afc_play = 0
 
     def click_afc_pushButton_stop(self):
         """
@@ -1338,14 +1373,6 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("afc_pushButton_stop")
-
-
-    def click_afc_pushButton_startExt(self):
-        """
-        MEMO : 오토포커싱. 검출시작 버튼 클릭
-        :return:
-        """
-        print("afc_pushButton_startExt")
 
 
     def click_afc_label_before_Md(self):
@@ -1406,7 +1433,7 @@ class Ui_Form(QtCore.QObject):
         ##########
 
     @QtCore.Slot(list)
-    def insertAtResultListData(self, image, dataList):
+    def insertAtResultListData(self,image,dataList):
         """
         미디어 플레이어를 통해 검출된 데이터 처리
         :param dataList:
@@ -1418,7 +1445,7 @@ class Ui_Form(QtCore.QObject):
         print("call insertAtResultListData")
         print("image :: {}".format(image))
 
-        self.extClass.extAddRowData(image, dataList)
+        self.extClass.extAddRowData(image,dataList)
 
     @QtCore.Slot(QtGui.QImage)
     def setPixMap(self,image):
@@ -1432,14 +1459,37 @@ class Ui_Form(QtCore.QObject):
         image = image.scaled(self.afc_label_before_Md.size(),QtCore.Qt.KeepAspectRatio)
         self.afc_label_before_Md.setPixmap(image)
 
+    # @QtCore.Slot(QtGui.QImage,QtCore.QRect)
     @QtCore.Slot(QtGui.QImage)
     def set_after_PixMap(self,image):
-        image = QtGui.QPixmap.fromImage(image)
+        afc_image = QtGui.QPixmap.fromImage(image)
         # 좌표 처리
-        afc_image = image.copy(QtCore.QRect(500,0,450,700))
+        afc_image = afc_image.copy(QtCore.QRect(405,77,500,430))  # QtCore.QRect(x, y, width, height)
+        print("width : {} height : {}".format(afc_image.width(), afc_image.height()))
         afc_image = afc_image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
         # self.afc_label_before_Md.setPixmap(image)
         self.afc_label_after_Md.setPixmap(afc_image)
+
+    @QtCore.Slot(QtGui.QImage, QtCore.QRect)
+    def process_afc(self, image, rect):
+        image = QtGui.QPixmap.fromImage(image)
+        # 좌표 처리
+        afc_image = image.copy(rect)  # QtCore.QRect(x, y, width, height)
+        afc_image = afc_image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
+        image = image.scaled(self.afc_label_before_Md.size(), QtCore.Qt.KeepAspectRatio)
+        self.afc_label_before_Md.setPixmap(image)
+        self.afc_label_after_Md.setPixmap(afc_image)
+
+    @QtCore.Slot(QtGui.QImage,QtCore.QRect)
+    def play_afc(self,image,rect):
+        image = QtGui.QPixmap.fromImage(image)
+        # 좌표 처리
+        afc_image = image.copy(rect)  # QtCore.QRect(x, y, width, height)
+        afc_image = afc_image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
+        image = image.scaled(self.afc_label_before_Md.size(),QtCore.Qt.KeepAspectRatio)
+        self.afc_label_after_Md.setPixmap(afc_image)
+        #
+        self.afc_label_before_Md.setPixmap(image)
 
     @QtCore.Slot(int,int)
     def set_time(self,cur_time,total_time):
@@ -1498,6 +1548,11 @@ if __name__ == "__main__":
         from .autofocus import autofocus
 
     app = QtWidgets.QApplication(sys.argv)
+
+    s_path = path.abspath("darkstyle/darkstyle.qss")
+    with open(s_path, 'r') as f:
+        app.setStyleSheet(f.read())
+
     Form = QtWidgets.QWidget()
     ui = Ui_Form()
     ui.setupUi(Form)

@@ -1,7 +1,7 @@
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
-import cv2,time
+import cv2,time,os
 
 
 class Autofocus(QThread):
@@ -9,26 +9,34 @@ class Autofocus(QThread):
 
     def __init__(self):
         QThread.__init__(self)
-        self.current_frame = 0
+        self.current_workingFrame = 0
+        self.current_playingFrame = 0
+        self.current_savingFrame = 0
         # self.play = True
         self.afc_state = 0  # 0 :검출 시작 전 1: 검출 중 2. 검출 완료
         self.afc_process = 0
         self.afc_play = 0
         self.afc_save = 0
         self.afc_coordList = []
+        self.afc_extFrameRate = 30
 
         # 테스트 변수
         self.list_index = 0
-        self.list_coord = [(405,77,500,430),(405,77,250,215),(405,77,418,360),(405,77,174,150)]
+        self.list_coord = [(650,330,360,720),(720,405,300,600),(800,500,240,480),(1000,525,150,300)]
 
     def setUp(self,ui):
         self.video_player = ui.cm.video_player
         self.afc_width,self.afc_height = ui.opt.get_coord()
         self.filepath = ui.cm.uploadPath
         self.cap = cv2.VideoCapture(self.filepath)
+
         # self.class_num = class_num
 
     def run(self):
+        '''
+        오토포커싱 쓰레드의 실행 함수(검출, 영상 재생, 저장
+        :return:
+        '''
         self.afc_process = 1
 
         while True:
@@ -36,77 +44,158 @@ class Autofocus(QThread):
             if self.afc_process:
                 if self.afc_state == 0 or self.afc_state == 1:
                     self.extract_afcVideo()
+                else:
+                    print("검출 작업이 완료되었습니다.")
+                    self.afc_process = 0
+
+            if self.afc_play:
+                self.play_afcResult()
 
             # if self.afc_save:
-            #     pass
-            #
-            # if self.afc_play:
             #     pass
 
             time.sleep(1)
 
-    def search_afcSection(self,ui):
-        return self.afc_width,self.afc_height
+    def search_afcSection(self,index):
+        '''
+        프레임에 해당하는 영역 좌표를 리턴한다.
+        :param ui:
+        :return:
+        '''
+        if index < len(self.afc_coordList):
+            return self.afc_coordList[index]
+        else:
+            return -1
 
     # def detect_centerCoord(self, calss_num, frame):
     def detect_centerCoord(self):
         '''
-        프레임에서 대상이 있는지 확인하고 있을 때 대상의 얼굴 좌표를 리턴한다
+        딥러닝 모델을 이용하여 프레임에서 대상이 있는지 확인하고 있을 때 대상의 얼굴 좌표를 반환한다.
         :param calss_num:
         :param frame:
         :return: (x, y, width, height)
         '''
+        pass
+
+    # 네트워크를 통해 추출된 좌표가 나왔을 때 그것을 기준으로 구현
+    def make_afcSection(self,centerCoord=0):
+        '''
+        얼굴의 좌표를 기준으로 포커싱할 추출 영역을 결정한다.
+        :param centerCoord: face 중심점 좌표 및 크기
+        :return: x,y,widht,height
+        '''
         self.list_index = (self.list_index + 1) % 4
         return self.list_coord[self.list_index]
 
-    # 네트워크를 통해 추출된 좌표가 나왔을 때 그것을 기준으로 구현
-    # def make_afcSection(self, centerCoord):
-    #     '''
-    #     얼굴의 좌표를 기준으로 포커싱할 영역을 결정한다.
-    #     :param centerCoord: face 중심점 좌표 및 크기
-    #     :return: x,y,widht,height
-    #     '''
-    #     x, y, width, height = centerCoord
-    #
-
     def extract_afcVideo(self):
         '''
-        추출된 이미지를 재생하고 저장한다.
+        추출된 이미지를 재생하고 영역 좌표를 리스트로 저장한다.
         :return:
         '''
         self.afc_state = 1
-        self.cap.set(cv2.CAP_PROP_POS_FRAMES,self.current_frame)
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES,self.current_workingFrame)
+        # x = 0
+        # y = 0
+        # width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        # height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
         while self.afc_process:
 
-            if not self.current_frame % 30:
-                index = int(self.current_frame / 30)
-                self.afc_coordList.append(self.detect_centerCoord())
-                x,y,width,height = self.afc_coordList[index]
+            if not self.current_workingFrame % self.afc_extFrameRate:
+                index = int(self.current_workingFrame / self.afc_extFrameRate)
+                self.afc_coordList.append(self.make_afcSection())
 
-                print("index : {} value : {}".format(index,self.afc_coordList[index]))
+                if index == 0:
+                    cur_coord = self.afc_coordList[index]
+                    dst_coord = self.afc_coordList[index]
+                else:
+                    dst_coord = self.afc_coordList[index]
+
+                print("frame : {} index : {} value : {}".format(self.current_workingFrame,index,
+                                                                self.afc_coordList[index]))
+
+            cur_coord = self.smooth_movedSection(cur_coord,dst_coord,self.current_workingFrame % self.afc_extFrameRate,
+                                                 self.afc_extFrameRate)
+            x,y,width,height = cur_coord
 
             ret,frame = self.cap.read()
-            self.current_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+            self.current_workingFrame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
 
             if ret:
                 rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
                 convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
                                            rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
-                self.changePixmap.emit(convertToQtFormat.copy(),QRect(x,y,width,height))
+                # self.changePixmap.emit(convertToQtFormat.copy(), QRect(x,y,600,300))
+                self.changePixmap.emit(convertToQtFormat.copy(),QRect(x,y,width,height))  # 최종적으로 결정된 추출 영역을 QRect로 emit
             else:
+                print("오토포커싱 검출 완료")
+                print(self.afc_coordList)
                 self.afc_state = 2
                 self.afc_process = 0
                 break
-            time.sleep(0.03)
+
+            if self.current_workingFrame > 600:
+                print("오토포커싱 검출 완료")
+                self.afc_state = 2
+                self.afc_process = 0
+                break
+
+            # time.sleep(0.03)
 
     def play_afcResult(self):
         '''
-        추출된 영상을 플레이어에서 재생한다.
+        추출된 좌표를 기반으로 오토포커싱된 영상을 플레이어에서 재생한다.
         :return:
         '''
         self.afc_play = 1
-        self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+        # self.cap.release()
+        # self.cap = cv2.VideoCapture(self.filepath)
+        self.current_playingFrame = 0
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES,self.current_playingFrame)
+        print("afc play 시작")
+        print("{}".format(self.afc_coordList))
+
+        while self.afc_play:
+
+            if not self.current_playingFrame % self.afc_extFrameRate:
+                index = int(self.current_playingFrame / self.afc_extFrameRate)
+
+                if index == 0:
+                    cur_coord = self.afc_coordList[index]
+                    dst_coord = self.afc_coordList[index]
+                    print("frame : {} index : {} value : {}".format(self.current_playingFrame,index,
+                                                                    self.afc_coordList[index]))
+                elif index < len(self.afc_coordList):
+                    dst_coord = self.afc_coordList[index]
+                    print("frame : {} index : {} value : {}".format(self.current_playingFrame,index,
+                                                                    self.afc_coordList[index]))
+
+            cur_coord = self.smooth_movedSection(cur_coord,dst_coord,self.current_playingFrame % self.afc_extFrameRate,
+                                                 self.afc_extFrameRate)
+            x,y,width,height = cur_coord
+
+            ret,frame = self.cap.read()
+
+            self.current_playingFrame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+
+            if ret:
+                rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+                convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
+                                           rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
+                # self.changePixmap.emit(convertToQtFormat.copy(), QRect(x,y,600,300))
+                self.changePixmap.emit(convertToQtFormat.copy(),QRect(x,y,width,height))  # 최종적으로 결정된 추출 영역을 QRect로 emit
+            else:
+                print(self.afc_coordList)
+                self.afc_play = 0
+                break
+
+            if self.current_playingFrame > 1200:
+                self.afc_play = 0
+                break
+
+            time.sleep(0.03)
+
+        print("play afc 종료")
 
     def save_coordFile(self,type):
         '''
@@ -116,7 +205,7 @@ class Autofocus(QThread):
         '''
         pass
 
-    def save_afcVideoFile(self,extension,resolution,result):
+    def save_afcVideoFile(self,file_path,extension,size):
         '''
         오토포커싱된 영상을 파일로 저장한다.
         :param extension:
@@ -124,7 +213,56 @@ class Autofocus(QThread):
         :param result:
         :return:
         '''
-        pass
+        file_name = os.path.splitext(file_path)[0]
+
+        if extension == ".avi":
+            fourcc = cv2.VideoWriter_fourcc("D","I","V","X")
+            out = cv2.VideoWriter("afc_" + file_name + ".avi",fourcc,30.0,size)
+        elif extension == ".mp4":
+            fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
+            out = cv2.VideoWriter("afc_" + file_name + ".mp4",fourcc,30.0,size)
+
+        self.afc_play = 1
+        self.current_savingFrame = 0
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+        print("afc play 시작")
+        print("{}".format(self.afc_coordList))
+
+        while self.afc_save:
+
+            if not self.current_savingFrame % self.afc_extFrameRate:
+                index = int(self.current_savingFrame / self.afc_extFrameRate)
+
+                if index == 0:
+                    cur_coord = self.afc_coordList[index]
+                    dst_coord = self.afc_coordList[index]
+                    print("frame : {} index : {} value : {}".format(self.current_savingFrame,index,
+                                                                    self.afc_coordList[index]))
+                elif index < len(self.afc_coordList):
+                    dst_coord = self.afc_coordList[index]
+                    print("frame : {} index : {} value : {}".format(self.current_savingFrame,index,
+                                                                    self.afc_coordList[index]))
+
+            cur_coord = self.smooth_movedSection(cur_coord,dst_coord,self.current_savingFrame % self.afc_extFrameRate,
+                                                 self.afc_extFrameRate)
+            x,y,width,height = cur_coord
+
+            ret,frame = self.cap.read()
+
+            self.current_savingFrame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+
+            if ret:
+
+                out.write(frame)
+            else:
+                self.afc_save = 0
+                break
+
+            if self.current_savingFrame > 600:
+                self.afc_save = 0
+                break
+
+            time.sleep(0.03)
 
     # def pause_afc(self):
     #     self.play = False
@@ -132,68 +270,35 @@ class Autofocus(QThread):
     # def start_afc(self):
     #     self.play = True
 
-    def search_afcResult(self,file_name):
+    def get_afcState(self):
+        '''
+        오토포커싱 작업이 완료 되었는지 확인
+        0 : 검출 작업 이전
+        1 : 검출 작업 중
+        2 : 검출 완료
+        :return: self.afc_state
+        '''
         return self.afc_state
 
+    def smooth_movedSection(self,cur_coord,dst_coord,currentFrame,frameRate):
+        '''
+        현재 좌표와 이동할 좌표, 추출된 프레임의 간격을 계산하여 박스의 이동을 자연스럽게 한다.
+        :param cur_coord: 현재 좌표
+        :param dst_coord: 이동할 좌표
+        :param frameRate: 추출된 좌표의 프레임수
+        :return: 다음 이동할 좌표
+        '''
+        num_remainedFrame = frameRate - currentFrame
+        move_coord = []
+        if num_remainedFrame == 0 or cur_coord == dst_coord:
+            return dst_coord
 
-'''
-1. 검출 시작 클릭 -> button(로컬업로드, URL 업로드, 영상 내려받기, 미디어 control, 검출시작, 검출 대상 리스트(추출 도중 변경 가능시에는 제외)) 사용 불가 
-    -> 탭 이동시 경고창 팝업(현재 진행중인 검출 결과가 사라집니다. 중지하겠습니까? Y/N)
-    -> before 첫 프레임 부터 play -> after는 포커싱 되는 즉시 결과를 play
-    -> 포커싱 완료 후 비활성화된 button(처음 시작시 비활성화된 버튼, after player 미디어 ocntrol 버튼)을 다시 활성화, '포커싱이 완료되었습니다' 팝업 
+        for i in range(4):
+            if dst_coord[i] == cur_coord[i]:
+                move_coord.append(cur_coord[i])
+            else:
+                move_pos = dst_coord[i] - cur_coord[i]
+                move_pos /= num_remainedFrame
+                move_coord.append(cur_coord[i] + move_pos)
 
-2. 검출시작 -> 이전 결과 확인 -> 결과가 있으면 이전 결과를 불러오겠습니까? Y/N 팝업창 -> N일 때 1번 과정과 동일
-            -> Y일 때 이전 결과 불러오기
-
-
-2. 공통 변수
-    - self.afc_width : 설정의 넓이값
-    - self.afc_height : 설정의 높이값
-    - self.selected_class : 선택된 클래스
-    - self.uploadPath : common의 uploadpath외 동일
-    - self.predict : coommon class or facenet_model class
-
-3. 기능
-    - 오토 포커싱 영역 조회 : 설정탭에서 설정한 박스의 크기를 조회한다.
-    search_afcSection()
-    """
-        TITLE   :  설정탭에서 지전한 오토포커싱 박스의 크기를  리턴한다. 
-        MEMO   :   
-        return   :   afc_width, afc_height
-    """
-
-    - 오토포커싱 영역 중심점 좌표 검출 : 입력받은 프레임에서 클래스의 중심 좌표와 width,height를 검출한다. 
-       result : x_center,y_center,width, height 좌표를 리턴한다.
-       ㄴ 학습된 모델에서 frame에서 예측된 결과를 받는다.
-       ㄴ 예측된 결과와 설정된 width, height를 바탕으로 오토포커싱 결과를 리턴한다.
-
-       detect_centerCoord(class, frame)
-
-    - make_afcCoord(x_center,y_center,width_center,height_center, afc_width,afc_height)
-
-
-    - 오토포커싱 영상 추출 : 검출된 결과를 이용하여 오토포커싱된 영상을 추출 
-        ㄴ 영상 추출 도중 영상 재생을 위해서 siganl을 이용하여 QImage, QRect(추출 결과) emit
-        ㄴ 검출 도중 play 방안
-           방안 1. 검출 중에는 현재 Thread에서 before, after player를 모두 play(이와 같이하면 정상속도로 play 되지는 않더라도 동시에 play 가능
-           방안 2. before 영상은 common의 player thread에서 재생, auto focusing 영상은 현 autofuocus class에서 재생. 
-                이 때 영상간의 속도 차이를 줄일 수 있는 방안을 따로 생각해야 함
-
-        extract_afcVideo(class, video_file)
-
-    - 결과 영상 재생 : 오토포커싱 결과를 재생한다. 처음 이전 
-
-    - 미디어 플레이어 간 버튼 액션 공유
-       ㄴ 공유하기 전에 영상에 대한 오토 포커싱이 완료되어야 한다.
-       ㄴ 공유하기 위해서는 같은 slot에 connect
-
-
-    - 오토 포커싱 결과 저장 : 추출된 결과를 기반으로 
-        afc_result_save(video_name, result)
-        result : frame_num, x_pos, y_pos, width, height
-
-    - 오토 포커싱 결과 조회 : 추출 시작 전 이전 추출 결과가 있는지 확인 있을 시 팝업창을 띄워 이전 결과를 불러올지 선택
-
-    - 오토포커싱 추출 클래스 변경 : 재생중 가능할 때 구현( 필요한 기능 구현 완료 후 구현). 추출 대상 클래스 value만 signal을 이용하여 변경, 
-        ㄴ추출 과정 중 변경에서 crash 발생시 mutex 등 이용
-'''
+        return move_coord
