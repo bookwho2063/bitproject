@@ -2,17 +2,8 @@ from PySide2 import QtGui, QtWidgets, QtCore
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
-from time import sleep
 import cv2,time
 import os
-
-# img face recognition test
-import dlib
-import matplotlib.pyplot as plt
-import sys
-from skimage import io      #pip install scikit-image
-import openface
-import cv2
 
 """
 # Default Flow Task 
@@ -50,7 +41,6 @@ class cv_video_player(QThread):
     def run(self):
         while True:
             convertToQtFormat = ""
-            rgbImage = ""
             if self.play and self.cap.isOpened():
                 ret,frame = self.cap.read()
                 self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
@@ -73,9 +63,8 @@ class cv_video_player(QThread):
                 if int(self.cur_frame / round(self.fps)) % 3 == 0:
                     print("프레임 emit 실행")
                     # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
-                    resultData = ["1", "2", "3", str(self.cur_frame)]
-                    self.changeExtFrame.emit(rgbImage, resultData)
-                    # self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
+                    resultData = ["1","2","3","4"]
+                    self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
 
             time.sleep(0.025)
 
@@ -115,15 +104,6 @@ class cv_video_player(QThread):
 
     def moveFrame(self, frame):
         self.cap.set(cv2.CAP_PROP_POS_FRAMES,frame)
-        ret, frame = self.cap.read()
-        self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
-        self.changeTime.emit(int(self.cur_frame / self.fps), int(self.duration))
-
-        if ret:
-            rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
-                                       rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
-            self.changePixmap.emit(convertToQtFormat.copy())
 
     def initScreen(self):
         black_image = QImage(1920,1280, QImage.Format_Indexed8)
@@ -419,8 +399,6 @@ class common(object):
         :param url:
         :return:
         """
-        self.loadingBar(True)
-
         import youtube_dl
 
         # ydl_opts = {
@@ -448,18 +426,18 @@ class common(object):
             title = temp.replace("/", "_")
             format = infoList.get("format", None)
             ext = infoList.get("ext", None)
+            print("ext :: {}".format(ext))
 
 
             if title is not None or title is not "":
                 if ydl.download([str(url)]) == 1:
-                    #self.create_massage_box("confirm", "URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
-                    self.loadingBar(False)
+                    self.create_massage_box("confirm", "URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
                 else:
-                    #self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
+                    self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
                     targetPath = os.path.abspath("./videoList")
-                    ext = self.fileFormatTracker(targetPath, title)
-                    oPath = targetPath + "/" + title + ext
-                    self.loadingBar(False)
+                    # oPath = targetPath+"/"+title+".mkv"
+                    oPath = targetPath + "/" + title + "." + ext
+                    print("oPath :: {}".format(oPath))
                     return oPath
 
                 # 경로 및 타이틀 정보를 리턴해서 영상재생 객체에 던져야함

@@ -102,10 +102,6 @@ class Extract(object):
         chkItem.setCheckState(QtCore.Qt.Unchecked)
         dModel.setItem(rowCnt, 0, chkItem)
 
-        # 얼굴 중심 좌표 추출 테스트
-        # rgbImage = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # self.cm.findFaceInHOG(imgFilePath=None, img=rgbImage)
-
         # 썸네일 이미지 추출
         thumnailImg = self.cm.createThumnail_QImage("pixmap", image, 50, 50, 50)
 

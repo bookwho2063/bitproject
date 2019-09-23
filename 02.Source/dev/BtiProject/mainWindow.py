@@ -10,7 +10,7 @@
 
 """
 #   TEAM        : 휴먼, 미쳐도 괜찮아 (박준욱, 송원빈)
-#   CLASSNAME   : common_190923.py
+#   CLASSNAME   : common.py
 #   COMMENT     : 공통 함수 및 변수 클래스
 #   LASY MOD    : 19.08.27
 """
@@ -31,8 +31,7 @@ class Ui_Form(QtCore.QObject):
         Form.setObjectName("Form")
         Form.resize(1280, 840)
         Form.setMinimumSize(QtCore.QSize(1280, 840))
-        # self.verticalLayout_4 = QtWidgets.QVBoxLayout(Form)
-        self.verticalLayout_4 = QtWidgets.QStackedLayout(Form)
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(Form)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.mainTabWidget = QtWidgets.QTabWidget(Form)
         self.mainTabWidget.setEnabled(True)
@@ -238,7 +237,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setMinimumSize(QtCore.QSize(480, 0))
         self.ext_tableView_extResultList.setObjectName("ext_tableView_extResultList")
         # 테이블 Row 데이터 색상
-        self.ext_tableView_extResultList.setAlternatingRowColors(False)
+        self.ext_tableView_extResultList.setAlternatingRowColors(True)
 
         # 추출결과테이블 헤더정보 설정
         self.ext_default_tHeader_setting()
@@ -793,16 +792,6 @@ class Ui_Form(QtCore.QObject):
         self.opt_comboBox_bufTime.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
-        #####
-        # 로딩 이미지 라벨 위젯 셋팅
-        self.loadingLabel = QtWidgets.QLabel()
-        self.loadingImg = QtGui.QMovie("./icon/ajax-loader.gif")
-        # gifImg.setScaledSize(QtCore.QSize(1280, 840))
-        self.loadingLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.loadingLabel.setAttribute(QtCore.Qt.WA_NoSystemBackground)
-        self.loadingLabel.setMovie(self.loadingImg)
-        self.verticalLayout_4.addWidget(self.loadingLabel)
-
         ######## tab key로 인한 이동 순서 설정 start / Form.setTabOrder(A, B) -> Form.setTabOrder(B, C)
         Form.setTabOrder(self.ext_pushButton_localUpload, self.ext_pushButton_mdDown)
         Form.setTabOrder(self.ext_pushButton_mdDown, self.ext_pushButton_allClear)
@@ -959,8 +948,6 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_selectSave.clicked.connect(self.click_ext_pushButton_selectSave)
         self.ext_pushButton_startExt.clicked.connect(self.click_ext_pushButton_startExt)
         self.ext_pushButton_mdDown.clicked.connect(self.click_ext_pushButton_mdDown)
-        # 영상 검출 내역 더블클릭 이벤트
-        self.ext_tableView_extResultList.doubleClicked.connect(self.click_ext_tableView_extResultList)
 
         ###########
         # 오토포커싱탭 클릭이벤트 핸들러 설정
@@ -1093,26 +1080,9 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
 
 
-    ###########
-    # 공통 클릭 이벤트
-    ###########
-    def click_ext_tableView_extResultList(self):
-        """
-        검출 테이블 데이터 더블클릭 이벤트
-        :return:
-        """
-        selRowNum = ""
-        for idx in self.ext_tableView_extResultList.selectionModel().selectedIndexes():
-            selRowNum = idx.row()
-            selColNum = idx.column()
-
-        # 검출 데이터 가져오기
-        selectModel = self.ext_tableView_extResultList.model()
-        colIdx = selectModel.index(int(selRowNum), 5)
-        colData = colIdx.data()
-
-        # 동영상 프레임 이동
-        self.cm.video_player.moveFrame(int(colData))
+        ###########
+        # 공통 클릭 이벤트
+        ###########
 
     def click_tab(self):
         """
@@ -1167,7 +1137,7 @@ class Ui_Form(QtCore.QObject):
 
         # self.click_ext_pushButton_play()
 
-        # play 이후 추출 connect 실행(데모용, 검출 시작 버튼 클릭시 처리하는걸로 변경필요)
+        # play 이후 추출 connect 실행
         self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
 
 
@@ -1176,11 +1146,9 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.영상 내려받기 버튼 클릭
         :return:
         """
-        # print("click_ext_pushButton_mdDown")
-        #
-        # # 샘플 좌표파일 다운로드 처리
+        print("click_ext_pushButton_mdDown")
         self.sampleCoord = ["111","222","333","444","555","666","777","888","999","000"]
-        # # self.cm.downloadCoordList(self.cm.uploadPath, self.sampleCoord, type="CSV")
+        # self.cm.downloadCoordList(self.cm.uploadPath, self.sampleCoord, type="CSV")
         self.cm.downloadCoordList("sampleTest",self.sampleCoord,type="json")
 
     def click_ext_pushButton_urlUpload(self):
