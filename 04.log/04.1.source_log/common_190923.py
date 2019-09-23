@@ -14,6 +14,9 @@ from skimage import io      #pip install scikit-image
 import openface
 import cv2
 
+# test
+
+
 """
 # Default Flow Task 
 # 1. 로컬업로드 선택 -> 파일업로드 다이얼로그(영상 확장자 선택) -> 해당 업로드 탭 영상 실행(영상 핸들링) ->
@@ -72,10 +75,9 @@ class cv_video_player(QThread):
                 # 3초에 한번씩 프레임데이터를 검출결과테이블로 전달(데모를 위함)
                 if int(self.cur_frame / round(self.fps)) % 3 == 0:
                     print("프레임 emit 실행")
-                    # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
-                    resultData = ["1", "2", "3", str(self.cur_frame)]
+                    # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요 (데모용, 검출 데이터를 리스트에 입력한다)
+                    resultData = ["1","2","3", str(self.cur_frame)]
                     self.changeExtFrame.emit(rgbImage, resultData)
-                    # self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
 
             time.sleep(0.025)
 
@@ -114,7 +116,7 @@ class cv_video_player(QThread):
         # self.changePixmap(p)
 
     def moveFrame(self, frame):
-        self.cap.set(cv2.CAP_PROP_POS_FRAMES,frame)
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame)
         ret, frame = self.cap.read()
         self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
         self.changeTime.emit(int(self.cur_frame / self.fps), int(self.duration))
@@ -124,6 +126,7 @@ class cv_video_player(QThread):
             convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
                                        rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
             self.changePixmap.emit(convertToQtFormat.copy())
+
 
     def initScreen(self):
         black_image = QImage(1920,1280, QImage.Format_Indexed8)
@@ -419,6 +422,7 @@ class common(object):
         :param url:
         :return:
         """
+
         self.loadingBar(True)
 
         import youtube_dl
@@ -448,28 +452,21 @@ class common(object):
             title = temp.replace("/", "_")
             format = infoList.get("format", None)
             ext = infoList.get("ext", None)
-
+            print("ext :: {}".format(ext))
 
             if title is not None or title is not "":
                 if ydl.download([str(url)]) == 1:
-                    #self.create_massage_box("confirm", "URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
+                    # self.create_massage_box("confirm", "URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
                     self.loadingBar(False)
                 else:
-                    #self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
+                    # self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
                     targetPath = os.path.abspath("./videoList")
                     ext = self.fileFormatTracker(targetPath, title)
+                    print("ext :: ".format(ext))
                     oPath = targetPath + "/" + title + ext
+                    print("oPath :: {}".format(oPath))
                     self.loadingBar(False)
                     return oPath
-
-                # 경로 및 타이틀 정보를 리턴해서 영상재생 객체에 던져야함
-                # 경로 + / + 파일명 + ".mp4"
-
-
-                ## 경로 조정 해봐라 고정 경로주니까 잘되네
-                ## 경로 조합하는게 잘못되서 위에꺼 안맞는듯
-
-                # oPath = "D:/박준욱/## 00.BIT_PROJECT/9999.github/bitproject/02.Source/dev/BtiProject/videoList/"+title+".mp4"
 
 
     def setup_Download(self,file_path,resolution,format,fps):
@@ -560,3 +557,84 @@ class common(object):
 
                 self.create_massage_box("confirm", "{} 에 저장을 완료 하였습니다.".format(saveFullPath))
                 saveFile.close()
+
+    def loadingBar(self, flag):
+        """
+        # 로딩바 on/off 기능
+
+        :param flag: bool (loadingbar on : True, off : False
+        :return:
+        """
+        if flag:
+            self.form.loadingImg.start()
+            self.form.verticalLayout_4.setCurrentIndex(1)
+        else:
+            self.form.loadingImg.stop()
+            self.form.verticalLayout_4.setCurrentIndex(0)
+
+
+    def fileFormatTracker(self, filePath, fileName):
+        """
+        # Youtube Download Video 확장자 정보를 리턴한다
+        :param filePath: 확장자를 검색할 파일경로 
+        :param fileName: 확장자를 검색할 파일명
+        :return: str (.ext)
+        """
+        fileList = os.listdir(filePath)
+        for item in fileList:
+            if fileName == str(os.path.splitext(item)[0]):
+                return str(os.path.splitext(item)[1])
+
+    def findFaceInHOG(self, imgFilePath=None, img=None):
+        """
+        # NOTE : crop 되지않은 이미지에서 face 데이터를 검출한다.
+        # DATE : 19.09.20
+        # parmas : imgFilePath(이미지파일경로), img(이미지데이터)
+        # return :
+        """
+        # 이미지 데이터 use check
+
+        image = ""
+        if img is None and imgFilePath is not None:
+            image = io.imread(imgFilePath)
+        elif img is not None and imgFilePath is None:
+            image = img
+        else:
+            print("imgFilePath, img(data) 둘중 하나는 입력되어야 합니다.")
+            return 0
+
+        # dlib class 를 이용하여 얼굴 검출
+        faceDetector = dlib.get_frontal_face_detector()
+        detectedFaces = faceDetector(image, 1)
+
+        # 얼굴 landmarks 처리
+        predictorModel = "../dev/BtiProject/predictData/shape_predictor_68_face_landmarks.dat"
+        facePosePredictor = dlib.shape_predictor(predictorModel)
+
+        # 얼굴 이미지 변형
+        faceAligner = openface.AlignDlib(predictorModel)
+
+        print("Fount Face Image :: {} FilePath :: {}".format(len(detectedFaces), imgFilePath))
+
+        # UI 가 없는 창(colab)에서 열려고 하면 오류가 발생한다
+        # colab 에서는 matplotlib 사용
+        # plt.imshow(image)
+        # plt.show()
+        # 이미지 확인을 위한 윈도우 창 (UI Interface 전용)
+        win = dlib.image_window()
+        win.set_image(image)
+
+        # face found in the image
+        for idx, faceRect in enumerate(detectedFaces):
+            # 검출된 얼굴좌표값을 윈도우로 전송
+            win.add_overlay(faceRect)
+
+            # 인식된 좌표에서 랜드마크 추출
+            poseLandmarks = facePosePredictor(image, faceRect)
+            print("shape.part(33) :코중앙 좌표: {}".format(poseLandmarks.part(33)))
+            win.add_overlay(poseLandmarks)
+
+            # 얼굴 이미지 변형 후 이미지 파일 생성 처리 (비교를 위함)
+            # alignedFace = faceAligner.align(534, image, faceRect, landmarkIndices=openface.AlignDlib.OUTER_EYES_AND_NOSE)
+            #
+            # cv2.imwrite("alignedFace_{}.jpg".format(idx), alignedFace)

@@ -237,8 +237,10 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setSizePolicy(sizePolicy)
         self.ext_tableView_extResultList.setMinimumSize(QtCore.QSize(480, 0))
         self.ext_tableView_extResultList.setObjectName("ext_tableView_extResultList")
-        # 테이블 Row 데이터 색상
+
+        # 테이블 Row 데이터 색상 구분 (흑/백)
         self.ext_tableView_extResultList.setAlternatingRowColors(False)
+
 
         # 추출결과테이블 헤더정보 설정
         self.ext_default_tHeader_setting()
@@ -803,6 +805,7 @@ class Ui_Form(QtCore.QObject):
         self.loadingLabel.setMovie(self.loadingImg)
         self.verticalLayout_4.addWidget(self.loadingLabel)
 
+
         ######## tab key로 인한 이동 순서 설정 start / Form.setTabOrder(A, B) -> Form.setTabOrder(B, C)
         Form.setTabOrder(self.ext_pushButton_localUpload, self.ext_pushButton_mdDown)
         Form.setTabOrder(self.ext_pushButton_mdDown, self.ext_pushButton_allClear)
@@ -959,7 +962,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_selectSave.clicked.connect(self.click_ext_pushButton_selectSave)
         self.ext_pushButton_startExt.clicked.connect(self.click_ext_pushButton_startExt)
         self.ext_pushButton_mdDown.clicked.connect(self.click_ext_pushButton_mdDown)
-        # 영상 검출 내역 더블클릭 이벤트
+
         self.ext_tableView_extResultList.doubleClicked.connect(self.click_ext_tableView_extResultList)
 
         ###########
@@ -1092,7 +1095,6 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.verticalHeader().hide()
         self.ext_tableView_extResultList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
 
-
     ###########
     # 공통 클릭 이벤트
     ###########
@@ -1179,9 +1181,9 @@ class Ui_Form(QtCore.QObject):
         # print("click_ext_pushButton_mdDown")
         #
         # # 샘플 좌표파일 다운로드 처리
-        self.sampleCoord = ["111","222","333","444","555","666","777","888","999","000"]
+        # self.sampleCoord = ["111","222","333","444","555","666","777","888","999","000"]
         # # self.cm.downloadCoordList(self.cm.uploadPath, self.sampleCoord, type="CSV")
-        self.cm.downloadCoordList("sampleTest",self.sampleCoord,type="json")
+        # self.cm.downloadCoordList("sampleTest",self.sampleCoord,type="json")
 
     def click_ext_pushButton_urlUpload(self):
         """
@@ -1192,9 +1194,12 @@ class Ui_Form(QtCore.QObject):
         print(self.cm.uploadUrl)
 
         if self.cm.uploadUrl is not "" and self.cm.uploadUrl is not None:
+
             self.cm.uploadPath = self.cm.downloadYouTubeUrl(self.cm.uploadUrl)
+
             print(self.cm.uploadPath)
 
+            # self.cm.loadingBar(False)
             if self.cm.video_player.isRunning():
                 # video player thread 종료 후 재시작
                 if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
@@ -1471,12 +1476,6 @@ class Ui_Form(QtCore.QObject):
         :param dataList:
         :return:
         """
-        print("call insertAtResultListData")
-        print("dataList :: {}".format(dataList))
-
-        print("call insertAtResultListData")
-        print("image :: {}".format(image))
-
         self.extClass.extAddRowData(image,dataList)
 
     @QtCore.Slot(QtGui.QImage)
@@ -1575,7 +1574,7 @@ if __name__ == "__main__":
         from option import Option
         from autofocus import Autofocus
     else:
-        from .extract import Extract
+        from .extract_190923 import Extract
         from .option import Option
         from .autofocus import autofocus
 
@@ -1586,6 +1585,8 @@ if __name__ == "__main__":
         app.setStyleSheet(f.read())
 
     Form = QtWidgets.QWidget()
+    # Form = QtWidgets.QStackedWidget()
+    # Form = QtWidgets.QStackedLayout()
     ui = Ui_Form()
     ui.setupUi(Form)
     Form.show()
