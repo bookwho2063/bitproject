@@ -1,6 +1,7 @@
 from PySide2 import QtGui, QtWidgets, QtCore
 from common import common
 from time import sleep
+import cv2
 
 class Extract(object):
 
@@ -248,25 +249,26 @@ class ModelCreater(QtCore.QAbstractTableModel):
 
 
     def getData(self):
-            rows = self.rowCount(1)
-            data = []
-            for row in range(rows):
-                array = []
-                for column in range (6):
-                    index = self.index(row, column)
-                    info = index.data()
-                    array.append(info)
-                data.append(array)
+        rows = self.rowCount(1)
+        data = []
+        for row in range(rows):
+            array = []
+            for column in range (6):
+                index = self.index(row, column)
+                info = index.data()
+                array.append(info)
+            data.append(array)
 
-            dic = {}
-            for item in data:
-                dic[item[1]]=item
+        dic = {}
+        for item in data:
+            dic[item[1]]=item
 
-            print("")
-            print("data:")
-            print('')
-            for key in dic:
-                print(key, dic[key])
+        print("")
+        print("data:")
+        print('')
+        for key in dic:
+            print(key, dic[key])
+                
 
 
 
