@@ -2,17 +2,19 @@ from PySide2 import QtGui, QtWidgets, QtCore
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
+
 from time import sleep
 import cv2,time
 import os
+from autofocus import Autofocus
 
 # img face recognition test
 import dlib
 import matplotlib.pyplot as plt
 import sys
 from skimage import io      #pip install scikit-image
-import openface
 import cv2
+# import openface
 
 """
 # Default Flow Task 
@@ -40,18 +42,31 @@ class cv_video_player(QThread):
     changePixmap = Signal(QImage)
     changeTime = Signal(int,int)
     changeExtFrame = Signal(QImage,list)
+    # changeAfcFrame = Signal(QImage,QRect)
 
-    def __init__(self,parent=None):
+    def __init__(self, afc =None, parent=None):
         QThread.__init__(self)
         # self.openVideo()
         self.play = True
-        self.cap = None
+        self.cap = cv2.VideoCapture()
+        self.running = True
+
+        # 추출 작업 0 : 시작 전  1 : 작업 중  2 : 완료
+        self.ext_state = 0
+        self.afc_state = 0
+        self.buffertime = 3
+        self.current_workingFrame = 0
+
+        # afc 클래스
+        self.afc = Autofocus()
 
     def run(self):
-        while True:
+        while self.running:
+            start_time =time.time()
             convertToQtFormat = ""
             rgbImage = ""
             if self.play and self.cap.isOpened():
+                print("시작 시간 : ", start_time)
                 ret,frame = self.cap.read()
                 self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
 
@@ -64,117 +79,123 @@ class cv_video_player(QThread):
                     self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
                     self.play = False
 
-            if not self.cur_frame % round(self.fps):
-                print("cur frame : {} total frame : {} ".format(self.cur_frame,self.total_frame))
-                print("fps : {} {}".format(round(self.fps),self.cur_frame / round(self.fps)))
-                self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
+                if not self.cur_frame % self.fps:
+                    print("cur frame : {} total frame : {} ".format(self.cur_frame,self.total_frame))
+                    print("fps : {} {}".format(self.fps,self.cur_frame / self.fps))
+                    self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
 
-                # 3초에 한번씩 프레임데이터를 검출결과테이블로 전달(데모를 위함)
-                if int(self.cur_frame / round(self.fps)) % 3 == 0:
-                    print("프레임 emit 실행")
-                    # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
-                    resultData = ["1", "2", "3", str(self.cur_frame)]
-                    self.changeExtFrame.emit(rgbImage, resultData)
-                    # self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
+                    # # 3초에 한번씩 프레임데이터를 검출결과테이블로 전달(데모를 위함)
+                    # if int(self.cur_frame / round(self.fps)) % 3 == 0:
+                    #     print("프레임 emit 실행")
+                    #     # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
+                    #     resultData = ["1", "2", "3", str(self.cur_frame)]
+                    #     # self.changeExtFrame.emit(rgbImage, resultData)
+                    #     self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
 
-            time.sleep(0.025)
+                    # 3초에 한번씩 프레임데이터를 검출결과테이블로 전달(데모를 위함)
+                    print("current_workingFrame ", self.current_workingFrame)
+                    if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
+                        self.current_workingFrame = self.cur_frame
+                        print("프레임 emit 실행")
+                        # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
+                        resultData = ["1","2","3",str(self.cur_frame)]
+                        # self.changeExtFrame.emit(rgbImage, resultData)
+                        self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
+
+                if self.afc_state  == 1:
+                # if self.afc_state and self.cur_frame > self.current_workingFrame:
+                    self.current_workingFrame = self.cur_frame
+                    if self.cur_frame == 1:
+                       self.current_workingFrame = 0
+                    # self.afc.extract_afcVideo(img = frame, current_workingFrame=self.current_workingFrame )
+                    x, y, width, height =self.afc.extract_afcVideo(img= None,current_workingFrame=self.current_workingFrame)
+                    # print("프레임 emit 실행")
+                    self.afc.changePixmap.emit(convertToQtFormat.copy(), QRect(x,y,width,height))
+                elif self.afc_state == 2:
+                    x,y,width,height = self.afc.play_afcResult(playFrame=self.cur_frame)
+
+                print("종료 시간 : ",time.time())
+            time.sleep(self.getWaitTime(start_time,self.fps))
 
     def pauseVideo(self):
         self.play = False
 
     def playVideo(self):
-        if self.cap is None:
+        if not self.cap.isOpened():
             return
 
         if not self.isRunning():
+            self.running = True
             self.start()
 
         self.play = True
 
     def stopVideo(self):
-        pass
-
+        self.running = False
+        self.cap.release()
+        self.ext_state = 0
+        self.afc_state = 0
+        self.current_workingFrame = 0
+        self.changeTime.emit(0,0)
 
     def openVideo(self,file_path):
-        print(file_path)
         self.cap = cv2.VideoCapture(file_path)
         self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
-        if file_path:
+        if self.cap.isOpened():
             self.total_frame = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
             self.cur_frame = self.cap.get(cv2.CAP_PROP_POS_FRAMES)
-            self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+            self.fps = round(self.cap.get(cv2.CAP_PROP_FPS))
             self.duration = self.total_frame / self.fps
             self.minutes = int(self.duration/60)
             self.seconds = int(self.duration%60)
             self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
+            self.moveFrame(0)
 
-        # 창을 다시 열었을 때를 위해 upload시에 라벨을 특정 색으로 초기화
-        # convertToQtFormat = QImage(rgbImage.data,w,h,bytesPerLine,QImage.Format_RGB888)
-        # p = convertToQtFormat.scaled(1280,1040,Qt.KeepAspectRatio)
-        # self.changePixmap(p)
-
-    def moveFrame(self, frame):
-        self.cap.set(cv2.CAP_PROP_POS_FRAMES,frame)
+    def moveFrame(self, frame_num):
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES,frame_num)
         ret, frame = self.cap.read()
         self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
-        self.changeTime.emit(int(self.cur_frame / self.fps), int(self.duration))
 
         if ret:
             rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
                                        rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
             self.changePixmap.emit(convertToQtFormat.copy())
+            self.changeTime.emit(int(self.cur_frame / self.fps), int(self.duration))
+            self.cap.set(cv2.CAP_PROP_POS_FRAMES,frame_num)
 
     def initScreen(self):
         black_image = QImage(1920,1280, QImage.Format_Indexed8)
         black_image.fill(QtGui.qRgb(0,0,0))
         self.changePixmap.emit(black_image.copy())
 
-    def play_Real(self):
-        while True:
-            if self.play and self.cap.isOpened():
-                ret,frame = self.cap.read()
-                self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+    def getWaitTime(self, start_time, fps):
+        wait_time = 1 / fps - time.time() + start_time
+        return wait_time if wait_time > 0 else 0
 
-                if ret:
-                    rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-                    convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
-                                               rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
-                    self.changePixmap.emit(convertToQtFormat.copy())
-                else:
-                    self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
-                    self.play = False
-
-            if not self.cur_frame % round(self.fps):
-                # print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
-                # print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
-                self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
-
-            time.sleep(0.025)
-
-    def play_Demo(self):
-        print("thread start")
-        while True:
-
-            if self.play and self.cap.isOpened():
-                ret,frame = self.cap.read()
-                self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
-
-                if ret:
-                    rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-                    convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
-                                               rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
-                    self.changePixmap.emit(convertToQtFormat.copy())
-                else:
-                    self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
-                    self.play = False
-
-            if not self.cur_frame % round(self.fps):
-                # print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
-                # print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
-                self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
-
-            time.sleep(0.025)
+    # def play_Demo(self):
+    #     print("thread start")
+    #     while True:
+    #
+    #         if self.play and self.cap.isOpened():
+    #             ret,frame = self.cap.read()
+    #             self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+    #
+    #             if ret:
+    #                 rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+    #                 convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
+    #                                            rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
+    #                 self.changePixmap.emit(convertToQtFormat.copy())
+    #             else:
+    #                 self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+    #                 self.play = False
+    #
+    #         if not self.cur_frame % round(self.fps):
+    #             # print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
+    #             # print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
+    #             self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
+    #
+    #         time.sleep(0.025)
 
 
 class common(object):
@@ -193,6 +214,7 @@ class common(object):
 
     def __init__(self, ui):
         self.form = ui
+        self.video_player = cv_video_player(ui.afc)
 
     def optUrlSaveFileDir(self):
         """
@@ -203,24 +225,28 @@ class common(object):
         print("select folder :: ", self.saveUrlPath)
         return self.saveUrlPath
 
-
-
     def local_upload(self):
         '''
         Title : 로컬 경로의 파일의 경로를 읽어온다
         '''
-        self.uploadPath = QFileDialog.getOpenFileName(QFileDialog(),"비디오 선택","","Video Files (*.avi, *.mp4)")[0]
-        return self.uploadPath
+        path =  QFileDialog.getOpenFileName(QFileDialog(),"비디오 선택","","Video Files (*.avi, *.mp4)")[0]
+        print(path)
+        if path == "":
+            return path
+        else:
+            self.uploadPath = path
+            return self.uploadPath
+
 
     def url_upload(self):
         self.uploadUrl = self.create_input_dialog("text","URL 입력창","URL 주소")
 
     def create_videoPlayer(self):
-        self.video_player = cv_video_player()
+        return cv_video_player()
 
     def quit_videoPlayer(self):
-        self.video_player.cap.release()
-        self.video_player.terminate()
+        self.video_player.stopVideo()
+        self.video_player.initScreen()
 
     def create_massage_box(self, type, text=""):
         '''
@@ -309,7 +335,7 @@ class common(object):
         # imgData = QtGui.QPixmap(QtGui.QImage(qImage))\
         #     .scaled(width, height, QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
 
-        imgData = QtGui.QPixmap(QtGui.QImage(qImage)).scaled(width, height)
+        imgData = QtGui.QPixmap(QImage(qImage)).scaled(width, height)
         painter = QtGui.QPainter(target)
         if antialiasing:
             painter.setRenderHint(QtGui.QPainter.Antialiasing, True)

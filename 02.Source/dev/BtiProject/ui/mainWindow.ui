@@ -270,7 +270,7 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</iconset>
+                   <normaloff>../ex_PySide2/icon/play.png</normaloff>../ex_PySide2/icon/play.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -293,7 +293,7 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</iconset>
+                   <normaloff>../ex_PySide2/icon/pause.png</normaloff>../ex_PySide2/icon/pause.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -316,7 +316,7 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</iconset>
+                   <normaloff>../ex_PySide2/icon/stop.png</normaloff>../ex_PySide2/icon/stop.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -759,103 +759,6 @@
              </property>
             </widget>
            </item>
-           <item>
-            <layout class="QHBoxLayout" name="afc_horizontalLayout_mid1">
-             <item>
-              <layout class="QHBoxLayout" name="afc_horizontalLayout_mid2">
-               <item>
-                <widget class="QPushButton" name="afc_pushButton_play">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>32</width>
-                   <height>32</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="afc_pushButton_pause">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>32</width>
-                   <height>32</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="afc_pushButton_stop">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>32</width>
-                   <height>32</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="afc_horizontalSpacer_mid">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QLabel" name="afc_before_time">
-               <property name="text">
-                <string>00:00:00 / 00:00:00</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="afc_widget_after_Md" native="true">
@@ -919,109 +822,132 @@
              </property>
             </widget>
            </item>
-           <item>
-            <layout class="QHBoxLayout" name="afc_horizontalLayout_mid1_2">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item>
-              <layout class="QHBoxLayout" name="afc_horizontalLayout_mid2_2">
-               <item>
-                <widget class="QPushButton" name="afc_pushButton_play_2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/play.png</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>32</width>
-                   <height>32</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="afc_pushButton_pause_2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/pause.png</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>32</width>
-                   <height>32</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="afc_pushButton_stop_2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</normaloff>D:/project/bitproject/02.Source/dev/BtiProject/ex_PySide2/icon/stop.png</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>32</width>
-                   <height>32</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="afc_horizontalSpacer_mid_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QLabel" name="afc_after_time">
-               <property name="text">
-                <string>00:00:00 / 00:00:00</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
           </layout>
          </widget>
         </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="afc_horizontalLayout_mid1">
+         <item>
+          <layout class="QHBoxLayout" name="afc_horizontalLayout_mid2">
+           <item>
+            <widget class="QPushButton" name="afc_pushButton_play">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>../ex_PySide2/icon/play.png</normaloff>../ex_PySide2/icon/play.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="afc_pushButton_pause">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>../ex_PySide2/icon/pause.png</normaloff>../ex_PySide2/icon/pause.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="afc_pushButton_stop">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>../ex_PySide2/icon/stop.png</normaloff>../ex_PySide2/icon/stop.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="afc_horizontalSpacer_mid">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Preferred</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QSlider" name="afc_horizontalSlider">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Preferred</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="afc_before_time">
+           <property name="text">
+            <string>00:00:00 / 00:00:00</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -1044,7 +970,7 @@
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>110</y>
           <width>204</width>
           <height>24</height>
@@ -1105,7 +1031,7 @@
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>750</x>
+          <x>680</x>
           <y>110</y>
           <width>239</width>
           <height>24</height>
@@ -1155,7 +1081,7 @@
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>440</x>
+          <x>390</x>
           <y>110</y>
           <width>213</width>
           <height>24</height>

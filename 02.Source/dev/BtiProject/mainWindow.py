@@ -141,7 +141,6 @@ class Ui_Form(QtCore.QObject):
         self.ext_splitter_Md.setChildrenCollapsible(False)
         self.ext_splitter_Md.setObjectName("ext_splitter_Md")
         self.ext_widget_video_Md = QtWidgets.QWidget(self.ext_splitter_Md)
-        # self.ext_widget_video_Md.setStyleSheet("border: 1px solid gray;")
         self.ext_widget_video_Md.setObjectName("ext_widget_video_Md")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.ext_widget_video_Md)
         self.verticalLayout_7.setSpacing(0)
@@ -160,9 +159,9 @@ class Ui_Form(QtCore.QObject):
         font.setBold(True)
         self.ext_label_extMd.setFont(font)
         self.ext_label_extMd.setLayoutDirection(QtCore.Qt.LeftToRight)
-        # self.ext_label_extMd.setStyleSheet("border: 1px solid gray;")
         self.ext_label_extMd.setAlignment(QtCore.Qt.AlignCenter)
         self.ext_label_extMd.setObjectName("ext_label_extMd")
+        self.ext_label_extMd.setStyleSheet("border: 1px solid gray; background-color: QColor(25,25,25);")
         self.verticalLayout_7.addWidget(self.ext_label_extMd)
         self.ext_horizontalLayout_mid1 = QtWidgets.QHBoxLayout()
         self.ext_horizontalLayout_mid1.setObjectName("ext_horizontalLayout_mid1")
@@ -405,7 +404,7 @@ class Ui_Form(QtCore.QObject):
         font.setBold(True)
         self.afc_label_before_Md.setFont(font)
         self.afc_label_before_Md.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.afc_label_before_Md.setStyleSheet("border: 1px solid gray;")
+        self.afc_label_before_Md.setStyleSheet("border: 1px solid gray; background-color: QColor(25,25,25)")
         self.afc_label_before_Md.setAlignment(QtCore.Qt.AlignCenter)
         self.afc_label_before_Md.setObjectName("afc_label_before_Md")
         self.verticalLayout.addWidget(self.afc_label_before_Md)
@@ -447,19 +446,25 @@ class Ui_Form(QtCore.QObject):
         self.afc_pushButton_stop.setObjectName("afc_pushButton_stop")
         self.afc_horizontalLayout_mid2.addWidget(self.afc_pushButton_stop)
         self.afc_horizontalLayout_mid1.addLayout(self.afc_horizontalLayout_mid2)
-        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem4 = QtWidgets.QSpacerItem(40,20,QtWidgets.QSizePolicy.Preferred,QtWidgets.QSizePolicy.Minimum)
         self.afc_horizontalLayout_mid1.addItem(spacerItem4)
+        self.afc_horizontalSlider = QtWidgets.QSlider(self.tab_afc)
+        self.afc_horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.afc_horizontalSlider.setObjectName("afc_horizontalSlider")
+        self.afc_horizontalLayout_mid1.addWidget(self.afc_horizontalSlider)
+        spacerItem5 = QtWidgets.QSpacerItem(40,20,QtWidgets.QSizePolicy.Preferred,QtWidgets.QSizePolicy.Minimum)
+        self.afc_horizontalLayout_mid1.addItem(spacerItem5)
         self.afc_before_time = QtWidgets.QLabel(self.afc_widget_before_Md)
         self.afc_before_time.setObjectName("afc_before_time")
         self.afc_horizontalLayout_mid1.addWidget(self.afc_before_time)
-        self.verticalLayout.addLayout(self.afc_horizontalLayout_mid1)
+        # self.verticalLayout.addLayout(self.afc_horizontalLayout_mid1)
         self.afc_widget_after_Md = QtWidgets.QWidget(self.afc_splitter_Md)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.afc_widget_after_Md.sizePolicy().hasHeightForWidth())
         self.afc_widget_after_Md.setSizePolicy(sizePolicy)
-        self.afc_widget_after_Md.setStyleSheet("border: 1px solid gray;")
+        self.afc_widget_after_Md.setStyleSheet("border: 1px solid gray; background-color: QColor(25,25,25)")
         self.afc_widget_after_Md.setObjectName("afc_widget_after_Md")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.afc_widget_after_Md)
         self.verticalLayout_2.setSpacing(0)
@@ -482,52 +487,53 @@ class Ui_Form(QtCore.QObject):
         self.afc_label_after_Md.setAlignment(QtCore.Qt.AlignCenter)
         self.afc_label_after_Md.setObjectName("afc_label_after_Md")
         self.verticalLayout_2.addWidget(self.afc_label_after_Md)
-        self.afc_horizontalLayout_mid1_2 = QtWidgets.QHBoxLayout()
-        self.afc_horizontalLayout_mid1_2.setSpacing(0)
-        self.afc_horizontalLayout_mid1_2.setObjectName("afc_horizontalLayout_mid1_2")
-        self.afc_horizontalLayout_mid2_2 = QtWidgets.QHBoxLayout()
-        self.afc_horizontalLayout_mid2_2.setObjectName("afc_horizontalLayout_mid2_2")
-        self.afc_pushButton_play_2 = QtWidgets.QPushButton(self.afc_widget_after_Md)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.afc_pushButton_play_2.sizePolicy().hasHeightForWidth())
-        self.afc_pushButton_play_2.setSizePolicy(sizePolicy)
-        self.afc_pushButton_play_2.setText("")
-        self.afc_pushButton_play_2.setIcon(icon)
-        self.afc_pushButton_play_2.setIconSize(QtCore.QSize(32, 32))
-        self.afc_pushButton_play_2.setObjectName("afc_pushButton_play_2")
-        self.afc_horizontalLayout_mid2_2.addWidget(self.afc_pushButton_play_2)
-        self.afc_pushButton_pause_2 = QtWidgets.QPushButton(self.afc_widget_after_Md)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.afc_pushButton_pause_2.sizePolicy().hasHeightForWidth())
-        self.afc_pushButton_pause_2.setSizePolicy(sizePolicy)
-        self.afc_pushButton_pause_2.setText("")
-        self.afc_pushButton_pause_2.setIcon(icon1)
-        self.afc_pushButton_pause_2.setIconSize(QtCore.QSize(32, 32))
-        self.afc_pushButton_pause_2.setObjectName("afc_pushButton_pause_2")
-        self.afc_horizontalLayout_mid2_2.addWidget(self.afc_pushButton_pause_2)
-        self.afc_pushButton_stop_2 = QtWidgets.QPushButton(self.afc_widget_after_Md)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.afc_pushButton_stop_2.sizePolicy().hasHeightForWidth())
-        self.afc_pushButton_stop_2.setSizePolicy(sizePolicy)
-        self.afc_pushButton_stop_2.setText("")
-        self.afc_pushButton_stop_2.setIcon(icon2)
-        self.afc_pushButton_stop_2.setIconSize(QtCore.QSize(32, 32))
-        self.afc_pushButton_stop_2.setObjectName("afc_pushButton_stop_2")
-        self.afc_horizontalLayout_mid2_2.addWidget(self.afc_pushButton_stop_2)
-        self.afc_horizontalLayout_mid1_2.addLayout(self.afc_horizontalLayout_mid2_2)
-        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.afc_horizontalLayout_mid1_2.addItem(spacerItem5)
-        self.afc_after_time = QtWidgets.QLabel(self.afc_widget_after_Md)
-        self.afc_after_time.setObjectName("afc_after_time")
-        self.afc_horizontalLayout_mid1_2.addWidget(self.afc_after_time)
-        self.verticalLayout_2.addLayout(self.afc_horizontalLayout_mid1_2)
+        # self.afc_horizontalLayout_mid1_2 = QtWidgets.QHBoxLayout()
+        # self.afc_horizontalLayout_mid1_2.setSpacing(0)
+        # self.afc_horizontalLayout_mid1_2.setObjectName("afc_horizontalLayout_mid1_2")
+        # self.afc_horizontalLayout_mid2_2 = QtWidgets.QHBoxLayout()
+        # self.afc_horizontalLayout_mid2_2.setObjectName("afc_horizontalLayout_mid2_2")
+        # self.afc_pushButton_play_2 = QtWidgets.QPushButton(self.afc_widget_after_Md)
+        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        # sizePolicy.setHorizontalStretch(0)
+        # sizePolicy.setVerticalStretch(0)
+        # sizePolicy.setHeightForWidth(self.afc_pushButton_play_2.sizePolicy().hasHeightForWidth())
+        # self.afc_pushButton_play_2.setSizePolicy(sizePolicy)
+        # self.afc_pushButton_play_2.setText("")
+        # self.afc_pushButton_play_2.setIcon(icon)
+        # self.afc_pushButton_play_2.setIconSize(QtCore.QSize(32, 32))
+        # self.afc_pushButton_play_2.setObjectName("afc_pushButton_play_2")
+        # self.afc_horizontalLayout_mid2_2.addWidget(self.afc_pushButton_play_2)
+        # self.afc_pushButton_pause_2 = QtWidgets.QPushButton(self.afc_widget_after_Md)
+        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        # sizePolicy.setHorizontalStretch(0)
+        # sizePolicy.setVerticalStretch(0)
+        # sizePolicy.setHeightForWidth(self.afc_pushButton_pause_2.sizePolicy().hasHeightForWidth())
+        # self.afc_pushButton_pause_2.setSizePolicy(sizePolicy)
+        # self.afc_pushButton_pause_2.setText("")
+        # self.afc_pushButton_pause_2.setIcon(icon1)
+        # self.afc_pushButton_pause_2.setIconSize(QtCore.QSize(32, 32))
+        # self.afc_pushButton_pause_2.setObjectName("afc_pushButton_pause_2")
+        # self.afc_horizontalLayout_mid2_2.addWidget(self.afc_pushButton_pause_2)
+        # self.afc_pushButton_stop_2 = QtWidgets.QPushButton(self.afc_widget_after_Md)
+        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        # sizePolicy.setHorizontalStretch(0)
+        # sizePolicy.setVerticalStretch(0)
+        # sizePolicy.setHeightForWidth(self.afc_pushButton_stop_2.sizePolicy().hasHeightForWidth())
+        # self.afc_pushButton_stop_2.setSizePolicy(sizePolicy)
+        # self.afc_pushButton_stop_2.setText("")
+        # self.afc_pushButton_stop_2.setIcon(icon2)
+        # self.afc_pushButton_stop_2.setIconSize(QtCore.QSize(32, 32))
+        # self.afc_pushButton_stop_2.setObjectName("afc_pushButton_stop_2")
+        # self.afc_horizontalLayout_mid2_2.addWidget(self.afc_pushButton_stop_2)
+        # self.afc_horizontalLayout_mid1_2.addLayout(self.afc_horizontalLayout_mid2_2)
+        # spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        # self.afc_horizontalLayout_mid1_2.addItem(spacerItem5)
+        # self.afc_after_time = QtWidgets.QLabel(self.afc_widget_after_Md)
+        # self.afc_after_time.setObjectName("afc_after_time")
+        # self.afc_horizontalLayout_mid1_2.addWidget(self.afc_after_time)
+        # self.verticalLayout_2.addLayout(self.afc_horizontalLayout_mid1_2)
         self.verticalLayout_5.addWidget(self.afc_splitter_Md)
+        self.verticalLayout_5.addLayout(self.afc_horizontalLayout_mid1)
         self.mainTabWidget.addTab(self.tab_afc, "오토포커싱")
 
         ########
@@ -839,7 +845,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_urlUpload.setText(QtWidgets.QApplication.translate("Form", "URL 업로드", None, -1))
         self.ext_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
         self.ext_pushButton_mdDown.setText(QtWidgets.QApplication.translate("Form", "영상 내려받기", None, -1))
-        self.ext_label_extMd.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
+        # self.ext_label_extMd.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.ext_video_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
         self.ext_pushButton_allClear.setText(QtWidgets.QApplication.translate("Form", "초기화", None, -1))
         self.ext_pushButton_selectDelete.setText(QtWidgets.QApplication.translate("Form", "선택 삭제", None, -1))
@@ -851,10 +857,10 @@ class Ui_Form(QtCore.QObject):
         self.afc_pushButton_urlUpload.setText(QtWidgets.QApplication.translate("Form", "URL 업로드", None, -1))
         self.afc_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
         self.afc_pushButton_mdDown.setText(QtWidgets.QApplication.translate("Form", "영상 내려받기", None, -1))
-        self.afc_label_before_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
+        # self.afc_label_before_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.afc_before_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
-        self.afc_label_after_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
-        self.afc_after_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
+        # self.afc_label_after_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
+        # self.afc_after_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
 
         # 설정탭 버튼 및 라벨
         self.opt_groupBox_top.setTitle(QtWidgets.QApplication.translate("Form", "공통 옵션 설정", None, -1))
@@ -932,17 +938,19 @@ class Ui_Form(QtCore.QObject):
         self.opt_comboBox_bufTime.setStyleSheet("font:12pt")
 
         ###########
+        # 메인 탭 이벤트 핸들러 설정
+        ###########
+
+        self.mainTabWidget.currentChanged.connect(self.chang_mainTab)
+
+
+        ###########
         # 설정.콤보박스 이벤트 핸들러 설정
         ###########
         self.opt_comboBox_downFileFmt.currentIndexChanged.connect(self.change_opt_comboBox_downFileFmt)
         self.opt_comboBox_downFileDef.currentIndexChanged.connect(self.change_opt_comboBox_downFileDef)
         self.opt_comboBox_coordFmt.currentIndexChanged.connect(self.change_opt_comboBox_coordFmt)
         self.opt_comboBox_bufTime.currentIndexChanged.connect(self.change_opt_comboBox_bufTime)
-
-        ###########
-        # 전체탭 클릭이벤트 핸들러 설정
-        ###########
-        self.mainTabWidget.currentChanged.connect(self.click_tab)
 
         ###########
         # 영상검출탭 클릭이벤트 핸들러 설정
@@ -978,19 +986,35 @@ class Ui_Form(QtCore.QObject):
         # 설정탭 클릭이벤트 핸들러 설정
         ###########
         self.mainTabWidget.currentChanged.connect(self.click_tab)
+        self.mainTabWidget.tabBar().installEventFilter(self)
+        self.mainTabWidget.tabBar().preIndex = 0
 
         self.opt_pushButton_urlDownDir.clicked.connect(self.click_opt_pushButton_urlDownDir)
         self.opt_pushButton_saveDir.clicked.connect(self.click_opt_pushButton_saveDir)
 
         # 작업 클래스 생성
+        self.afc = Autofocus()
         self.cm = common(self)
         self.extClass = Extract(self)
         self.opt = Option(self)
-        self.afc = Autofocus()
 
         # 검출 대상 리스트 생성
         self.cm.createTargetClassList()
 
+        # 비디오 플레이어 connect
+        self.cm.video_player.changeTime.connect(self.set_time)
+        self.cm.video_player.changePixmap.connect(self.setPixMap)
+
+        # 영상 추출
+        self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
+
+        # 오토포커싱
+        self.cm.video_player.changeTime.connect(self.set_afc_before_time)
+        self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
+        # self.afc.changePixmap.connect(self.process_afc)
+        self.cm.video_player.afc.changePixmap.connect(self.process_afc)
+
+        # video label black
         #   이미지 리사이즈 기능은 수행되지만 원본 이미지가 손상된다.
         #     self.ext_label_extMd.installEventFilter(self)
         #     self.afc_label_before_Md.installEventFilter(self)
@@ -1000,9 +1024,13 @@ class Ui_Form(QtCore.QObject):
         #         print("ext resize")
         #         widget.setPixmap(widget.pixmap().scaled(widget.size(), QtCore.Qt.KeepAspectRatio))
         #     elif widget is self.afc_label_before_Md:
+
         #         print("afc resize")
         #
         #     return QtCore.QObject.eventFilter(self,widget,event)
+
+    def chang_mainTab(self):
+        print("teb changed!!")
 
     def change_opt_comboBox_downFileFmt(self):
         """
@@ -1096,6 +1124,39 @@ class Ui_Form(QtCore.QObject):
     ###########
     # 공통 클릭 이벤트
     ###########
+    def eventFilter(self, object, event):
+        # TODO : 영상 추출, 오토포커싱 초기화
+        if object is self.mainTabWidget.tabBar() and event.type() in [QtCore.QEvent.MouseButtonPress] :
+            print(event.type())
+            movedIndex = object.tabAt(event.pos()) # 이동할 인덱스
+            currentIndex = object.currentIndex()  # 현재 인덱스
+            print(object.preIndex, currentIndex, movedIndex)
+
+            if currentIndex == 2 and movedIndex == object.preIndex:
+                return False
+
+            if movedIndex < 2:
+                if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n탭을 이동하시겠습니까?'):
+                    self.afc.quit_afcProcess()
+                    self.extClass.clearRowData()
+                    self.cm.quit_videoPlayer()
+                    self.initVideoLabel()
+
+                    object.preIndex = movedIndex
+                    event.accept()
+                    print(object.preIndex,currentIndex,movedIndex)
+                else:
+                    event.ignore()
+                    return True
+
+
+        return False
+
+        # TODO : 종료시 close event를 사용하여 Thread 종료 넣기
+        # TODO : video label 크기 변동 시 내부 이미지 크기 조정
+
+
+
     def click_ext_tableView_extResultList(self):
         """
         검출 테이블 데이터 더블클릭 이벤트
@@ -1142,33 +1203,28 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_tab_ext")
+        # if self.cm.create_mcged")
+
 
     def click_ext_pushButton_localUpload(self):
         """
         MEMO : 영상검출.로컬업로드 버튼 클릭
         :return:
         """
-        self.cm.local_upload()
-        print(self.cm.uploadPath)
-        self.cm.video_player.changeTime.connect(self.set_time)
+        self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
 
-        if self.cm.video_player.isRunning():
+        if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
             # video player thread 종료 후 재시작
             if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
                 self.extClass.clearRowData()
                 self.cm.quit_videoPlayer()
-                self.cm.create_videoPlayer()
-                self.cm.video_player.changeTime.connect(self.set_time)
-                self.cm.video_player.openVideo(self.cm.uploadPath)
-        else:
+            else:
+                return
+
+        if not self.cm.local_upload() == "":
             self.cm.video_player.openVideo(self.cm.uploadPath)
 
-        sleep(0.5)
 
-        # self.click_ext_pushButton_play()
-
-        # play 이후 추출 connect 실행(데모용, 검출 시작 버튼 클릭시 처리하는걸로 변경필요)
-        self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
 
 
     def click_ext_pushButton_mdDown(self):
@@ -1201,18 +1257,17 @@ class Ui_Form(QtCore.QObject):
                     self.extClass.clearRowData()
                     self.cm.quit_videoPlayer()
                     self.cm.create_videoPlayer()
-                    self.cm.video_player.changeTime.connect(self.set_time)
+                    # self.cm.video_player.changeTime.connect(self.set_time)
                     self.cm.video_player.openVideo(self.cm.uploadPath)
             else:
                 self.cm.video_player.openVideo(self.cm.uploadPath)
 
             sleep(0.5)
-            self.click_ext_pushButton_play()
+            # self.click_ext_pushButton_play()
+
 
             # play 이후 추출 connect 실행
-            self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
-
-
+            # self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
 
 
     def click_ext_pushButton_play(self):
@@ -1221,13 +1276,11 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_play")
-        if self.cm.video_player.isRunning():
-            if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
-                self.extClass.clearRowData()
-                self.cm.video_player.playVideo()
-        else:
-            self.cm.video_player.changePixmap.connect(self.setPixMap)
-            self.cm.video_player.playVideo()
+        # if self.cm.video_player.isRunning():
+        #     if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+        #         self.extClass.clearRowData()
+
+        self.cm.video_player.playVideo()
 
     def click_ext_pushButton_pause(self):
         """
@@ -1289,6 +1342,15 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_startExt")
+        self.cm.video_player.pauseVideo()
+
+        if self.cm.video_player.ext_state == 0:
+            self.cm.video_player.ext_state = 1
+
+        self.cm.video_player.moveFrame(self.cm.video_player.current_workingFrame)
+        self.cm.video_player.playVideo()
+
+
 
         ###########
         # 클릭 이벤트 영상검출 탭 end
@@ -1312,23 +1374,34 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱 로컬 업로드 버튼 클릭
         :return:
         """
-        self.cm.local_upload()
-        print(self.cm.uploadPath)
-        self.cm.video_player.changeTime.connect(self.set_afc_before_time)
-        self.cm.video_player.changeTime.connect(self.set_afc_after_time)
+        self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
+        # if self.afc.cap.isOpened() and self.afc.afc_state:
+        #     if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+        #         self.afc.quit_afcProcess()
+        #         self.initVideoLabel()
+        #     else:
+        #         return 0
+        #
+        # if not self.cm.local_upload() == "":
+        #     if self.cm.video_player.isRunning():
+        #         self.cm.quit_videoPlayer()
+        #     self.cm.video_player.openVideo(self.cm.uploadPath)
+        #     self.afc.setUp(self)
+        #
+        #     print("afc_pushButton_localUpload")
 
-        if self.cm.video_player.isRunning():
-            if self.cm.create_massage_box("yesno","기 추출된 오토포커싱 영상이 모두 삭제됩니다.\n계속하시겠습니까?"):
-                self.extClass.clearRowData()
-                # video player thread 종료 후 재시작
+
+        if self.cm.video_player.isRunning() and self.cm.video_player.afc_state:
+            # video player thread 종료 후 재시작
+            if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
                 self.cm.quit_videoPlayer()
-                self.cm.create_videoPlayer()
-                self.cm.video_player.changeTime.connect(self.set_afc_before_time)
-                self.cm.video_player.changeTime.connect(self.set_afc_after_time)
-                self.cm.video_player.openVideo(self.cm.uploadPath)
-        else:
+                self.initVideoLabel()
+            else:
+                return
+
+        if not self.cm.local_upload() == "":
             self.cm.video_player.openVideo(self.cm.uploadPath)
-        print("afc_pushButton_localUpload")
+            self.cm.video_player.afc.setUp(self.cm.form)
 
 
     def click_afc_pushButton_startExt(self):
@@ -1340,16 +1413,36 @@ class Ui_Form(QtCore.QObject):
         #################
         ###기존 미디어 플레이어 쓰레드 종료
         ################
-        if self.cm.video_player.isRunning():
-            self.cm.video_player.initScreen()
-            self.cm.quit_videoPlayer()
-            print("player thread quit")
+        # if self.cm.video_player.isRunning():
+        #     self.cm.video_player.initScreen()
+        #     self.cm.quit_videoPlayer()
+        #     print("player thread quit")
+        #
+        # if not self.afc.afc_state == 0:
+        #     if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+        #         self.afc.quit_afcProcess()
+        #         self.initVideoLabel()
+        #         self.afc.setUp(self)
+        #
+        # if not self.cm.uploadPath == "":
+        #     self.afc.setUp(self)
+        #
+        #
+        # print("afc thread start")
+        # self.afc.running = True
+        # self.afc.start()
 
-        if not self.cm.uploadPath == "" and not self.afc.afc_state == 2:
-            self.afc.setUp(self)
-            self.afc.changePixmap.connect(self.process_afc)
-            self.afc.start()
-            print("afc thread start")
+        self.cm.video_player.pauseVideo()
+
+        if self.cm.video_player.cap.isOpened():
+            if self.cm.video_player.afc_state == 0:
+                self.cm.video_player.afc_state = 1
+
+            self.cm.video_player.moveFrame(self.cm.video_player.current_workingFrame)
+
+        self.cm.video_player.playVideo()
+
+            
 
 
     def click_afc_pushButton_mdDown(self):
@@ -1380,16 +1473,14 @@ class Ui_Form(QtCore.QObject):
         # 포커싱 영상이 없을 경우 메시지박스 없이 원본 영상만 교체
         # if self.cm.create_massage_box("yesno", "기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
 
-        if not self.afc.afc_state:
-            if self.cm.video_player.isRunning():
-                self.cm.video_player.playVideo()
-            else:
-                self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
-                self.cm.video_player.playVideo()
-        else:
-            if self.afc.isRunning() and self.afc.afc_play == 0:
-                self.afc.changePixmap.connect(self.play_afc)
-                self.afc.afc_play = 1
+        self.cm.video_player.playVideo()
+
+        # if not self.afc.afc_state:
+        #     self.cm.video_player.playVideo()
+        # else:
+        #     if self.afc.isRunning() and self.afc.afc_play == 0:
+        #         # self.afc.changePixmap.connect(self.play_afc)
+        #         self.afc.afc_play = 1
 
     def click_afc_pushButton_pause(self):
         """
@@ -1397,7 +1488,12 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("afc_pushButton_pause")
-        self.afc.afc_play = 0
+        self.cm.video_player.pauseVideo()
+
+        # if self.cm.video_player.isRunning():
+        #     self.cm.video_player.pauseVideo()
+        # else:
+        #     self.afc.afc_play = 0
 
     def click_afc_pushButton_stop(self):
         """
@@ -1485,6 +1581,8 @@ class Ui_Form(QtCore.QObject):
         image = image.scaled(self.ext_label_extMd.size(),QtCore.Qt.KeepAspectRatio)
         self.ext_label_extMd.setPixmap(image)
 
+
+
     @QtCore.Slot(QtGui.QImage)
     def set_before_PixMap(self,image):
         image = QtGui.QPixmap.fromImage(image)
@@ -1508,8 +1606,8 @@ class Ui_Form(QtCore.QObject):
         # 좌표 처리
         afc_image = image.copy(rect)  # QtCore.QRect(x, y, width, height)
         afc_image = afc_image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
-        image = image.scaled(self.afc_label_before_Md.size(), QtCore.Qt.KeepAspectRatio)
-        self.afc_label_before_Md.setPixmap(image)
+        # image = image.scaled(self.afc_label_before_Md.size(), QtCore.Qt.KeepAspectRatio)
+        # self.afc_label_before_Md.setPixmap(image)
         self.afc_label_after_Md.setPixmap(afc_image)
 
     @QtCore.Slot(QtGui.QImage,QtCore.QRect)
@@ -1518,10 +1616,9 @@ class Ui_Form(QtCore.QObject):
         # 좌표 처리
         afc_image = image.copy(rect)  # QtCore.QRect(x, y, width, height)
         afc_image = afc_image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
-        image = image.scaled(self.afc_label_before_Md.size(),QtCore.Qt.KeepAspectRatio)
+        # image = image.scaled(self.afc_label_before_Md.size(),QtCore.Qt.KeepAspectRatio)
+        # self.afc_label_before_Md.setPixmap(image)
         self.afc_label_after_Md.setPixmap(afc_image)
-        #
-        self.afc_label_before_Md.setPixmap(image)
 
     @QtCore.Slot(int,int)
     def set_time(self,cur_time,total_time):
@@ -1549,18 +1646,27 @@ class Ui_Form(QtCore.QObject):
                                                                                  total_seconds)
         self.afc_before_time.setText(update_time)
 
-    @QtCore.Slot(int,int)
-    def set_afc_after_time(self,cur_time,total_time):
-        cur_seconds = int(cur_time % 60)
-        cur_minutes = int((cur_time / 60) % 60)
-        cur_hours = int(cur_time / 3600)
-        total_seconds = int(total_time % 60)
-        total_minutes = int((total_time / 60) % 60)
-        total_hours = int(total_time / 3600)
-        update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
-                                                                                 total_hours,total_minutes,
-                                                                                 total_seconds)
-        self.afc_after_time.setText(update_time)
+    def initVideoLabel(self):
+        black_image = QtGui.QImage(1920,1280,QtGui.QImage.Format_Indexed8)
+        black_image.fill(QtGui.qRgb(0,0,0))
+        image = QtGui.QPixmap.fromImage(black_image)
+        image = image.scaled(self.ext_label_extMd.size(),QtCore.Qt.KeepAspectRatio)
+        self.ext_label_extMd.setPixmap(image)
+        self.afc_label_before_Md.setPixmap(image)
+        self.afc_label_after_Md.setPixmap(image)
+
+    # @QtCore.Slot(int,int)
+    # def set_afc_after_time(self,cur_time,total_time):
+    #     cur_seconds = int(cur_time % 60)
+    #     cur_minutes = int((cur_time / 60) % 60)
+    #     cur_hours = int(cur_time / 3600)
+    #     total_seconds = int(total_time % 60)
+    #     total_minutes = int((total_time / 60) % 60)
+    #     total_hours = int(total_time / 3600)
+    #     update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
+    #                                                                              total_hours,total_minutes,
+    #                                                                              total_seconds)
+    #     self.afc_after_time.setText(update_time)
 
 
 if __name__ == "__main__":
@@ -1589,5 +1695,6 @@ if __name__ == "__main__":
     ui = Ui_Form()
     ui.setupUi(Form)
     Form.show()
+    ui.initVideoLabel()
     sys.exit(app.exec_())
 
