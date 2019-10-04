@@ -14,28 +14,11 @@ import matplotlib.pyplot as plt
 import sys
 from skimage import io      #pip install scikit-image
 import cv2
-# import openface
+from keras.models import load_model
+import FacenetInKeras
+import facenetRealTime
+import openfaceRealTime
 
-"""
-# Default Flow Task 
-# 1. 로컬업로드 선택 -> 파일업로드 다이얼로그(영상 확장자 선택) -> 해당 업로드 탭 영상 실행(영상 핸들링) ->
-# 2. url 업로드 선택 -> url 입력 팝업에 url 입력 후 확인 -> 영상 다운로드(다운 불가시 메시지 팝업) -> 다운 영상 업로드 -> 해당 업로드 탭 영상 실행(영상 핸들링)
-# 3. 내려받기 -> 내려받기 파일명 미리보기 팝업('설정탭 저장경로/YYYYMMDD_HHMMSS.확장자(설정탭)' 로 저장하시겠습니까? Y/N)
-      -> 로딩바(프로그레스바) 출력 -> 해당 경로로 내려받기 저장(우선은 업로드한 영상을 저장하는 걸로 저장프로세스만 처리)
-      -> '내려받기가 완료되었습니다.' 팝업
-
-# common class 공통 변수 설정
-    (common)self.uploadPath         : 업로드 경로
-    (common)self.uploadUrl          : 업로드 URL 주소
-    (common)self.callTabObjNm       : 요청 탭 오브젝트 네임
-    (common)self.savePath           : 저장 경로
-    (common)self.saveFileNm         : 저장 파일명
-    (common)self.saveFmt            : 저장 확장자명
-    (common)self.saveResol          : 저장 화질명
-    (common)self.saveProgressPer    : 저장 프로그레스 퍼센트
-    ...
-    ...
-"""
 
 
 class cv_video_player(QThread):
@@ -63,7 +46,32 @@ class cv_video_player(QThread):
         # afc 클래스
         self.afc = Autofocus()
 
+        # 얼굴 검출 관련 클래스 설정
+        self.usedFaceStateNm = "openface"        # facenet / facenet2 / openface
+        self.model = None
+        self.initModel()
+
+    def initModel(self):
+        if self.usedFaceStateNm == 'facenet':
+            self.model = FacenetInKeras.facenetInKeras()
+            print("========== facenet model build")
+
+        elif self.usedFaceStateNm == 'facenet2':
+            self.model = facenetRealTime.facenetRealtime()
+            self.model.defaultSetFacenet2()
+            print("========== facenet2 model build")
+
+        elif self.usedFaceStateNm == 'openface':
+            self.model = openfaceRealTime.openfaceRealTime()
+            self.model.defaultSetOpenface()
+            print("========== openface model build")
+
     def run(self):
+
+        # 비디오 업로드 시 모델 업로드 처리
+        if self.usedFaceStateNm == "facenet":
+            self.model.faceModel = load_model('./00.Resource/model/facenet_keras.h5')
+
         while self.running:
             start_time =time.time()
             convertToQtFormat = ""
@@ -74,51 +82,134 @@ class cv_video_player(QThread):
                 self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
 
                 if ret:
+                    # 재생 시간 정보 업데이트 emit
+                    if not self.cur_frame % self.fps:
+                        self.changeTime.emit(int(self.cur_frame / self.fps), int(self.duration))
+
+                    # 프레임이미지 컨버팅 (영상내 얼굴 검출을 위함)
                     rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-                    convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
-                                               rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
+                    convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
+                                               rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
+
+                    # 영상검출탭 -> 특정 시간 -> 얼굴 검출
+                    # print("current_workingFrame ", self.current_workingFrame)
+                    # if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
+                    ## information
+                    self.current_workingFrame = self.cur_frame
+                    # 검출수행
+                    rgbImage = self.extractFaceOrder(rgbImage)
+
+                    # 검출결과를 입력하기 위하여 데이터 정제
+                    resultData = ["1", "2", "3", str(self.cur_frame)]
+                    # self.changeExtFrame.emit(rgbImage, resultData)
+                    self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
+
+                    if self.afc_state == 1:
+                        # if self.afc_state and self.cur_frame > self.current_workingFrame:
+                        self.current_workingFrame = self.cur_frame
+                        if self.cur_frame == 1:
+                            self.current_workingFrame = 0
+
+                        ## TODO :: COPY HERE EXTRACT
+                        # 검출수행
+                        rgbImage = self.extractFaceOrder(rgbImage)
+
+                        # self.afc.extract_afcVideo(img = frame, current_workingFrame=self.current_workingFrame )
+                        x, y, width, height = self.afc.extract_afcVideo(img=None,
+                                                                        current_workingFrame=self.current_workingFrame)
+                        # print("프레임 emit 실행")
+
+                        self.afc.changePixmap.emit(convertToQtFormat.copy(), QRect(x, y, width, height))
+                    elif self.afc_state == 2:
+                        x, y, width, height = self.afc.play_afcResult(playFrame=self.cur_frame)
+
                     self.changePixmap.emit(convertToQtFormat.copy())
+                    # print("self.cur_frame % self.fps :: ", self.cur_frame % self.fps)
                 else:
                     self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
                     self.play = False
 
-                if not self.cur_frame % self.fps:
-                    print("cur frame : {} total frame : {} ".format(self.cur_frame,self.total_frame))
-                    print("fps : {} {}".format(self.fps,self.cur_frame / self.fps))
-                    self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
 
-                    # # 3초에 한번씩 프레임데이터를 검출결과테이블로 전달(데모를 위함)
-                    # if int(self.cur_frame / round(self.fps)) % 3 == 0:
-                    #     print("프레임 emit 실행")
-                    #     # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
-                    #     resultData = ["1", "2", "3", str(self.cur_frame)]
-                    #     # self.changeExtFrame.emit(rgbImage, resultData)
-                    #     self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
-
-                    # 3초에 한번씩 프레임데이터를 검출결과테이블로 전달(데모를 위함)
-                    print("current_workingFrame ", self.current_workingFrame)
-                    if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
-                        self.current_workingFrame = self.cur_frame
-                        print("프레임 emit 실행")
-                        # 검출을 위해 이미지를 검출procClass 로 보내고 리턴받는 작업 필요
-                        resultData = ["1","2","3",str(self.cur_frame)]
-                        # self.changeExtFrame.emit(rgbImage, resultData)
-                        self.changeExtFrame.emit(convertToQtFormat.copy(),resultData)
-
-                if self.afc_state  == 1:
-                # if self.afc_state and self.cur_frame > self.current_workingFrame:
-                    self.current_workingFrame = self.cur_frame
-                    if self.cur_frame == 1:
-                       self.current_workingFrame = 0
-                    # self.afc.extract_afcVideo(img = frame, current_workingFrame=self.current_workingFrame )
-                    x, y, width, height =self.afc.extract_afcVideo(img= None,current_workingFrame=self.current_workingFrame)
-                    # print("프레임 emit 실행")
-                    self.afc.changePixmap.emit(convertToQtFormat.copy(), QRect(x,y,width,height))
-                elif self.afc_state == 2:
-                    x,y,width,height = self.afc.play_afcResult(playFrame=self.cur_frame)
 
                 # print("종료 시간 : ",time.time())
             time.sleep(self.getWaitTime(start_time,self.fps)*0.9)
+
+    def extractFaceOrder(self, rgbImage):
+        """
+        입력받은 이미지를 이용하여 각기다른 검증 모델을 수행한다
+        :param rgbImage:
+        :return:
+        """
+        if str(self.usedFaceStateNm) == "facenet":
+            # keras_facenet #1
+            rgbImage = self.faceRecog_keras_facenet(rgbImage)
+        elif str(self.usedFaceStateNm) == "facenet2":
+            # keras_facenet #2
+            rgbImage = self.faceRecog_keras_facenet2(rgbImage)
+        elif str(self.usedFaceStateNm) == "openface":
+            # openface run
+            rgbImage = self.faceRecog_keras_openface(rgbImage)
+
+        return rgbImage
+
+    def faceRecog_keras_facenet(self, rgbImage):
+        """
+        # keras를 이용한 facenet 얼굴 검출 처리 #1
+        :param rgbImage:
+        :return: rgbImage
+        """
+        # print("======================검출을 수행합니다.(faceRecog_keras_facenet)")
+        faceDetResults, faceImgArr = self.model.extract_face(rgbImage)
+
+        # 이미지 내 검출된 얼굴 갯수만큼 루프
+        for idx in range(len(faceDetResults)):
+            # 검출된 얼굴박스 하나에 대하여 임베딩 처리
+            imgToEmd = self.model.getEmbedding(faceImgArr[idx])
+            # 임베딩 된 얼굴데이터의 검증 수행
+            predictNm, predictPer = self.model.predictImg(imgToEmd)
+
+            # predict 결과치가 특정 퍼센트 이상일 때만 박스 생성
+            if 65 < int(predictPer):
+                x, y, w, h = faceDetResults[idx]['box']
+                # print("left : {} _ top : {} _ right : {} _ bottom : {}".format(x, y, w, h))
+
+                # bug fix
+                x, y = abs(x), abs(y)
+                x2, y2 = x + w, y + h
+
+                # extract the face
+                # faceImg = rgbImage[y:y2, x:x2]
+                # rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                cv2.rectangle(rgbImage, (x, y), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(rgbImage, str(predictNm), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            else:
+                continue
+
+        # 박스 처리된 이미지 저장
+        # cv2.imwrite("./twice_{}frame.jpg".format(self.cur_frame), rgbImage)
+
+        return rgbImage
+
+    def faceRecog_keras_facenet2(self, rgbImage):
+        """
+        facenet 2 run
+        :param rgbImage:
+        :return:rgbImage
+        """
+        # print("======================검출을 수행합니다.(faceRecog_keras_facenet)")
+        rgbImage = self.model.runFacenet(rgbImage)
+        # rgbImage = self.model.run(rgbImage)
+        return rgbImage
+
+    def faceRecog_keras_openface(self, rgbImage):
+        """
+        openface run
+        :param rgbImage:
+        :return:
+        """
+        # print("======================검출을 수행합니다.(faceRecog_keras_openface)")
+        rgbImage = self.model.runPredictOpenface(rgbImage)
+        return rgbImage
 
     def pauseVideo(self):
         self.play = False
