@@ -42,6 +42,8 @@ class cv_video_player(QThread):
     changePixmap = Signal(QImage)
     changeTime = Signal(int,int)
     changeExtFrame = Signal(QImage,list)
+    setTotalTime = Signal(int)
+
     # changeAfcFrame = Signal(QImage,QRect)
 
     def __init__(self, afc =None, parent=None):
@@ -50,6 +52,7 @@ class cv_video_player(QThread):
         self.play = True
         self.cap = cv2.VideoCapture()
         self.running = True
+        self.fps = 0
 
         # 추출 작업 0 : 시작 전  1 : 작업 중  2 : 완료
         self.ext_state = 0
@@ -66,7 +69,7 @@ class cv_video_player(QThread):
             convertToQtFormat = ""
             rgbImage = ""
             if self.play and self.cap.isOpened():
-                print("시작 시간 : ", start_time)
+                # print("시작 시간 : ", start_time)
                 ret,frame = self.cap.read()
                 self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
 
@@ -114,8 +117,8 @@ class cv_video_player(QThread):
                 elif self.afc_state == 2:
                     x,y,width,height = self.afc.play_afcResult(playFrame=self.cur_frame)
 
-                print("종료 시간 : ",time.time())
-            time.sleep(self.getWaitTime(start_time,self.fps))
+                # print("종료 시간 : ",time.time())
+            time.sleep(self.getWaitTime(start_time,self.fps)*0.9)
 
     def pauseVideo(self):
         self.play = False
@@ -149,6 +152,7 @@ class cv_video_player(QThread):
             self.minutes = int(self.duration/60)
             self.seconds = int(self.duration%60)
             self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
+            self.setTotalTime.emit(int(self.total_frame))
             self.moveFrame(0)
 
     def moveFrame(self, frame_num):
@@ -172,6 +176,8 @@ class cv_video_player(QThread):
     def getWaitTime(self, start_time, fps):
         wait_time = 1 / fps - time.time() + start_time
         return wait_time if wait_time > 0 else 0
+    def isPlaying(self):
+        return self.play
 
     # def play_Demo(self):
     #     print("thread start")
