@@ -1,4 +1,5 @@
 from PySide2 import QtGui, QtWidgets, QtCore
+import os, platform
 
 
 class Option(object):
@@ -7,6 +8,14 @@ class Option(object):
 
         # self.dic_resolution = {"360p": (360,640), "480p": (480,854), "720p": (720,1280), "1080p": (1080,1920)}
         self.dic_resolution = {"360p": (640,360), "480p": (854,480), "720p": (1280,720), "1080p": (1920,1080)}
+
+        if platform.system() == 'Windows':
+            self.basepath = os.path.join(os.path.expanduser('~'),'Downloads')
+        else:
+            self.basepath = os.path.join(os.path.expanduser('~'),'Downloads')
+
+        self.ui.opt_lineEdit_saveDir.setText(self.basepath)
+        self.ui.opt_lineEdit_urlSaveDir.setText(self.basepath)
 
     def set_directory(self, button):
         selected_directory = QtWidgets.QFileDialog.getExistingDirectory()
@@ -25,6 +34,9 @@ class Option(object):
 
     def get_coord(self):
         return self.ui.opt_spinBox_widthValue.value(), self.ui.opt_spinBox_heightValue.value()
+
+    def get_BboxSetting(self):
+        return self.ui.opt_comboBox_bbox.currentText()
 
     def get_buffertime(self):
         return self.ui.opt_comboBox_bufTime.currentText()
