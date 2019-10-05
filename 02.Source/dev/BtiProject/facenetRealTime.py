@@ -8,28 +8,27 @@ from keras.applications.imagenet_utils import preprocess_input
 from keras.preprocessing import image
 import matplotlib.pyplot as plt
 from keras.models import model_from_json
-import os
+import os, platform
 import inception_resnet_v1
 # from inception_resnet_v1 import *
 
 class facenetRealtime():
 
     def __init__(self):
-        # self.face_cascade = cv2.CascadeClassifier('./00.Resource/dataset/haarcascade_frontalface_default.xml')
-        # self.face_cascade = cv2.CascadeClassifier('/home/bit/anaconda3/envs/faceRecognition/lib/python3.7/site-packages/cv2/data/haarcascade_frontalface_default.xml')
+        if platform.system() == "Windows":
+            self.osName = "Windows"
+            self.employee_pictures = "/home/bit/Downloads/blackpink_crop"
+            # self.employee_pictures = "/home/bit/Downloads/crop_twice"
+            self.cap = cv2.VideoCapture("/home/bit/Downloads/bp1.mp4")  # videoFile
 
-        # print("face_cascade built :: C:/Users/JK/Anaconda3/envs/faceRecognition/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
-        # ------------------------
-        # with open("../00.Resource/model/facenet_model.json", 'r') as file_handle:
-        #     self.model = model_from_json(file_handle.read())
+        elif platform.system() == "Linux":
+            self.osName = "Linux"
+            self.employee_pictures = "F:/sampleData/blackpink_crop"
+            # self.employee_pictures = "/home/bit/Downloads/crop_twice"
+            self.cap = cv2.VideoCapture("F:/sampleData/bp1.mp4")  # videoFile
+
         self.model = None
         self.faces = ""
-        # ------------------------
-        # self.employee_pictures = "/home/bit/Downloads/blackpink_crop"
-        self.employee_pictures = "/home/bit/Downloads/crop_twice"
-        # self.employee_pictures = "F:/sampleData/blackpink_crop"
-        # self.cap = cv2.VideoCapture("F:/sampleData/bp1.mp4")  # videoFile
-        self.cap = cv2.VideoCapture("/home/bit/Downloads/bp1.mp4")  # videoFile
         # ------------------------
         self.employees = dict()
         self.threshold = 21  # tuned threshold for l2 disabled euclidean distance
@@ -39,8 +38,6 @@ class facenetRealtime():
         else:
             self.threshold = 0.95
         # ------------------------
-
-
 
     def findCosineDistance(self, source_representation, test_representation):
         a = np.matmul(np.transpose(source_representation), test_representation)

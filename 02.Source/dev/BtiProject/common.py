@@ -88,22 +88,23 @@ class cv_video_player(QThread):
 
                     # 프레임이미지 컨버팅 (영상내 얼굴 검출을 위함)
                     rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-                    convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
-                                               rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
+                    convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0], rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
 
-                    # 영상검출탭 -> 특정 시간 -> 얼굴 검출
-                    # print("current_workingFrame ", self.current_workingFrame)
-                    # if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
-                    ## information
-                    self.current_workingFrame = self.cur_frame
-                    # 검출수행
-                    rgbImage = self.extractFaceOrder(rgbImage)
+                    # 영상검출탭 검출 수행
+                    if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
+                        self.current_workingFrame = self.cur_frame
 
-                    # 검출결과를 입력하기 위하여 데이터 정제
-                    resultData = ["1", "2", "3", str(self.cur_frame)]
-                    # self.changeExtFrame.emit(rgbImage, resultData)
-                    self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
+                        # 검출수행
+                        rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
+                        # 결과 데이터가 존재할 경우에만 결과목록에 출력
+                        if len(resultData) > 0:
+                            # 결과 데이터 형태
+                            # list[{dict}, ....{dict}, cur_frame]
+                            resultData.append(str(self.cur_frame))
+                            self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
+
+                    # 오토포커싱탭 검출 수행
                     if self.afc_state == 1:
                         # if self.afc_state and self.cur_frame > self.current_workingFrame:
                         self.current_workingFrame = self.cur_frame
@@ -128,9 +129,6 @@ class cv_video_player(QThread):
                 else:
                     self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
                     self.play = False
-
-
-
                 # print("종료 시간 : ",time.time())
             time.sleep(self.getWaitTime(start_time,self.fps)*0.9)
 
@@ -627,6 +625,32 @@ class common(object):
     def close_VideoWriter(self):
         print("종료")
         self.out.release()
+
+    def downloadVideo(self, frameList):
+        """
+        frame 번호 순서대로 write 처리한다.
+        :param frameList:
+        :return:
+        """
+        cap = cv2.VideoCapture("")
+        fcc = cv2.VideoWriter_fourcc('D','I','V','X')
+        fps = 60
+        width = 640
+        height = 480
+        out = cv2.VideoWriter("경로", fcc, fps, (width, height))
+
+        while True:
+            ret, frame = cap.read()
+            cur_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+
+            if cur_frame in frameList:
+                out.write(frame)
+
+            if (cap.get(cv2.CAP_PROP_POS_FRAMES) == cap.get(cv2.CAP_PROP_FRAME_COUNT)):
+                break
+
+        out.release()
+        cap.release()
 
     def downloadCoordList(self, saveFileNm, coordList, type="csv"):
         """

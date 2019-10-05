@@ -12,7 +12,7 @@ from keras.models import model_from_json
 from keras.layers.merge import Concatenate
 from keras import backend as K
 
-import os
+import os, platform, re
 import numpy as np
 import cv2
 from PIL import Image
@@ -23,28 +23,33 @@ import matplotlib.pyplot as plt
 class openfaceRealTime():
 
     def __init__(self):
+        if platform.system() == "Linux":
+            self.osName = "Linux"
+            self.employee_pictures = "/home/bit/Downloads/blackpink_crop"
+            # self.employee_pictures = "/home/bit/Downloads/crop_twice"
+            self.videoFilePath = "/home/bit/Downloads/test5.mp4"
+
+        elif platform.system() == "Windows":
+            self.osName = "Windows"
+            self.employee_pictures = "F:/sampleData/blackpink_crop"
+            # self.employee_pictures = "F:/sampleData/crop_twice"
+            self.videoFilePath = "F:/sampleData/test5.mp4"
+
+        self.face_cascade = ""
         self.dump = False
         self.model = ""
         self.color = (0, 255, 0)
-        # self.face_cascade = cv2.CascadeClassifier('/home/bit/anaconda3/envs/faceRecognition/lib/python3.7/site-packages/cv2/data/haarcascade_frontalface_default.xml')
-        self.employee_pictures = "/home/bit/Downloads/blackpink_crop"
-        self.videoFilePath = "/home/bit/Downloads/test5.mp4"
+
         self.employees = dict()
         self.metric = "cosine"
         self.threshold = 0.45
-
 
     def preprocess_image(self, image_path):
         img = load_img(image_path, target_size=(96, 96))
         img = img_to_array(img)
         img = np.expand_dims(img, axis=0)
-
-        # preprocess_input normalizes input in scale of [-1, +1]. You must apply same normalization in prediction.
-        # Ref: https://github.com/keras-team/keras-applications/blob/master/keras_applications/imagenet_utils.py (Line 45)
         img = preprocess_input(img)
         return img
-
-
     # ------------------------
 
     def builtModel(self):
@@ -351,8 +356,18 @@ class openfaceRealTime():
         :param img:
         :return: img
         """
-        face_cascade = cv2.CascadeClassifier('/home/bit/anaconda3/envs/faceRecognition/lib/python3.7/site-packages/cv2/data/haarcascade_frontalface_default.xml')
-        faces = face_cascade.detectMultiScale(img, 1.3, 5)
+        if self.osName == "Windows":
+            self.face_cascade = cv2.CascadeClassifier('C:\\Users\\JK\\Documents\\GitHub\\bitproject\\haarcascade_frontface.xml')
+        elif self.osName == "Linux":
+            self.face_cascade = cv2.CascadeClassifier('/home/bit/anaconda3/envs/faceRecognition/lib/python3.7/site-packages/cv2/data/haarcascade_frontalface_default.xml')
+
+        faces = self.face_cascade.detectMultiScale(img, 1.3, 5)
+
+        extDict = dict()    # 결과 데이터 딕셔너리
+        extList = list()    # 결과 데이터 리스트
+
+        # 클래스명에서 숫자를 제거하기위한 정규식
+        expText = re.compile('[^0-9%.() ]')
 
         for (x, y, w, h) in faces:
             if w > 60:  # discard small detected faces
@@ -384,7 +399,7 @@ class openfaceRealTime():
                         print(employee_name, ": ", distance)
                     distances.append(distance)
 
-                label_name = 'unknown'
+                label_name = 'Unknown'
                 similarity = 0
                 index = 0
                 for i in self.employees:
@@ -392,18 +407,17 @@ class openfaceRealTime():
                     if index == np.argmin(distances):
                         if distances[index] <= self.threshold:
                             # print("detected: ",employee_name)
-
                             if self.metric == "euclidean":
                                 similarity = 100 + (90 - 100 * distance)
                             elif self.metric == "cosine":
                                 similarity = 100 + (40 - 100 * distance)
 
                             # print("similarity :: ", similarity)
-                            if similarity > 99.99: similarity = 99.99
+                            if similarity > 99.99:
+                                similarity = 99.99
 
                             label_name = "%s (%s%s)" % (employee_name, str(round(similarity, 2)), '%')
                             break
-
                     index = index + 1
 
                 print("======================================================")
@@ -412,13 +426,23 @@ class openfaceRealTime():
                 cv2.putText(img, label_name, (int(x + w + 15), int(y - 64)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),2)
 
                 if self.dump:
-                    print("----------------------")
+                    print("call dump----------------------")
 
                 # connect face and text
                 cv2.line(img, (x + w, y - 64), (x + w - 25, y - 64), self.color, 1)
                 cv2.line(img, (int(x + w / 2), y), (x + w - 25, y - 64), self.color, 1)
 
-        return img
+                # 검출 결과 데이터 저장
+                extDict['x'] = x
+                extDict['y'] = y
+                extDict['w'] = w
+                extDict['h'] = h
+                extDict['percent'] = str(round(similarity, 2))
+                extDict['labelname'] = "".join(expText.findall(employee_name))
+                extList.append(extDict)
+
+        # 프레임 이미지(박스:Y), 결과데이터(박스좌표, 검출결과(이름,정확도))
+        return img, extList
 
 
     def runVideo(self):

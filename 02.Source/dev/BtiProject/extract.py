@@ -36,57 +36,6 @@ class Extract(object):
             while len(delList) > 0:
                 tableModel.removeRow(delList.pop())
 
-
-    def add_tRowData(self):
-        """
-        # 영상검출 내역 테이블에 데이터를 추가한다.
-        :return:
-        """
-        dModel = self.table.model()
-        rowCnt = self.table.model().rowCount()
-
-        # 데이터 생성 #1.1
-        # 첫번째 컬럼 - 체크박스 (QStandardItem)
-        # chkItem = QtGui.QStandardItem()
-        # chkItem.setCheckable(True)
-        # chkItem.setEditable(False)
-        # chkItem.setTextAlignment(QtCore.Qt.AlignCenter)
-        # dModel.setItem(rowCnt, 0, chkItem)
-
-        # 데이터 생성 #1.2
-        # 첫번째 컬럼 - 체크박스 (QTableWidgetItem)
-        chkItem = QtGui.QStandardItem()
-        chkItem.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
-        chkItem.setCheckState(QtCore.Qt.Unchecked)
-        dModel.setItem(rowCnt, 0, chkItem)
-
-        # 썸네일 이미지 추출
-        thumnailImg = self.cm.createThumnail_filePath("pixmap", "D:/sampleImg/image2.jpg", 50, 50, 50)
-
-        # 브러시를 이용하여 썸네일 입력
-        # 추후 학습 결과를 QImage
-        imgBrush = QtGui.QBrush()
-        imgBrush.setTexture(thumnailImg)
-        imgBrush.setStyle(QtCore.Qt.BrushStyle.RadialGradientPattern)
-        imgItem = QtGui.QStandardItem()
-        imgItem.setBackground(imgBrush)
-        imgItem.setTextAlignment(QtCore.Qt.AlignCenter)
-        imgItem.setEditable(False)
-
-        dModel.setItem(rowCnt, 1, imgItem)
-
-        # 데이터 생성 #3
-        # 세번째~나머지 컬럼 - 텍스트 데이터 입력 처리 루프
-        for colCnt in range(2,6):
-            inputTextSample = "Input Result Value : {}".format(rowCnt)
-            item = QtGui.QStandardItem(inputTextSample)
-            item.setTextAlignment(QtCore.Qt.AlignCenter)
-            item.setEditable(False)
-            dModel.setItem(rowCnt, colCnt, item)
-
-        self.table.setRowHeight(rowCnt, 50)
-
-
     def extAddRowData(self, image, dataList):
         """
         # 영상검출 내역 테이블에 데이터를 추가한다. (영상 재생구간에 사용)
@@ -95,18 +44,13 @@ class Extract(object):
         dModel = self.table.model()
         rowCnt = self.table.model().rowCount()
 
-        # 데이터 생성 #1.2
-        # 첫번째 컬럼 - 체크박스 (QTableWidgetItem)
+        # 첫번째 컬럼 생성 (체크박스)
         chkItem = QtGui.QStandardItem()
         chkItem.setFlags(QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         chkItem.setCheckState(QtCore.Qt.Unchecked)
         dModel.setItem(rowCnt, 0, chkItem)
 
-        # 얼굴 중심 좌표 추출 테스트
-        # rgbImage = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # self.cm.findFaceInHOG(imgFilePath=None, img=rgbImage)
-
-        # 썸네일 이미지 추출
+        # 검출 프레임 썸네일 추출
         thumnailImg = self.cm.createThumnail_QImage("pixmap", image, 50, 50, 50)
 
         # 브러시를 이용하여 썸네일 입력
@@ -118,20 +62,39 @@ class Extract(object):
         imgItem.setBackground(imgBrush)
         imgItem.setTextAlignment(QtCore.Qt.AlignCenter)
         imgItem.setEditable(False)
-
         dModel.setItem(rowCnt, 1, imgItem)
 
-        # 데이터 생성 #3
-        # 세번째~나머지 컬럼 - 텍스트 데이터 입력 처리 루프
-        for colCnt in range(2,6):
-            item = QtGui.QStandardItem(dataList[int(colCnt-2)])
+        # 검출 결과 정보 입력
+        #
+        print("dataList :: ")
+        print(dataList)
+
+        # 검출 정보 추출 (프레임 번호 제외)
+        extInfoStr = ""
+        for idx in range(len(dataList)-1):
+            data = dataList[idx]
+            nameStr = str(data['labelname'])
+            perStr = str(data['percent'])
+
+            if len(dataList)-2 == idx:
+                extInfoStr = str(extInfoStr) + str(nameStr) + "[" + perStr + " %]"
+                continue
+
+            extInfoStr = str(extInfoStr) + str(nameStr) + "[" + perStr + " %], "
+
+        for colIdx in range(2,4):
+            print("colIdc :: ", colIdx)
+            if colIdx == 2:
+                item = QtGui.QStandardItem(extInfoStr)
+            elif colIdx == 3:
+                item = QtGui.QStandardItem(dataList[-1])
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             item.setEditable(False)
-            dModel.setItem(rowCnt, colCnt, item)
+            dModel.setItem(rowCnt, colIdx, item)
 
-        # Row Height 설정 (썸네일 이미지 뷰를 위하여 크기조정)
-        # 데이터 ROW를 입력한 뒤에 해당 라인의 높이 설정이 가능함 건당 처리 필요
+        # 건당 데이터의 row 높이 설정
         self.table.setRowHeight(rowCnt, 50)
+
 
     @QtCore.Slot(QtWidgets.QTableWidgetItem)
     def on_tableWidget_itemChanged(self, item):

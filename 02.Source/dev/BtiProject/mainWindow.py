@@ -1252,31 +1252,20 @@ class Ui_Form(QtCore.QObject):
         """
         # QStandardItemModel 로 모델 생성
         self.modelAttr = QtGui.QStandardItemModel()
-        self.modelAttr.setColumnCount(6)
+        self.modelAttr.setColumnCount(4)
         self.modelAttr.setHeaderData(0,QtCore.Qt.Horizontal,"선택")
         self.modelAttr.setHeaderData(1,QtCore.Qt.Horizontal,"썸네일")
-        self.modelAttr.setHeaderData(2,QtCore.Qt.Horizontal,"대상명")
-        self.modelAttr.setHeaderData(3,QtCore.Qt.Horizontal,"검출위치")
-        self.modelAttr.setHeaderData(4,QtCore.Qt.Horizontal,"검출길이")
-        self.modelAttr.setHeaderData(5,QtCore.Qt.Horizontal,"검출중심점")
+        self.modelAttr.setHeaderData(2,QtCore.Qt.Horizontal,"검출정보")
+        self.modelAttr.setHeaderData(3,QtCore.Qt.Horizontal,"검출프레임번호")
         self.ext_tableView_extResultList.setModel(self.modelAttr)
-
-        # 별도 생성한 tableView 용 체크플래그 검출 모델클래스로 모델 생성 (이거는 아직안된다)
-        # self.headersNm = ["선택", "썸네일", "대상명", "검출위치", "검출길이", "검출중심점"]
-        # self.extModel = ModelCreater(cycles = [[]], headers = self.headersNm)
-        # self.ext_tableView_extResultList.setModel(self.extModel)
-
-        # dModel = self.ext_tableView_extResultList.model().index(0,0)
 
         # ※모델을 정의(setModel)한 뒤부터 컬럼에 대한 설정 가능(아래)
 
         # 체크박스 컬럼 넓이 조정
         self.ext_tableView_extResultList.setColumnWidth(0, 50)
         self.ext_tableView_extResultList.setColumnWidth(1, 50)
-        self.ext_tableView_extResultList.setColumnWidth(2, 100)
-        self.ext_tableView_extResultList.setColumnWidth(3, 150)
-        self.ext_tableView_extResultList.setColumnWidth(4, 100)
-        self.ext_tableView_extResultList.setColumnWidth(5, 200)
+        self.ext_tableView_extResultList.setColumnWidth(2, 430)
+        self.ext_tableView_extResultList.setColumnWidth(3, 100)
 
         # 테이블 row 단위 selection
         self.ext_tableView_extResultList.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
@@ -1326,8 +1315,6 @@ class Ui_Form(QtCore.QObject):
         # TODO : 종료시 close event를 사용하여 Thread 종료 넣기
         # TODO : video label 크기 변동 시 내부 이미지 크기 조정
 
-
-
     def click_ext_tableView_extResultList(self):
         """
         검출 테이블 데이터 더블클릭 이벤트
@@ -1340,7 +1327,7 @@ class Ui_Form(QtCore.QObject):
 
         # 검출 데이터 가져오기
         selectModel = self.ext_tableView_extResultList.model()
-        colIdx = selectModel.index(int(selRowNum), 5)
+        colIdx = selectModel.index(int(selRowNum), 3)
         colData = colIdx.data()
 
         # 동영상 프레임 이동
@@ -1495,10 +1482,10 @@ class Ui_Form(QtCore.QObject):
 
     def click_ext_pushButton_allSave(self):
         """
-        MEMO : 영상검출.검출내역테이블 전체 내려받기 버튼 클릭 (임시 테스트로 검출내역 데이터 삽입 버튼으로 활용함)
+        MEMO : 영상검출.검출내역테이블 전체 내려받기 버튼 클릭
         :return:
         """
-        self.extClass.add_tRowData()
+        pass
 
     def click_ext_pushButton_selectSave(self):
         """
@@ -1743,16 +1730,10 @@ class Ui_Form(QtCore.QObject):
     @QtCore.Slot(list)
     def insertAtResultListData(self,image,dataList):
         """
-        미디어 플레이어를 통해 검출된 데이터 처리
+        얼굴 검출 결과 내역테이블 추가
         :param dataList:
         :return:
         """
-        print("call insertAtResultListData")
-        print("dataList :: {}".format(dataList))
-
-        print("call insertAtResultListData")
-        print("image :: {}".format(image))
-
         self.extClass.extAddRowData(image,dataList)
 
     @QtCore.Slot(QtGui.QImage)
