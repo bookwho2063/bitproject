@@ -31,18 +31,32 @@ class Ui_Form(QtCore.QObject):
         Form.resize(1280, 840)
         Form.setMinimumSize(QtCore.QSize(1280, 840))
         # self.verticalLayout_4 = QtWidgets.QVBoxLayout(Form)
-        self.verticalLayout_4 = QtWidgets.QStackedLayout(Form)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.mainTabWidget = QtWidgets.QTabWidget(Form)
-        self.mainTabWidget.setEnabled(True)
-        font = QtGui.QFont()
-        font.setFamily("나눔고딕코딩")
-        font.setPointSize(14)
+        self.stackedLayout = QtWidgets.QStackedLayout(Form)
+        self.stackedLayout.setObjectName("stackedLayout")
+        self.stackedLayout.setStackingMode(QtWidgets.QStackedLayout.StackAll)
+
+        #####################################
+        #### 로딩 창
+        # 0 : loading 창
+        # 1 : mainTab
+        #####################################
+        self.loading_label = QtWidgets.QLabel("loading_label")
+        self.loading_label.setStyleSheet("background-color: rgba(25,25,25,70%);")
+        movie = QtGui.QMovie("icon/loading.gif")
+        movie.start()
+        self.loading_label.setMovie(movie)
+        self.loading_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.stackedLayout.addWidget(self.loading_label)
 
         ########
         #	Main tab Default
         #	- 탭 전체 공통 옵션
         ########
+        self.mainTabWidget = QtWidgets.QTabWidget(Form)
+        self.mainTabWidget.setEnabled(True)
+        font = QtGui.QFont()
+        font.setFamily("나눔고딕코딩")
+        font.setPointSize(14)
         self.mainTabWidget.setFont(font)
         self.mainTabWidget.setObjectName("mainTabWidget")
 
@@ -952,7 +966,7 @@ class Ui_Form(QtCore.QObject):
         self.mainTabWidget.addTab(self.tab_opt, "설정")
 
         ######## 폼 액션 처리
-        self.verticalLayout_4.addWidget(self.mainTabWidget)
+        self.stackedLayout.addWidget(self.mainTabWidget)
         self.action = QtWidgets.QAction(Form)
         self.action.setObjectName("action")
         self.retranslateUi(Form)
@@ -968,7 +982,7 @@ class Ui_Form(QtCore.QObject):
         self.loadingLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.loadingLabel.setAttribute(QtCore.Qt.WA_NoSystemBackground)
         self.loadingLabel.setMovie(self.loadingImg)
-        self.verticalLayout_4.addWidget(self.loadingLabel)
+        self.stackedLayout.addWidget(self.loadingLabel)
 
         ######## tab key로 인한 이동 순서 설정 start / Form.setTabOrder(A, B) -> Form.setTabOrder(B, C)
         Form.setTabOrder(self.ext_pushButton_localUpload, self.ext_pushButton_mdDown)
@@ -998,6 +1012,10 @@ class Ui_Form(QtCore.QObject):
             # 테이블 데이터 / 버튼명 데이터  label text 데이터 입력 처리부
             # 확인 후 해당 형태로 데이터 입력
          """
+
+        # 메인 stacedLayout index 설정(메인탭 상위)
+        self.stackedLayout.setCurrentIndex(1)
+
         # 어플리케이션 네임
         Form.setWindowTitle(QtWidgets.QApplication.translate("Form", "Human?", None, -1))
 
@@ -1408,42 +1426,55 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.영상 내려받기 버튼 클릭
         :return:
         """
-        # print("click_ext_pushButton_mdDown")
-        #
-        # # 샘플 좌표파일 다운로드 처리
-        self.sampleCoord = ["111","222","333","444","555","666","777","888","999","000"]
-        # # self.cm.downloadCoordList(self.cm.uploadPath, self.sampleCoord, type="CSV")
-        self.cm.downloadCoordList("sampleTest",self.sampleCoord,type="json")
+        print("click_ext_pushButton_mdDown")
+        # TODO : tableview에서 검출 정보 가지고 오기
+        # TODO : 팝업창으로 좌표파일의 저장 여부 물어보기
+        #### 샘플 결과
+        resultList = [[{'x': 360,'y': 129,'w': 132,'h': 132,'percent': '98.48','labelname': 'roje'},
+                       {'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},
+                       {'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},'0'],
+                      [{'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},'1000'],
+                      [{'x': 260,'y': 42,'w': 144,'h': 144,'percent': '95.4','labelname': 'roje'},'2000'],
+                      [{'x': 313,'y': 42,'w': 102,'h': 144,'percent': '95.4','labelname': 'jisu'},'5000']]
+        saveCoord = True
+        ##########################
+        ###########################
+        # loading 창 띄우기
+        ############################
+        self.stackedLayout.setCurrentIndex(0)
+
+        # TODO : 파일 이름을 변경해야 함
+        self.cm.openVideoWriter(file_path="./test.mp4",format=self.opt.get_downFileFmt())
+        self.cm.saveVideo(resultList)
+        self.cm.closeVideoWriter()
+
+        if saveCoord:
+            self.cm.saveCoordFile(resultList,"./test.csv",self.opt.get_coordFileFmt())
+
+        self.stackedLayout.setCurrentIndex(1)
 
     def click_ext_pushButton_urlUpload(self):
         """
         MEMO : 영상검출.URL 업로드 버튼 클릭
         :return:
         """
-        self.cm.url_upload()
-        print(self.cm.uploadUrl)
+        self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
+        self.stackedLayout.setCurrentIndex(0)
 
-        if self.cm.uploadUrl is not "" and self.cm.uploadUrl is not None:
+        if self.cm.url_upload() is not "":
+            print(self.cm.uploadUrl)
             self.cm.uploadPath = self.cm.downloadYouTubeUrl(self.cm.uploadUrl)
             print(self.cm.uploadPath)
 
-            if self.cm.video_player.isRunning():
+            if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
                 # video player thread 종료 후 재시작
                 if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
                     self.extClass.clearRowData()
                     self.cm.quit_videoPlayer()
-                    self.cm.create_videoPlayer()
-                    # self.cm.video_player.changeTime.connect(self.set_time)
-                    self.cm.video_player.openVideo(self.cm.uploadPath)
-            else:
-                self.cm.video_player.openVideo(self.cm.uploadPath)
 
-            sleep(0.5)
-            # self.click_ext_pushButton_play()
+            self.cm.video_player.openVideo(self.cm.uploadPath)
 
-
-            # play 이후 추출 connect 실행
-            # self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
+        self.stackedLayout.setCurrentIndex(1)
 
 
     def click_ext_pushButton_play(self):
@@ -1564,21 +1595,6 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
-        # if self.afc.cap.isOpened() and self.afc.afc_state:
-        #     if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
-        #         self.afc.quit_afcProcess()
-        #         self.initVideoLabel()
-        #     else:
-        #         return 0
-        #
-        # if not self.cm.local_upload() == "":
-        #     if self.cm.video_player.isRunning():
-        #         self.cm.quit_videoPlayer()
-        #     self.cm.video_player.openVideo(self.cm.uploadPath)
-        #     self.afc.setUp(self)
-        #
-        #     print("afc_pushButton_localUpload")
-
 
         if self.cm.video_player.isRunning() and self.cm.video_player.afc_state:
             # video player thread 종료 후 재시작
@@ -1599,27 +1615,6 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("afc_pushButton_startExt")
-        #################
-        ###기존 미디어 플레이어 쓰레드 종료
-        ################
-        # if self.cm.video_player.isRunning():
-        #     self.cm.video_player.initScreen()
-        #     self.cm.quit_videoPlayer()
-        #     print("player thread quit")
-        #
-        # if not self.afc.afc_state == 0:
-        #     if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
-        #         self.afc.quit_afcProcess()
-        #         self.initVideoLabel()
-        #         self.afc.setUp(self)
-        #
-        # if not self.cm.uploadPath == "":
-        #     self.afc.setUp(self)
-        #
-        #
-        # print("afc thread start")
-        # self.afc.running = True
-        # self.afc.start()
 
         self.cm.video_player.pauseVideo()
 
@@ -1648,9 +1643,23 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱 URL 업로드 버튼 클릭
         :return:
         """
-        self.cm.url_upload()
-        print(self.cm.uploadUrl)
-        print("afc_pushButton_urlUpload")
+        self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
+        self.stackedLayout.setCurrentIndex(0)
+
+        if self.cm.url_upload() is not "":
+            print(self.cm.uploadUrl)
+            self.cm.uploadPath = self.cm.downloadYouTubeUrl(self.cm.uploadUrl)
+            print(self.cm.uploadPath)
+
+            if self.cm.video_player.isRunning() and self.cm.video_player.afc_state:
+                # video player thread 종료 후 재시작
+                if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+                    self.extClass.clearRowData()
+                    self.cm.quit_videoPlayer()
+
+            self.cm.video_player.openVideo(self.cm.uploadPath)
+
+        self.stackedLayout.setCurrentIndex(1)
 
     def click_afc_pushButton_play(self):
         """

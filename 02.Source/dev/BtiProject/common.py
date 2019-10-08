@@ -5,7 +5,7 @@ from PySide2.QtCore import *
 
 from time import sleep
 import cv2,time
-import os
+import os, re
 from autofocus import Autofocus
 
 # img face recognition test
@@ -18,8 +18,6 @@ from keras.models import load_model
 import FacenetInKeras
 import facenetRealTime
 import openfaceRealTime
-
-
 
 class cv_video_player(QThread):
     changePixmap = Signal(QImage)
@@ -78,8 +76,8 @@ class cv_video_player(QThread):
             rgbImage = ""
             if self.play and self.cap.isOpened():
                 # print("시작 시간 : ", start_time)
-                ret,frame = self.cap.read()
                 self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+                ret,frame = self.cap.read()
 
                 if ret:
                     # 재생 시간 정보 업데이트 emit
@@ -317,6 +315,9 @@ class common(object):
     def __init__(self, ui):
         self.form = ui
         self.video_player = cv_video_player(ui.afc)
+        self.youtubeUrlValidCheck = re.compile(
+            "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$")
+
 
     def optUrlSaveFileDir(self):
         """
@@ -342,6 +343,11 @@ class common(object):
 
     def url_upload(self):
         self.uploadUrl = self.create_input_dialog("text","URL 입력창","URL 주소")
+        return self.uploadUrl
+
+    def quit_videoPlayer(self):
+        self.video_player.stopVideo()
+        self.video_player.initScreen()
 
     def create_massage_box(self, type, text=""):
         '''
@@ -545,7 +551,9 @@ class common(object):
         :param url:
         :return:
         """
-        self.loadingBar(True)
+        if self.youtubeUrlValidCheck.match(url) is None:
+            self.create_massage_box("confirm","URL 경로가 잘못됐습니다.\nURL을 확인해주세요.")
+            return ""
 
         import youtube_dl
 
@@ -570,22 +578,22 @@ class common(object):
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             infoList = ydl.extract_info("{}".format(url))
-            temp = infoList.get("title", None)
-            title = temp.replace("/", "_")
-            format = infoList.get("format", None)
-            ext = infoList.get("ext", None)
+            temp = infoList.get("title",None)
+            title = temp.replace("/","_")
+            # format = infoList.get("format", None)
+            ext = infoList.get("ext",None)
 
+            print("format :{} ".format(format))
+            print("ext :{} ".format(ext))
 
             if title is not None or title is not "":
                 if ydl.download([str(url)]) == 1:
-                    #self.create_massage_box("confirm", "URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
-                    self.loadingBar(False)
+                    self.create_massage_box("confirm","URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
                 else:
-                    #self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
+                    # self.create_massage_box("confirm", "URL 영상을 다운로드 하였습니다.")
                     targetPath = os.path.abspath("./videoList")
-                    ext = self.fileFormatTracker(targetPath, title)
-                    oPath = targetPath + "/" + title + ext
-                    self.loadingBar(False)
+                    # ext = self.fileFormatTracker(targetPath, title)
+                    oPath = targetPath + "/" + title + "." + ext
                     return oPath
 
                 # 경로 및 타이틀 정보를 리턴해서 영상재생 객체에 던져야함
@@ -597,38 +605,62 @@ class common(object):
 
                 # oPath = "D:/박준욱/## 00.BIT_PROJECT/9999.github/bitproject/02.Source/dev/BtiProject/videoList/"+title+".mp4"
 
+    def openVideoWriter(self,file_path,format,size=""):
+        '''
+        VideoWriter를 생성
+        :param file_path: 저장할 파일의 경로 및 파일이름
+        :param size: 저장할 비디오의 사이즈(width, height)
+        :param format: 저장할 비디오의 포맷 종류(avi, mp4 지원)
+        '''
+        file_name = os.path.splitext(file_path)[0] + format
 
-    def setup_Download(self,file_path,resolution,format,fps):
-        self.file_path = file_path
-        self.resolution = resolution
-        self.format = format
-        self.fps = fps
+        if format == ".avi":
+            fourcc = cv2.VideoWriter_fourcc("D","I","V","X")
+        elif format == ".mp4":
+            fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
 
-        self.file_name = os.path.splitext(file_path)[0] + self.format
+        if size == "":
+            size = (int(self.video_player.cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                    int(self.video_player.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
-        if self.format == ".avi":
-            self.fourcc = cv2.VideoWriter_fourcc("D","I","V","X")
-        elif self.format == ".mp4":
-            self.fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
+        print("file name : {}".format(file_name))
+        print("fps : {}".format(self.video_player.fps))
+        print(fourcc)
+        print("size : {}".format(size))
+        self.out = cv2.VideoWriter(file_name,fourcc,self.video_player.fps,size)
 
-    def open_VideoWriter(self):
-        print("file name : {}".format(self.file_name))
-        print("fps : {}".format(self.fps))
-        print(self.fourcc)
-        print("fps : {}".format(self.resolution))
-        self.out = cv2.VideoWriter(self.file_name,self.fourcc,self.fps,self.resolution)
+    def saveVideo(self, resultList):
+        for result in resultList:
+            self.video_player.cap.set(cv2.CAP_PROP_POS_FRAMES, int(result[-1]))
+            for i in range(self.video_player.buffertime * self.video_player.fps):
+                ref, frame = self.video_player.cap.read()
+                if ref:
+                    self.out.write(frame)
+                else:
+                    break
 
-    def write_VideoFrame(self,frame):
-        print("frame 저장")
-        y,x,_ = frame.shape
+    def saveCoordFile(self,resultList,file_name,type='CSV',):
 
-        if not x == self.resolution[0] or not y == self.resolution[1]:
-            frame = cv2.resize(frame,self.resolution,interpolation=cv2.cv2.INTER_AREA)
+        if type == 'CSV':
+            import csv
+            resultList[0][0]['frame_num'] = None
+            keys = resultList[0][0].keys()
+            print(keys)
+            with open(file_name,'wt',newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file,keys)
+                dict_writer.writeheader()
+                for result in resultList:
+                    result = [dict(item,**{'frame_num': result[-1]}) for item in result[:-1]]
+                    dict_writer.writerows(result)
+        elif type == 'JSON':
+            import json
+            with open(file_name,'w') as output_file:
+                for result in resultList:
+                    result = [dict(item,**{'frame_num': result[-1]}) for item in result[:-1]]
+                    json.dump(result,output_file,ensure_ascii=False,indent="\t")
 
-        self.out.write(frame)
-
-    def close_VideoWriter(self):
-        print("종료")
+    def closeVideoWriter(self):
+        print("다운로드 완료")
         self.out.release()
 
     def downloadVideo(self, frameList):
