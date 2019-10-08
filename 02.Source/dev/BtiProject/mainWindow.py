@@ -1460,6 +1460,7 @@ class Ui_Form(QtCore.QObject):
         if saveCoord:
             self.cm.saveCoordFile(resultList,"./faceExtractCoord{}.{}".format(realTime,self.opt.get_coordFileFmt()),self.opt.get_coordFileFmt())
 
+        self.cm.create_massage_box("Confirm","영상 내려받기가 완료되었습니다.")
         self.stackedLayout.setCurrentIndex(1)
 
     def click_ext_pushButton_urlUpload(self):
