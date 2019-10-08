@@ -91,18 +91,18 @@ class cv_video_player(QThread):
                     convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0], rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
 
                     # 영상검출탭 검출 수행
-                    if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
-                        self.current_workingFrame = self.cur_frame
+                    # if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
+                    self.current_workingFrame = self.cur_frame
 
-                        # 검출수행
-                        rgbImage, resultData = self.extractFaceOrder(rgbImage)
+                    # 검출수행
+                    rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
-                        # 결과 데이터가 존재할 경우에만 결과목록에 출력
-                        if len(resultData) > 0:
-                            # 결과 데이터 형태
-                            # list[{dict}, ....{dict}, cur_frame]
-                            resultData.append(str(self.cur_frame))
-                            self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
+                    # 결과 데이터가 존재할 경우에만 결과목록에 출력
+                    if len(resultData) > 0:
+                        # 결과 데이터 형태
+                        # list[{dict}, ....{dict}, cur_frame]
+                        resultData.append(str(self.cur_frame))
+                        self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
 
                     # 오토포커싱탭 검출 수행
                     if self.afc_state == 1:
@@ -113,12 +113,10 @@ class cv_video_player(QThread):
 
                         ## TODO :: COPY HERE EXTRACT
                         # 검출수행
-                        rgbImage = self.extractFaceOrder(rgbImage)
+                        rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
                         # self.afc.extract_afcVideo(img = frame, current_workingFrame=self.current_workingFrame )
-                        x, y, width, height = self.afc.extract_afcVideo(img=None,
-                                                                        current_workingFrame=self.current_workingFrame)
-                        # print("프레임 emit 실행")
+                        x, y, width, height = self.afc.extract_afcVideo(img=None, current_workingFrame=self.current_workingFrame)
 
                         self.afc.changePixmap.emit(convertToQtFormat.copy(), QRect(x, y, width, height))
                     elif self.afc_state == 2:
@@ -140,15 +138,15 @@ class cv_video_player(QThread):
         """
         if str(self.usedFaceStateNm) == "facenet":
             # keras_facenet #1
-            rgbImage = self.faceRecog_keras_facenet(rgbImage)
+            rgbImage, resultData = self.faceRecog_keras_facenet(rgbImage)
         elif str(self.usedFaceStateNm) == "facenet2":
             # keras_facenet #2
-            rgbImage = self.faceRecog_keras_facenet2(rgbImage)
+            rgbImage, resultData = self.faceRecog_keras_facenet2(rgbImage)
         elif str(self.usedFaceStateNm) == "openface":
             # openface run
-            rgbImage = self.faceRecog_keras_openface(rgbImage)
+            rgbImage, resultData = self.faceRecog_keras_openface(rgbImage)
 
-        return rgbImage
+        return rgbImage, resultData
 
     def faceRecog_keras_facenet(self, rgbImage):
         """
@@ -159,8 +157,11 @@ class cv_video_player(QThread):
         # print("======================검출을 수행합니다.(faceRecog_keras_facenet)")
         faceDetResults, faceImgArr = self.model.extract_face(rgbImage)
 
+        resultData = []
+
         # 이미지 내 검출된 얼굴 갯수만큼 루프
         for idx in range(len(faceDetResults)):
+            dataDict = dict()
             # 검출된 얼굴박스 하나에 대하여 임베딩 처리
             imgToEmd = self.model.getEmbedding(faceImgArr[idx])
             # 임베딩 된 얼굴데이터의 검증 수행
@@ -180,6 +181,13 @@ class cv_video_player(QThread):
                 # rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 cv2.rectangle(rgbImage, (x, y), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(rgbImage, str(predictNm), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                dataDict['x'] = x
+                dataDict['y'] = y
+                dataDict['w'] = x2
+                dataDict['h'] = y2
+                dataDict['labelname'] = str(predictNm)
+                dataDict['percent'] = str(predictPer)
+                resultData.append(dataDict)
             else:
                 continue
 
@@ -195,9 +203,9 @@ class cv_video_player(QThread):
         :return:rgbImage
         """
         # print("======================검출을 수행합니다.(faceRecog_keras_facenet)")
-        rgbImage = self.model.runFacenet(rgbImage)
+        rgbImage, resultData = self.model.runFacenet(rgbImage)
         # rgbImage = self.model.run(rgbImage)
-        return rgbImage
+        return rgbImage, resultData
 
     def faceRecog_keras_openface(self, rgbImage):
         """
@@ -206,8 +214,8 @@ class cv_video_player(QThread):
         :return:
         """
         # print("======================검출을 수행합니다.(faceRecog_keras_openface)")
-        rgbImage = self.model.runPredictOpenface(rgbImage)
-        return rgbImage
+        rgbImage, resultData = self.model.runPredictOpenface(rgbImage)
+        return rgbImage, resultData
 
     def pauseVideo(self):
         self.play = False
@@ -305,7 +313,6 @@ class common(object):
     saveFmt = ""
     saveResol = ""
     saveProgressPer = ""
-    video_player = cv_video_player()
 
     def __init__(self, ui):
         self.form = ui
@@ -335,13 +342,6 @@ class common(object):
 
     def url_upload(self):
         self.uploadUrl = self.create_input_dialog("text","URL 입력창","URL 주소")
-
-    def create_videoPlayer(self):
-        return cv_video_player()
-
-    def quit_videoPlayer(self):
-        self.video_player.stopVideo()
-        self.video_player.initScreen()
 
     def create_massage_box(self, type, text=""):
         '''
@@ -506,18 +506,23 @@ class common(object):
 
         for classListDictKey, classListDictValue in self.classListDict.items():
             # 썸네일 생성
-            thumbnailImgInExt = self.createThumnail_filePath("label", os.path.abspath(classListDictValue), 50, 50, 80)
-            thumbnailImgInAfc = self.createThumnail_filePath("label", os.path.abspath(classListDictValue), 50, 50, 80)
+            thumbnailImgInExt = self.createThumnail_filePath("pixmap", os.path.abspath(classListDictValue), 50, 50, 80)
+            thumbnailImgInAfc = self.createThumnail_filePath("pixmap", os.path.abspath(classListDictValue), 50, 50, 80)
 
             # VLayout을 생성하여 이미지 라벨 및 이름라벨 입력
+            extImgItem = QLabel()
+            extImgItem.setPixmap(thumbnailImgInExt)
+
             vBoxExt = QVBoxLayout()
             vBoxExt.setAlignment(Qt.AlignCenter)
-            vBoxExt.addWidget(thumbnailImgInExt)
+            vBoxExt.addWidget(extImgItem)
             vBoxExt.addWidget(QLabel(str(classListDictKey), alignment=Qt.AlignHCenter))
 
+            afcImgItem = QLabel()
+            afcImgItem.setPixmap(thumbnailImgInAfc)
             vBoxAfc = QVBoxLayout()
             vBoxAfc.setAlignment(Qt.AlignCenter)
-            vBoxAfc.addWidget(thumbnailImgInAfc)
+            vBoxAfc.addWidget(afcImgItem)
             vBoxAfc.addWidget(QLabel(str(classListDictKey), alignment=Qt.AlignHCenter))
 
             # Layout Widget 생성

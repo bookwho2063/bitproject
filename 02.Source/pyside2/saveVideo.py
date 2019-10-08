@@ -8,7 +8,7 @@ frame 번호 순서대로 write 처리한다.
 :return:
 """
 
-cap = cv2.VideoCapture("F:/sampleData/test5.mp4")
+cap = cv2.VideoCapture("/home/bit/Downloads/bp3.mp4")
 fcc = cv2.VideoWriter_fourcc('D', 'I', 'V', 'X')
 fps = cap.get(cv2.CAP_PROP_FPS)
 width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -20,7 +20,7 @@ while True:
     cnt_frame = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 
     if cur_frame == cnt_frame:
-        cap.open("F:/sampleData/test5.mp4")
+        cap.open("/home/bit/Downloads/bp3.mp4")
 
     print("cur_frame :: ", int(cur_frame))
     print("cnt_frame :: ", int(cnt_frame))

@@ -18,7 +18,6 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 from common import common,cv_video_player
 from extract import Extract
-from extract import ModelCreater
 from option import Option
 from time import sleep
 
@@ -238,6 +237,9 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setSizePolicy(sizePolicy)
         self.ext_tableView_extResultList.setMinimumSize(QtCore.QSize(480, 0))
         self.ext_tableView_extResultList.setObjectName("ext_tableView_extResultList")
+
+        self.ext_tableView_extResultList.setIconSize(QtCore.QSize(50,50))
+
         # 테이블 Row 데이터 색상
         self.ext_tableView_extResultList.setAlternatingRowColors(False)
 
@@ -491,6 +493,10 @@ class Ui_Form(QtCore.QObject):
         self.afc_label_after_Md.setAlignment(QtCore.Qt.AlignCenter)
         self.afc_label_after_Md.setObjectName("afc_label_after_Md")
         self.verticalLayout_2.addWidget(self.afc_label_after_Md)
+
+        ###########
+        # 이전버전 ui 소스
+        ###########
         # self.afc_horizontalLayout_mid1_2 = QtWidgets.QHBoxLayout()
         # self.afc_horizontalLayout_mid1_2.setSpacing(0)
         # self.afc_horizontalLayout_mid1_2.setObjectName("afc_horizontalLayout_mid1_2")
@@ -548,6 +554,9 @@ class Ui_Form(QtCore.QObject):
         self.tab_opt.setObjectName("tab_opt")
 
         ######## 설정.공통옵션설정 start
+        ###########
+        # 이전버전 ui 소스
+        ###########
         # self.opt_groupBox_top = QtWidgets.QGroupBox(self.tab_opt)
         # self.opt_groupBox_top.setGeometry(QtCore.QRect(60, 40, 1161, 171))
         # self.opt_groupBox_top.setObjectName("opt_groupBox_top")
@@ -1232,11 +1241,12 @@ class Ui_Form(QtCore.QObject):
         MEMO : 추출 -> 검출대상리스트 테이블 기본 모델정보 셋팅
         :return:
         """
-        # 헤더 사이즈 고정
+        # 헤더 사이즈 고정 (영상검출)
         self.ext_tableWidget_classList.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.ext_tableWidget_classList.verticalHeader().hide()
-        self.ext_tableWidget_classList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+        self.ext_tableWidget_classList.verticalHeader().hide()              # header name hide
+        self.ext_tableWidget_classList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed) # Size fixed
 
+        # 헤더 사이즈 고정 (오토포커스)
         self.afc_tableWidget_classList.setFocusPolicy(QtCore.Qt.NoFocus)
         self.afc_tableWidget_classList.verticalHeader().hide()
         self.afc_tableWidget_classList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
@@ -1252,11 +1262,14 @@ class Ui_Form(QtCore.QObject):
         """
         # QStandardItemModel 로 모델 생성
         self.modelAttr = QtGui.QStandardItemModel()
-        self.modelAttr.setColumnCount(4)
-        self.modelAttr.setHeaderData(0,QtCore.Qt.Horizontal,"선택")
-        self.modelAttr.setHeaderData(1,QtCore.Qt.Horizontal,"썸네일")
-        self.modelAttr.setHeaderData(2,QtCore.Qt.Horizontal,"검출정보")
-        self.modelAttr.setHeaderData(3,QtCore.Qt.Horizontal,"검출프레임번호")
+        self.modelAttr.setColumnCount(7)
+        self.modelAttr.setHeaderData(0, QtCore.Qt.Horizontal, "선택")
+        self.modelAttr.setHeaderData(1, QtCore.Qt.Horizontal, "썸네일")
+        self.modelAttr.setHeaderData(2, QtCore.Qt.Horizontal, "검출정보")
+        self.modelAttr.setHeaderData(3, QtCore.Qt.Horizontal, "검출프레임번호")
+        self.modelAttr.setHeaderData(4, QtCore.Qt.Horizontal, "검출좌표정보_히든")
+        self.modelAttr.setHeaderData(5, QtCore.Qt.Horizontal, "검출라벨명_히든")
+        self.modelAttr.setHeaderData(6, QtCore.Qt.Horizontal, "검출정확도_히든")
         self.ext_tableView_extResultList.setModel(self.modelAttr)
 
         # ※모델을 정의(setModel)한 뒤부터 컬럼에 대한 설정 가능(아래)
@@ -1265,7 +1278,10 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setColumnWidth(0, 50)
         self.ext_tableView_extResultList.setColumnWidth(1, 50)
         self.ext_tableView_extResultList.setColumnWidth(2, 430)
-        self.ext_tableView_extResultList.setColumnWidth(3, 100)
+        self.ext_tableView_extResultList.setColumnWidth(3, 110)
+        self.ext_tableView_extResultList.setColumnHidden(4, True)
+        self.ext_tableView_extResultList.setColumnHidden(5, True)
+        self.ext_tableView_extResultList.setColumnHidden(6, True)
 
         # 테이블 row 단위 selection
         self.ext_tableView_extResultList.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
@@ -1274,6 +1290,8 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableView_extResultList.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ext_tableView_extResultList.verticalHeader().hide()
         self.ext_tableView_extResultList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+
+        modelObj = self.ext_tableView_extResultList.model()
 
 
     ###########
@@ -1485,7 +1503,13 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.검출내역테이블 전체 내려받기 버튼 클릭
         :return:
         """
-        pass
+        self.clearYN = self.cm.create_massage_box("YesNo", "전체 검출 내역을 내려받기 하시겠습니까?")
+
+        if self.clearYN:
+            resultData = self.extClass.extGetDownloadData('all')
+            print("download Data info :: (all)")
+            print(resultData)
+            ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
 
     def click_ext_pushButton_selectSave(self):
         """
@@ -1493,6 +1517,13 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_selectSave")
+        self.clearYN = self.cm.create_massage_box("YesNo", "선택 내역을 내려받기 하시겠습니까?")
+
+        if self.clearYN:
+            resultData = self.extClass.extGetDownloadData('sel')
+            print("download Data info :: (sel)")
+            print(resultData)
+            ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
 
     def click_ext_pushButton_startExt(self):
         """

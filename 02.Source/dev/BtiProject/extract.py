@@ -1,12 +1,10 @@
 from PySide2 import QtGui, QtWidgets, QtCore
-from common import common
 from time import sleep
 
 class Extract(object):
 
     def __init__(self, ui):
         self.table = ui.ext_tableView_extResultList
-        self.cm = common(ui)
 
     def clearRowData(self):
         """
@@ -36,9 +34,74 @@ class Extract(object):
             while len(delList) > 0:
                 tableModel.removeRow(delList.pop())
 
+    def getCheckBoxList(self):
+        """
+        MEMO : 검출 내역 테이블 체크된 내역을 리턴한다
+        :return:
+        """
+        tableModel = self.table.model()
+        rowCnt = self.table.model().rowCount()
+        if rowCnt > 0:
+            chkList = []
+            for rowNum in range(rowCnt):
+                modelItem = tableModel.item(int(rowNum), 0)
+                chkState = modelItem.checkState()
+                if chkState is QtCore.Qt.CheckState.Unchecked:
+                    continue
+                else:
+                    chkList.append(rowNum)
+        return chkList
+
+
+    def extGetDownloadData(self, downFlag):
+        """
+        MEMO : 선택/전체 영상 다운로드를 위하여 테이블 데이터 정리
+        :param : downFlag(sel/all)
+        :return: resultList
+        """
+        resultList = list()
+
+        chkList = list()
+        if downFlag == "sel":       # 선택 데이터 정렬 프로세스 수행
+            chkList = self.getCheckBoxList()    # 선택 내역 rownum List return
+
+        elif downFlag == "all":     # 전체 데이터 정렬 프로세스 수행
+            rowNum = self.table.model().rowCount()
+            for idx in range(rowNum):
+                chkList.append(idx)
+
+        for rowNum in chkList:
+            # rowNum :: 체크 된 row 번호
+            dataDict = dict()
+            col2 = self.table.model().index(int(rowNum), 2).data()      # 검출정보
+            frameNum = self.table.model().index(int(rowNum), 3).data()  # 프레임번호
+            col4 = str(self.table.model().index(int(rowNum), 4).data()) #
+            col5 = str(self.table.model().index(int(rowNum), 5).data()) #
+            col6 = str(self.table.model().index(int(rowNum), 6).data()) #
+
+            # 좌표 서브스트링, 붙여서 정리
+            coordList = col4.split('/')
+            labels = col5.split(',')
+            percents = col6.split(',')
+            for idx in range(len(coordList)):
+                coord = coordList[idx].split(',')
+                if len(coord) == 4:
+                    dataDict['x'] = coord[0]
+                    dataDict['y'] = coord[1]
+                    dataDict['w'] = coord[2]
+                    dataDict['h'] = coord[3]
+                    dataDict['labelname'] = labels[idx]
+                    dataDict['percent'] = percents[idx]
+                    resultList.append(dataDict)
+            # 프레임 정보 데이터를 정보의 제일 마지막에 추가
+            resultList.append(frameNum)
+
+        return resultList
+
+
     def extAddRowData(self, image, dataList):
         """
-        # 영상검출 내역 테이블에 데이터를 추가한다. (영상 재생구간에 사용)
+        MEMO : 영상검출 내역 테이블에 데이터를 추가한다. (영상 재생구간에 사용)
         :return:
         """
         dModel = self.table.model()
@@ -51,18 +114,17 @@ class Extract(object):
         dModel.setItem(rowCnt, 0, chkItem)
 
         # 검출 프레임 썸네일 추출
-        thumnailImg = self.cm.createThumnail_QImage("pixmap", image, 50, 50, 50)
+        thumnailImg = self.createThumnail_QImage("pixmap", image, 50, 50, 50)
 
-        # 브러시를 이용하여 썸네일 입력
-        # 추후 학습 결과를 QImage
-        imgBrush = QtGui.QBrush()
-        imgBrush.setTexture(thumnailImg)
-        imgBrush.setStyle(QtCore.Qt.BrushStyle.RadialGradientPattern)
-        imgItem = QtGui.QStandardItem()
-        imgItem.setBackground(imgBrush)
-        imgItem.setTextAlignment(QtCore.Qt.AlignCenter)
-        imgItem.setEditable(False)
-        dModel.setItem(rowCnt, 1, imgItem)
+        # 썸네일 이미지를 icon 으로 변환하여 입력
+        imgIcon = QtGui.QIcon()
+        imgIcon.addPixmap(thumnailImg)
+        # 썸네일을 입력할 item 객체 생성 및 설정
+        imgItems = QtGui.QStandardItem()
+        imgItems.setIcon(imgIcon)
+        imgItems.setTextAlignment(QtCore.Qt.AlignCenter)
+        imgItems.setEditable(False)
+        dModel.setItem(rowCnt, 1, imgItems)
 
         # 검출 결과 정보 입력
         #
@@ -70,24 +132,54 @@ class Extract(object):
         print(dataList)
 
         # 검출 정보 추출 (프레임 번호 제외)
-        extInfoStr = ""
+        extInfoStr = ""     # 검출 명,정확도 정보
+        extCoordStr = ""    # 검출 좌표 정보
+        names = ""          # 검출 명
+        pers = ""           # 검출 퍼센트
         for idx in range(len(dataList)-1):
             data = dataList[idx]
+
             nameStr = str(data['labelname'])
             perStr = str(data['percent'])
+            coordXStr = str(data['x'])
+            coordYStr = str(data['y'])
+            coordWStr = str(data['w'])
+            coordHStr = str(data['h'])
 
             if len(dataList)-2 == idx:
                 extInfoStr = str(extInfoStr) + str(nameStr) + "[" + perStr + " %]"
+                extCoordStr = extCoordStr + coordXStr + "," + coordYStr + "," + coordWStr + "," + coordHStr
+                names = names + nameStr
+                pers = pers + perStr
                 continue
 
             extInfoStr = str(extInfoStr) + str(nameStr) + "[" + perStr + " %], "
+            names = names + nameStr + ","
+            pers = pers + perStr + ","
 
-        for colIdx in range(2,4):
-            print("colIdc :: ", colIdx)
-            if colIdx == 2:
+            if extCoordStr == "":
+                extCoordStr = coordXStr + "," + coordYStr + "," + coordWStr + "," + coordHStr + "/"
+            elif extCoordStr != "":
+                extCoordStr = extCoordStr + coordXStr + "," + coordYStr + "," + coordWStr + "," + coordHStr + "/"
+
+        print("extInfoStr :: ", extInfoStr)
+        print("dataList[-1] :: ", dataList[-1])
+        print("extCoordStr :: ", extCoordStr)
+        print("names :: ", names)
+        print("pers :: ", pers)
+
+        for colIdx in range(2,7):
+            if colIdx == 2:     # 검출 정보
                 item = QtGui.QStandardItem(extInfoStr)
-            elif colIdx == 3:
+            elif colIdx == 3:   # 프레임번호
                 item = QtGui.QStandardItem(dataList[-1])
+            elif colIdx == 4:   # 좌표정보
+                item = QtGui.QStandardItem(extCoordStr)
+            elif colIdx == 5:   # 라벨명
+                item = QtGui.QStandardItem(names)
+            elif colIdx == 6:   # 정확도
+                item = QtGui.QStandardItem(pers)
+
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             item.setEditable(False)
             dModel.setItem(rowCnt, colIdx, item)
@@ -95,141 +187,48 @@ class Extract(object):
         # 건당 데이터의 row 높이 설정
         self.table.setRowHeight(rowCnt, 50)
 
-
-    @QtCore.Slot(QtWidgets.QTableWidgetItem)
-    def on_tableWidget_itemChanged(self, item):
-        """ Handles the row's state
-        :type item: QTableWidgetItem
-        :parameter item: The changed item
+    def createThumnail_QImage(self, resultType, qImage, width, height, radius, antialiasing=True):
         """
-        checked = item.checkState() == QtCore.Qt.Checked
-        if checked:  # the item gets checked
-            print("checked")
-        else:  # the item gets unchecked
-            print("unChecked")
+        qImage 형식의 img 데이터를 이용하여 width/height 크기로
+        원형 썸네일 QPixmap 생성 후 Label에 입력하여 리턴
+        :param qImage: 이미지데이터
+        :param width: 넓이
+        :param height: 높이
+        :return: 썸네일 QImage / pixmap
+        """
 
-class ModelCreater(QtCore.QAbstractTableModel):
-    """
-    MEMO : QAbstractTableModel 오버라이딩 메서드
-    """
-    def __init__(self, cycles = [[]], headers = [], parent = None):
-        QtCore.QAbstractTableModel.__init__(self, parent)
-        self.cycles = cycles
-        self.headers = headers
-        self.values_checked = []
+        resultLabel = QtWidgets.QLabel()
+        resultLabel.setMaximumSize(width, height)
+        resultLabel.setMinimumSize(width, height)
+        target = QtGui.QPixmap(resultLabel.size())
+        target.fill(QtCore.Qt.transparent)
 
-    def rowCount(self, parent):
-        return len(self.cycles)
+        opt_radius = 25
+        opt_antialiasing = True
 
-    def columnCount(self, parent):
-        return len(self.cycles[0])
+        # imgData = QtGui.QPixmap(QtGui.QImage(qImage))\
+        #     .scaled(width, height, QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
 
-    def flags(self, index):
-        fl = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
-        print("before fl :: {}".format(fl))
-        if index.column() == 0:
-            print("HIHI")
-            fl |= QtCore.Qt.ItemIsUserCheckable
-        else:
-            print("BYEBYE")
-            fl |= QtCore.Qt.ItemIsEditable
+        imgData = QtGui.QPixmap(QImage(qImage)).scaled(width, height)
+        painter = QtGui.QPainter(target)
+        if antialiasing:
+            painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+            painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing, True)
+            painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
 
-        print("after fl :: {}".format(fl))
-        return fl
+        path = QtGui.QPainterPath()
+        path.addRoundedRect(
+            0, 0, resultLabel.width(), resultLabel.height(), radius, radius
+        )
 
-    def data(self, index, role):
-        if not index.isValid():
-            return
-        row = index.row()
-        column = index.column()
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, imgData)
+        resultLabel.setPixmap(target)
 
-        if role == QtCore.Qt.TextAlignmentRole:
-            return QtCore.Qt.AlignCenter;
-
-        elif role == QtCore.Qt.CheckStateRole and column==0:
-            return QtCore.Qt.Checked if "1" else QtCore.Qt.Unchecked
-
-
-    def setData(self, index, value, role = QtCore.Qt.EditRole):
-        change = False
-        row = index.row()
-        column = index.column()
-
-        if role == QtCore.Qt.CheckStateRole:
-            value =  value != QtCore.Qt.Unchecked
-            print("value :: ", value)
-            change = True
-        if role == QtCore.Qt.EditRole:
-            if (column == 1) or (column == 4):
-                try:
-                    str(value)
-                    change = True
-                except:
-                    print("Not a valid name")
-                    change = False
-            elif (column == 2):
-                try:
-                    int(value)
-                    change = True
-                except:
-                    print("Not a valid frame")
-                    change = False
-            elif (column == 3):
-                try:
-                    int(value)
-                    change = True
-                except:
-                    print("Not a valid frame")
-                    change = False
-
-            elif (column == 5):
-                try:
-                    int(value)
-                    change = True
-                except:
-                    print("Not a valid version number")
-                    change = False
-        if change:
-            self.dataChanged.emit(row, column)
-            return True
-        return False
-
-    def headerData(self, section, orientation, role):
-        if role == QtCore.Qt.DisplayRole:
-            if orientation == QtCore.Qt.Horizontal:
-                return self.headers[section]
-
-    def insertRows(self, position, rows, values = [] , parent = QtCore.QModelIndex()):
-        self.beginInsertRows(parent, position, position+rows-1)
-        self.endInsertRows()
-        self.getData()
-
-    def roleNames(self):
-        roles = QtCore.QAbstractTableModel.roleNames(self)
-        roles["Checked"] = QtCore.Qt.CheckStateRole
-        return roles
-
-
-    def getData(self):
-            rows = self.rowCount(1)
-            data = []
-            for row in range(rows):
-                array = []
-                for column in range (6):
-                    index = self.index(row, column)
-                    info = index.data()
-                    array.append(info)
-                data.append(array)
-
-            dic = {}
-            for item in data:
-                dic[item[1]]=item
-
-            print("")
-            print("data:")
-            print('')
-            for key in dic:
-                print(key, dic[key])
+        if resultType is "image":
+            return resultLabel
+        elif resultType is "pixmap":
+            return target
 
 
 
