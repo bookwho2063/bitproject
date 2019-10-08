@@ -1356,6 +1356,10 @@ class Ui_Form(QtCore.QObject):
         검출 테이블 데이터 더블클릭 이벤트
         :return:
         """
+        # 영상이 플레이 상태이면 비디오플레이어를 일시정지 시킨 후 프레임 이동
+        if self.cm.video_player.isPlaying():
+            self.cm.video_player.pauseVideo()
+
         selRowNum = ""
         for idx in self.ext_tableView_extResultList.selectionModel().selectedIndexes():
             selRowNum = idx.row()
