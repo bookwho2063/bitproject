@@ -20,6 +20,7 @@ from common import common,cv_video_player
 from extract import Extract
 from option import Option
 from time import sleep
+import datetime
 
 class Ui_Form(QtCore.QObject):
     def setupUi(self, Form):
@@ -1004,8 +1005,7 @@ class Ui_Form(QtCore.QObject):
         ######## tab key로 인한 이동 순서 설정 end
 
 
-    def callBackSample(self):
-        print("callBackSample :: ")
+
 
     def retranslateUi(self, Form):
         """
@@ -1430,12 +1430,17 @@ class Ui_Form(QtCore.QObject):
         # TODO : tableview에서 검출 정보 가지고 오기
         # TODO : 팝업창으로 좌표파일의 저장 여부 물어보기
         #### 샘플 결과
-        resultList = [[{'x': 360,'y': 129,'w': 132,'h': 132,'percent': '98.48','labelname': 'roje'},
-                       {'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},
-                       {'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},'0'],
-                      [{'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},'1000'],
-                      [{'x': 260,'y': 42,'w': 144,'h': 144,'percent': '95.4','labelname': 'roje'},'2000'],
-                      [{'x': 313,'y': 42,'w': 102,'h': 144,'percent': '95.4','labelname': 'jisu'},'5000']]
+        # [{'x': 1028, 'y': 253, 'w': 157, 'h': 157, 'percent': '99.99', 'labelname': 'jenny'}, {'x': 612, 'y': 823, 'w': 72, 'h': 72, 'percent': '82.66', 'labelname': 'lisa'}, '277']
+        # resultList = [[{'x': 360,'y': 129,'w': 132,'h': 132,'percent': '98.48','labelname': 'roje'},
+        #                {'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},
+        #                {'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},'0'],
+        #               [{'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},'1000'],
+        #               [{'x': 260,'y': 42,'w': 144,'h': 144,'percent': '95.4','labelname': 'roje'},'2000'],
+        #               [{'x': 313,'y': 42,'w': 102,'h': 144,'percent': '95.4','labelname': 'jisu'},'5000']]
+
+        resultList = self.extClass.extGetDownloadData()
+        print("resultList :: ", resultList)
+
         saveCoord = True
         ##########################
         ###########################
@@ -1443,13 +1448,13 @@ class Ui_Form(QtCore.QObject):
         ############################
         self.stackedLayout.setCurrentIndex(0)
 
-        # TODO : 파일 이름을 변경해야 함
-        self.cm.openVideoWriter(file_path="./test.mp4",format=self.opt.get_downFileFmt())
+        realTime = self.cm.getMicrotimes()
+        self.cm.openVideoWriter(file_path="./faceExtractVideo_{}.{}".format(realTime, self.opt.get_downFileFmt()),format=self.opt.get_downFileFmt())
         self.cm.saveVideo(resultList)
         self.cm.closeVideoWriter()
 
         if saveCoord:
-            self.cm.saveCoordFile(resultList,"./test.csv",self.opt.get_coordFileFmt())
+            self.cm.saveCoordFile(resultList,"./faceExtractCoord{}.{}".format(realTime,self.opt.get_coordFileFmt()),self.opt.get_coordFileFmt())
 
         self.stackedLayout.setCurrentIndex(1)
 

@@ -53,26 +53,26 @@ class Extract(object):
         return chkList
 
 
-    def extGetDownloadData(self, downFlag):
+    def extGetDownloadData(self):
         """
         MEMO : 선택/전체 영상 다운로드를 위하여 테이블 데이터 정리
         :param : downFlag(sel/all)
         :return: resultList
         """
-        resultList = list()
 
         chkList = list()
-        if downFlag == "sel":       # 선택 데이터 정렬 프로세스 수행
-            chkList = self.getCheckBoxList()    # 선택 내역 rownum List return
+        rowNum = self.table.model().rowCount()
+        chkList = self.getCheckBoxList()  # 선택 내역 rownum List return
 
-        elif downFlag == "all":     # 전체 데이터 정렬 프로세스 수행
-            rowNum = self.table.model().rowCount()
+        if len(chkList) == 0:   # 체크된 것이 없으므로 전체 다운로드
             for idx in range(rowNum):
                 chkList.append(idx)
 
+        resultLists = list()
         for rowNum in chkList:
             # rowNum :: 체크 된 row 번호
             dataDict = dict()
+            resultList = list()
             col2 = self.table.model().index(int(rowNum), 2).data()      # 검출정보
             frameNum = self.table.model().index(int(rowNum), 3).data()  # 프레임번호
             col4 = str(self.table.model().index(int(rowNum), 4).data()) #
@@ -95,8 +95,9 @@ class Extract(object):
                     resultList.append(dataDict)
             # 프레임 정보 데이터를 정보의 제일 마지막에 추가
             resultList.append(frameNum)
+            resultLists.append(resultList)
 
-        return resultList
+        return resultLists
 
 
     def extAddRowData(self, image, dataList):
@@ -191,6 +192,7 @@ class Extract(object):
         """
         qImage 형식의 img 데이터를 이용하여 width/height 크기로
         원형 썸네일 QPixmap 생성 후 Label에 입력하여 리턴
+        Realese : 썸네일 생성 관련 메서드 이동 common->extract
         :param qImage: 이미지데이터
         :param width: 넓이
         :param height: 높이
@@ -209,7 +211,7 @@ class Extract(object):
         # imgData = QtGui.QPixmap(QtGui.QImage(qImage))\
         #     .scaled(width, height, QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
 
-        imgData = QtGui.QPixmap(QImage(qImage)).scaled(width, height)
+        imgData = QtGui.QPixmap(QtGui.QImage(qImage)).scaled(width, height)
         painter = QtGui.QPainter(target)
         if antialiasing:
             painter.setRenderHint(QtGui.QPainter.Antialiasing, True)

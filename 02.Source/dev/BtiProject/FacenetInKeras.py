@@ -243,11 +243,12 @@ class facenetInKeras():
             x1, y1 = abs(x1), abs(y1)
             x2, y2 = x1 + width, y1 + height
 
-            # extract the face
-            face = image[y1:y2, x1:x2]
+            if int(width) > 70:
+                # extract the face
+                face = image[y1:y2, x1:x2]
 
-            # resize pixels to the model size
-            face_array.append(cv2.resize(face, required_size))
+                # resize pixels to the model size
+                face_array.append(cv2.resize(face, required_size))
 
         return results, face_array
 

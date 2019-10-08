@@ -5,7 +5,7 @@ from PySide2.QtCore import *
 
 from time import sleep
 import cv2,time
-import os, re
+import os, re, datetime
 from autofocus import Autofocus
 
 # img face recognition test
@@ -89,18 +89,18 @@ class cv_video_player(QThread):
                     convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0], rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
 
                     # 영상검출탭 검출 수행
-                    # if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
-                    self.current_workingFrame = self.cur_frame
+                    if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
+                        self.current_workingFrame = self.cur_frame
 
-                    # 검출수행
-                    rgbImage, resultData = self.extractFaceOrder(rgbImage)
+                        # 검출수행
+                        rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
-                    # 결과 데이터가 존재할 경우에만 결과목록에 출력
-                    if len(resultData) > 0:
-                        # 결과 데이터 형태
-                        # list[{dict}, ....{dict}, cur_frame]
-                        resultData.append(str(self.cur_frame))
-                        self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
+                        # 결과 데이터가 존재할 경우에만 결과목록에 출력
+                        if len(resultData) > 0:
+                            # 결과 데이터 형태
+                            # list[{dict}, ....{dict}, cur_frame]
+                            resultData.append(str(self.cur_frame))
+                            self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
 
                     # 오토포커싱탭 검출 수행
                     if self.afc_state == 1:
@@ -744,3 +744,11 @@ class common(object):
 
                 self.create_massage_box("confirm", "{} 에 저장을 완료 하였습니다.".format(saveFullPath))
                 saveFile.close()
+
+    def getMicrotimes(self):
+        """
+        UTC 시간을 리턴한다
+        다운로드 영상 및 좌표 파일의 파일명으로 활용
+        :return:
+        """
+        return round(datetime.datetime.utcnow().timestamp() * 1000)
