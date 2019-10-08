@@ -41,7 +41,7 @@ class openfaceRealTime():
         self.color = (0, 255, 0)
 
         self.employees = dict()
-        self.metric = "cosine"
+        self.metric = "euclidean"
         self.threshold = 0.45
 
     def preprocess_image(self, image_path):
@@ -362,86 +362,99 @@ class openfaceRealTime():
             self.face_cascade = cv2.CascadeClassifier('/home/bit/anaconda3/envs/faceRecognition/lib/python3.7/site-packages/cv2/data/haarcascade_frontalface_default.xml')
 
         faces = self.face_cascade.detectMultiScale(img, 1.3, 5)
-
-        extDict = dict()    # 결과 데이터 딕셔너리
         extList = list()    # 결과 데이터 리스트
+        extDict = dict()  # 결과 데이터 딕셔너리
 
         # 클래스명에서 숫자를 제거하기위한 정규식
         expText = re.compile('[^0-9%.() ]')
 
-        for (x, y, w, h) in faces:
-            if w > 60:  # discard small detected faces
-                cv2.rectangle(img, (x, y), (x + w, y + h), self.color, 1)  # draw rectangle to main image
+        if len(faces) != 0:
+            for (x, y, w, h) in faces:
+                extDict = dict()
+                if w > 60:  # discard small detected faces
+                    cv2.rectangle(img, (x, y), (x + w, y + h), self.color, 1)  # draw rectangle to main image
 
-                detected_face = img[int(y):int(y + h), int(x):int(x + w)]  # crop detected face
-                detected_face = cv2.resize(detected_face, (96, 96))  # resize to 96x96
+                    detected_face = img[int(y):int(y + h), int(x):int(x + w)]  # crop detected face
+                    detected_face = cv2.resize(detected_face, (96, 96))  # resize to 96x96
 
-                img_pixels = image.img_to_array(detected_face)
-                img_pixels = np.expand_dims(img_pixels, axis=0)
-                # employee dictionary is using preprocess_image and it normalizes in scale of [-1, +1]
-                img_pixels /= 127.5
-                img_pixels -= 1
+                    img_pixels = image.img_to_array(detected_face)
+                    img_pixels = np.expand_dims(img_pixels, axis=0)
+                    # employee dictionary is using preprocess_image and it normalizes in scale of [-1, +1]
+                    img_pixels /= 127.5
+                    img_pixels -= 1
 
-                captured_representation = self.model.predict(img_pixels)[0, :]
+                    captured_representation = self.model.predict(img_pixels)[0, :]
 
-                distances = []
+                    # print("captured_representation :: ")
+                    # print(captured_representation)
 
-                for i in self.employees:
-                    employee_name = i
-                    source_representation = self.employees[i]
+                    distances = []
 
-                    if self.metric == "cosine":
-                        distance = self.findCosineDistance(captured_representation, source_representation)
-                    elif self.metric == "euclidean":
-                        distance = self.findEuclideanDistance(captured_representation, source_representation)
+                    for i in self.employees:
+                        employee_name = i
+                        source_representation = self.employees[i]
 
-                    if self.dump:
-                        print(employee_name, ": ", distance)
-                    distances.append(distance)
+                        if self.metric == "cosine":
+                            distance = self.findCosineDistance(captured_representation, source_representation)
+                        elif self.metric == "euclidean":
+                            distance = self.findEuclideanDistance(captured_representation, source_representation)
 
-                label_name = 'Unknown'
-                similarity = 0
-                index = 0
-                for i in self.employees:
-                    employee_name = i
-                    if index == np.argmin(distances):
-                        if distances[index] <= self.threshold:
-                            # print("detected: ",employee_name)
-                            if self.metric == "euclidean":
-                                similarity = 100 + (90 - 100 * distance)
-                            elif self.metric == "cosine":
-                                similarity = 100 + (40 - 100 * distance)
+                        if self.dump:
+                            print("(employee_name)=" + employee_name, " : (distance)=", distance)
+                        distances.append(distance)
 
-                            # print("similarity :: ", similarity)
-                            if similarity > 99.99:
-                                similarity = 99.99
+                    # print("distances :: ")
+                    # print(distances)
 
-                            label_name = "%s (%s%s)" % (employee_name, str(round(similarity, 2)), '%')
-                            break
-                    index = index + 1
+                    label_name = 'Unknown'
+                    similarity = 0
+                    index = 0
+                    for i in self.employees:
+                        employee_name = i
+                        if index == np.argmin(distances):
+                            if distances[index] < self.threshold:
+                                # print("detected: ",employee_name)
+                                if self.metric == "euclidean":
+                                    similarity = 100 + (90 - 100 * distance)
+                                elif self.metric == "cosine":
+                                    similarity = 100 + (40 - 100 * distance)
 
-                print("======================================================")
-                print("label_name :: {}".format(label_name))
-                print("Percent :: {} %".format(str(round(similarity, 2))))
-                cv2.putText(img, label_name, (int(x + w + 15), int(y - 64)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),2)
+                                # print("similarity :: ", similarity)
+                                if similarity > 99.99:
+                                    similarity = 99.99
 
-                if self.dump:
-                    print("call dump----------------------")
+                                label_name = "%s (%s%s)" % (employee_name, str(round(similarity, 2)), '%')
+                                break
+                            else:
+                                label_name = "?"
+                                similarity = 00.00
 
-                # connect face and text
-                cv2.line(img, (x + w, y - 64), (x + w - 25, y - 64), self.color, 1)
-                cv2.line(img, (int(x + w / 2), y), (x + w - 25, y - 64), self.color, 1)
+                        index = index + 1
 
-                # 검출 결과 데이터 저장
-                extDict['x'] = x
-                extDict['y'] = y
-                extDict['w'] = w
-                extDict['h'] = h
-                extDict['percent'] = str(round(similarity, 2))
-                extDict['labelname'] = "".join(expText.findall(employee_name))
-                extList.append(extDict)
+                    print("======================================================")
+                    print("label_name :: {}".format(label_name))
+                    print("Percent :: {} %".format(str(round(similarity, 2))))
 
-        # 프레임 이미지(박스:Y), 결과데이터(박스좌표, 검출결과(이름,정확도))
+                    if similarity != 0 and label_name != "Unknown":
+                        cv2.putText(img, label_name, (int(x + w + 15), int(y - 64)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),2)
+
+                        if self.dump:
+                            print("call dump----------------------")
+
+                        # connect face and text
+                        cv2.line(img, (x + w, y - 64), (x + w - 25, y - 64), self.color, 1)
+                        cv2.line(img, (int(x + w / 2), y), (x + w - 25, y - 64), self.color, 1)
+
+                        # 검출 결과 데이터 저장
+                        extDict['x'] = x
+                        extDict['y'] = y
+                        extDict['w'] = w
+                        extDict['h'] = h
+                        extDict['percent'] = str(round(similarity, 2))
+                        extDict['labelname'] = "".join(expText.findall(employee_name))
+                        extList.append(extDict)
+
+            # 프레임 이미지(박스:Y), 결과데이터(박스좌표, 검출결과(이름,정확도))
         return img, extList
 
 
