@@ -12,7 +12,7 @@ from keras.models import model_from_json
 from keras.layers.merge import Concatenate
 from keras import backend as K
 
-import os, platform, re
+import os, platform, re, site
 import numpy as np
 import cv2
 from PIL import Image
@@ -31,9 +31,9 @@ class openfaceRealTime():
 
         elif platform.system() == "Windows":
             self.osName = "Windows"
-            self.employee_pictures = "F:/sampleData/blackpink_crop"
+            self.employee_pictures = "C:/Users/bit/Downloads/blackpink_crop"
             # self.employee_pictures = "F:/sampleData/crop_twice"
-            self.videoFilePath = "F:/sampleData/test5.mp4"
+            self.videoFilePath = "./videoLIst/test5.mp4"
 
         self.face_cascade = ""
         self.dump = False
@@ -357,9 +357,13 @@ class openfaceRealTime():
         :return: img
         """
         if self.osName == "Windows":
-            self.face_cascade = cv2.CascadeClassifier('C:\\Users\\JK\\Documents\\GitHub\\bitproject\\haarcascade_frontface.xml')
+            # self.face_cascade = cv2.CascadeClassifier('C:\\Users\\JK\\Documents\\GitHub\\bitproject\\haarcascade_frontface.xml')
+            self.face_cascade = cv2.CascadeClassifier(
+                os.path.join(site.getsitepackages()[1],"cv2/data/haarcascade_frontalface_default.xml"))
         elif self.osName == "Linux":
-            self.face_cascade = cv2.CascadeClassifier('/home/bit/anaconda3/envs/faceRecognition/lib/python3.7/site-packages/cv2/data/haarcascade_frontalface_default.xml')
+            # self.face_cascade = cv2.CascadeClassifier('/home/bit/anaconda3/envs/faceRecognition/lib/python3.7/site-packages/cv2/data/haarcascade_frontalface_default.xml')
+            self.face_cascade = cv2.CascadeClassifier(
+                os.path.join(site.getsitepackages()[0],"cv2/data/haarcascade_frontalface_default.xml"))
 
         faces = self.face_cascade.detectMultiScale(img, 1.3, 5)
         extList = list()    # 결과 데이터 리스트
