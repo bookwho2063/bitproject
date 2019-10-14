@@ -357,61 +357,68 @@ class Autofocus(QObject):
         super(Autofocus,self).__init__()
         self.afc_coordList = []  # 검출 좌표 리스트
 
-        # 테스트 변수
-        self.list_index = 0
-        self.list_coord = [(650,330,360,720),(720,405,300,600),(650,330,360,720),(800,500,240,480),(1000,525,150,300)]
+        # TODO coordLIst 이후 dict로 변경 예정
+        # self.afc_coordDict = {}  # 검출 좌표 dict
+
+        # TODO : 샘플 클래스 변수
+        self.class_name = "roje"
+        # self.class_name = ""
+
+        # # 테스트 변수
+        # self.list_index = 0
+        # self.list_coord = [(650,330,360,720),(720,405,300,600),(650,330,360,720),(800,500,240,480),(1000,525,150,300)]
 
     def quit_afcProcess(self):
+
         self.afc_coordList = []  # 검출 좌표 리스트
+        # self.afc_coordDict = {}  # 검출 좌표 dict
 
     def setUp(self,ui):
-        # 추출할 크기
+        # 추출할 박스 크기
+        self.width = ui.cm.video_player.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.height = ui.cm.video_player.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         self.afc_width,self.afc_height = ui.opt.get_coord()
-
         self.afc_extFrameRate = ui.cm.video_player.fps
         # self.class_num = class_num
 
-    def search_afcSection(self,index):
-        '''
-        프레임에 해당하는 영역 좌표를 리턴한다.
-        :param ui:
-        :return:
-        '''
-        if index < len(self.afc_coordList):
-            return self.afc_coordList[index]
-        else:
-            return -1
 
-    def detect_centerCoord(self, calss_num, frame):
-        '''
-        딥러닝 모델을 이용하여 프레임에서 대상이 있는지 확인하고 있을 때 대상의 얼굴 좌표를 반환한다.
-        :param calss_num:
-        :param frame:
-        :return: (x, y, width, height)
-        '''
-        pass
-
-    # 네트워크를 통해 추출된 좌표가 나왔을 때 그것을 기준으로 구현
-    def make_afcSection(self,centerCoord=0):
+    # TODO : 포커싱할 좌표를 리턴 / afc_width, afc_heigh 비율 조절 필요
+    def make_afcSection(self, resultList):
         '''
         얼굴의 좌표를 기준으로 포커싱할 추출 영역을 결정한다.
-        :param centerCoord: face 중심점 좌표 및 크기
+        :param resultList: 현재 프레임의 얼굴 검출 결과
         :return: x,y,widht,height
         '''
-        self.list_index = (self.list_index + 1) % 4
-        return self.list_coord[self.list_index]
+        current_result = ""
+        current_accuracy = 0
+        print(resultList)
+        for result in resultList:
+            if result['labelname'] == self.class_name and current_accuracy < float(result['percent']):
+                current_result = result
+                current_accuracy = float(result['percent'])
 
-    def extract_afcVideo(self, img, current_workingFrame):
+        if current_result == "":
+            return  [0,0,self.width,self.height]
+        else:
+            x = result['x'] + result['w'] / 2 - self.afc_width/2
+            y = result['y'] + result['h'] / 2 - self.afc_height / 2
+            print("result", result)
+            print("make_afcSection " , [x, y, self.afc_width, self.afc_height])
+            return [x, y, self.afc_width, self.afc_height]
+
+
+    def extract_afcVideo(self, current_workingFrame, resultList):
         '''
         추출된 이미지를 재생하고 영역 좌표를 리스트로 저장한다.
-        :param img : 오토포커싱할 img
         :param current_workingFrame : 현재 프레임이 작업되고 있는 프레임 number
+        :param resultList : 현재 프레임의 얼굴 검출 결과
         :return: crop할 좌표
         '''
+        self.afc_extFrameRate = 5
         if not current_workingFrame % self.afc_extFrameRate:
             index = int(current_workingFrame / self.afc_extFrameRate)
             if index > len(self.afc_coordList) - 1:
-                self.afc_coordList.append(self.make_afcSection())
+                self.afc_coordList.append(self.make_afcSection(resultList))
 
             if index == 0:
                 self.cur_coord = self.afc_coordList[index]
@@ -427,13 +434,15 @@ class Autofocus(QObject):
 
         return self.cur_coord
 
-    def save_coordFile(self,type):
+
+    # TODO : 함수를 사용하여 포커싱 좌표를 저장. fps와 추출 시간도 추가 저장해야 한다.
+    def get_coordResult(self):
         '''
-        오토포커싱된 좌표를 파일로 저장한다.
+        오토포커싱된 좌표를 리턴한다
         :param type:
         :return:
         '''
-        pass
+        return self.afc_coordList
 
     def save_afcVideoFile(self,cap, file_path, extension,size):
         '''

@@ -114,7 +114,7 @@ class cv_video_player(QThread):
                         rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
                         # self.afc.extract_afcVideo(img = frame, current_workingFrame=self.current_workingFrame )
-                        x, y, width, height = self.afc.extract_afcVideo(img=None, current_workingFrame=self.current_workingFrame)
+                        x, y, width, height = self.afc.extract_afcVideo(current_workingFrame=self.current_workingFrame, resultList=resultData)
 
                         self.afc.changePixmap.emit(convertToQtFormat.copy(), QRect(x, y, width, height))
                     elif self.afc_state == 2:
@@ -332,7 +332,7 @@ class common(object):
         '''
         Title : 로컬 경로의 파일의 경로를 읽어온다
         '''
-        path =  QFileDialog.getOpenFileName(QFileDialog(),"비디오 선택","","Video Files (*.avi, *.mp4)")[0]
+        path =  QFileDialog.getOpenFileName(QFileDialog(),"비디오 선택","","Video Files (*.avi *.mp4)")[0]
         print(path)
         if path == "":
             return path
