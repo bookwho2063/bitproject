@@ -21,6 +21,7 @@ from extract import Extract
 from option import Option
 from time import sleep
 import datetime
+import os
 
 class Ui_Form(QtCore.QObject):
     def setupUi(self, Form):
@@ -418,7 +419,7 @@ class Ui_Form(QtCore.QObject):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.afc_label_before_Md.sizePolicy().hasHeightForWidth())
         self.afc_label_before_Md.setSizePolicy(sizePolicy)
-        self.afc_label_before_Md.setMinimumSize(QtCore.QSize(480, 450))
+        self.afc_label_before_Md.setMinimumSize(QtCore.QSize(628, 450))
         font = QtGui.QFont()
         font.setPointSize(26)
         font.setWeight(75)
@@ -497,7 +498,7 @@ class Ui_Form(QtCore.QObject):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.afc_label_after_Md.sizePolicy().hasHeightForWidth())
         self.afc_label_after_Md.setSizePolicy(sizePolicy)
-        self.afc_label_after_Md.setMinimumSize(QtCore.QSize(480, 450))
+        self.afc_label_after_Md.setMinimumSize(QtCore.QSize(628, 450))
         font = QtGui.QFont()
         font.setPointSize(26)
         font.setWeight(75)
@@ -637,30 +638,30 @@ class Ui_Form(QtCore.QObject):
         self.alr_horizontalLayout_top.addWidget(self.alr_tableWidget_classList)
         self.verticalLayout_15.addLayout(self.alr_horizontalLayout_top)
         self.alr_widget_video_Md = QtWidgets.QWidget(self.tab_alr)
-        self.alr_widget_video_Md.setStyleSheet("border: 1px solid gray;")
         self.alr_widget_video_Md.setObjectName("alr_widget_video_Md")
         self.verticalLayout_14 = QtWidgets.QVBoxLayout(self.alr_widget_video_Md)
         self.verticalLayout_14.setSpacing(0)
         self.verticalLayout_14.setContentsMargins(0,0,0,0)
         self.verticalLayout_14.setObjectName("verticalLayout_14")
-        self.alr_label_extMd = QtWidgets.QLabel(self.alr_widget_video_Md)
+        self.alr_label_extMd = QtWidgets.QLabel(self.tab_alr)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.alr_label_extMd.sizePolicy().hasHeightForWidth())
         self.alr_label_extMd.setSizePolicy(sizePolicy)
-        self.alr_label_extMd.setMinimumSize(QtCore.QSize(480,0))
+        self.alr_label_extMd.setMinimumSize(QtCore.QSize(1260,669))
         font = QtGui.QFont()
         font.setPointSize(26)
         font.setWeight(75)
         font.setBold(True)
         self.alr_label_extMd.setFont(font)
         self.alr_label_extMd.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.alr_label_extMd.setStyleSheet("border: 1px solid gray;")
+        self.alr_label_extMd.setStyleSheet("border: 1px solid gray; background-color: QColor(25,25,25);")
         self.alr_label_extMd.setText("")
         self.alr_label_extMd.setAlignment(QtCore.Qt.AlignCenter)
         self.alr_label_extMd.setObjectName("alr_label_extMd")
-        self.verticalLayout_14.addWidget(self.alr_label_extMd)
+        self.verticalLayout_15.addWidget(self.alr_label_extMd)
+        # self.verticalLayout_14.addWidget(self.alr_label_extMd)
         self.alr_horizontalLayout_mid1 = QtWidgets.QHBoxLayout()
         self.alr_horizontalLayout_mid1.setObjectName("alr_horizontalLayout_mid1")
         self.alr_horizontalLayout_mid2 = QtWidgets.QHBoxLayout()
@@ -1004,7 +1005,7 @@ class Ui_Form(QtCore.QObject):
 
         ######## 설정.영상 검출 옵션 설정 start
         self.opt_groupBox_mid = QtWidgets.QGroupBox(self.tab_opt)
-        self.opt_groupBox_mid.setGeometry(QtCore.QRect(60, 270, 1161, 171))
+        self.opt_groupBox_mid.setGeometry(QtCore.QRect(60, 235, 1161, 171))
         self.opt_groupBox_mid.setObjectName("opt_groupBox_mid")
         self.opt_groupBox_4 = QtWidgets.QGroupBox(self.opt_groupBox_mid)
         self.opt_groupBox_4.setGeometry(QtCore.QRect(250, 170, 1161, 171))
@@ -1049,10 +1050,10 @@ class Ui_Form(QtCore.QObject):
         ######## 설정.영상 검출 옵션 설정 end
 
         ######## 설정.오토 포커싱 옵션 설정 start
-        self.opt_groupBox_bot = QtWidgets.QGroupBox(self.tab_opt)
-        self.opt_groupBox_bot.setGeometry(QtCore.QRect(60, 500, 1161, 171))
-        self.opt_groupBox_bot.setObjectName("opt_groupBox_bot")
-        self.opt_label_cn2 = QtWidgets.QLabel(self.opt_groupBox_bot)
+        self.opt_groupBox_mid2 = QtWidgets.QGroupBox(self.tab_opt)
+        self.opt_groupBox_mid2.setGeometry(QtCore.QRect(60,429,1161,171))
+        self.opt_groupBox_mid2.setObjectName("opt_groupBox_mid2")
+        self.opt_label_cn2 = QtWidgets.QLabel(self.opt_groupBox_mid2)
         self.opt_label_cn2.setGeometry(QtCore.QRect(50, 120, 591, 21))
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -1063,7 +1064,7 @@ class Ui_Form(QtCore.QObject):
         self.opt_label_cn2.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.opt_label_cn2.setWordWrap(True)
         self.opt_label_cn2.setObjectName("opt_label_cn2")
-        self.layoutWidget6 = QtWidgets.QWidget(self.opt_groupBox_bot)
+        self.layoutWidget6 = QtWidgets.QWidget(self.opt_groupBox_mid2)
         self.layoutWidget6.setGeometry(QtCore.QRect(50, 40, 177, 25))
         self.layoutWidget6.setObjectName("layoutWidget6")
         self.opt_horizontalLayout_7 = QtWidgets.QHBoxLayout(self.layoutWidget6)
@@ -1087,7 +1088,7 @@ class Ui_Form(QtCore.QObject):
         self.opt_spinBox_heightValue.setProperty("value", 600)
         self.opt_spinBox_heightValue.setObjectName("opt_spinBox_heightValue")
         self.opt_horizontalLayout_7.addWidget(self.opt_spinBox_heightValue)
-        self.layoutWidget7 = QtWidgets.QWidget(self.opt_groupBox_bot)
+        self.layoutWidget7 = QtWidgets.QWidget(self.opt_groupBox_mid2)
         self.layoutWidget7.setGeometry(QtCore.QRect(50, 80, 177, 25))
         self.layoutWidget7.setObjectName("layoutWidget7")
         self.opt_horizontalLayout_8 = QtWidgets.QHBoxLayout(self.layoutWidget7)
@@ -1113,6 +1114,50 @@ class Ui_Form(QtCore.QObject):
         self.opt_horizontalLayout_8.addWidget(self.opt_spinBox_widthValue)
 
         ######## 설정.오토 포커싱 옵션 설정 end
+
+        ######## 설정.학습 옵션 설정 start
+        self.opt_groupBox_bot = QtWidgets.QGroupBox(self.tab_opt)
+        self.opt_groupBox_bot.setGeometry(QtCore.QRect(60,620,1161,171))
+        self.opt_groupBox_bot.setObjectName("opt_groupBox_bot")
+        self.opt_groupBox_5 = QtWidgets.QGroupBox(self.opt_groupBox_bot)
+        self.opt_groupBox_5.setGeometry(QtCore.QRect(250,170,1161,171))
+        self.opt_groupBox_5.setObjectName("opt_groupBox_5")
+        self.opt_label_cn1_2 = QtWidgets.QLabel(self.opt_groupBox_bot)
+        self.opt_label_cn1_2.setGeometry(QtCore.QRect(49,90,731,75))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setWeight(75)
+        font.setBold(True)
+        self.opt_label_cn1_2.setFont(font)
+        self.opt_label_cn1_2.setScaledContents(False)
+        self.opt_label_cn1_2.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.opt_label_cn1_2.setWordWrap(True)
+        self.opt_label_cn1_2.setObjectName("opt_label_cn1_2")
+        self.layoutWidget_2 = QtWidgets.QWidget(self.opt_groupBox_bot)
+        self.layoutWidget_2.setGeometry(QtCore.QRect(40,60,441,31))
+        self.layoutWidget_2.setObjectName("layoutWidget_2")
+        self.opt_horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget_2)
+        self.opt_horizontalLayout_3.setContentsMargins(0,0,0,0)
+        self.opt_horizontalLayout_3.setObjectName("opt_horizontalLayout_3")
+        self.opt_label_saveImgDir = QtWidgets.QLabel(self.layoutWidget_2)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.opt_label_saveImgDir.setFont(font)
+        self.opt_label_saveImgDir.setScaledContents(False)
+        self.opt_label_saveImgDir.setAlignment(QtCore.Qt.AlignCenter)
+        self.opt_label_saveImgDir.setWordWrap(True)
+        self.opt_label_saveImgDir.setObjectName("opt_label_saveImgDir")
+        self.opt_horizontalLayout_3.addWidget(self.opt_label_saveImgDir)
+        self.opt_lineEdit_saveImgDir = QtWidgets.QLineEdit(self.layoutWidget_2)
+        self.opt_lineEdit_saveImgDir.setObjectName("opt_lineEdit_saveImgDir")
+        self.opt_horizontalLayout_3.addWidget(self.opt_lineEdit_saveImgDir)
+        self.opt_pushButton_saveImgDir = QtWidgets.QPushButton(self.layoutWidget_2)
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        self.opt_pushButton_saveImgDir.setFont(font)
+        self.opt_pushButton_saveImgDir.setObjectName("opt_pushButton_saveImgDir")
+        self.opt_horizontalLayout_3.addWidget(self.opt_pushButton_saveImgDir)
+        ######## 설정.학습 옵션 설정 end
 
         ######## 검출, 오토포커싱 공통 옵션 설정
         # 검출대상리스트 헤더 및 기본 설정 (검출 / 오토포커싱 공통)
@@ -1197,7 +1242,7 @@ class Ui_Form(QtCore.QObject):
         # self.afc_label_after_Md.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         # self.afc_after_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
 
-        # 자동학습 탭 버튼 및 라벨 설정
+        # 수동학습 탭 버튼 및 라벨 설정
         self.alr_pushButton_localUpload.setText(QtWidgets.QApplication.translate("Form","로컬 업로드",None,-1))
         self.alr_pushButton_extImage.setText(QtWidgets.QApplication.translate("Form","이미지 추출",None,-1))
         self.alr_pushButton_openFolder.setText(QtWidgets.QApplication.translate("Form","폴더 열기",None,-1))
@@ -1229,27 +1274,37 @@ class Ui_Form(QtCore.QObject):
         self.opt_comboBox_bufTime.setItemText(1, QtWidgets.QApplication.translate("Form", "1초", None, -1))
         self.opt_comboBox_bufTime.setItemText(2, QtWidgets.QApplication.translate("Form", "3초", None, -1))
         self.opt_comboBox_bufTime.setItemText(3, QtWidgets.QApplication.translate("Form", "5초", None, -1))
-        self.opt_groupBox_bot.setTitle(QtWidgets.QApplication.translate("Form", "오토 포커싱 옵션 설정", None, -1))
+        self.opt_groupBox_mid2.setTitle(QtWidgets.QApplication.translate("Form","오토 포커싱 옵션 설정",None,-1))
         self.opt_label_cn2.setText(QtWidgets.QApplication.translate("Form", "<html><head/><body><p><span style=\" color:#ff0000;\">※ 포커싱 박스의 넓이 및 높이는 포커싱 영상의 해상도 보다 클 수 없습니다.</span></p></body></html>", None, -1))
         self.opt_label_afcBoxHei.setText(QtWidgets.QApplication.translate("Form", "포커싱 박스 높이", None, -1))
         self.opt_label_afcBoxWid.setText(QtWidgets.QApplication.translate("Form", "포커싱 박스 넓이", None, -1))
+        self.opt_groupBox_bot.setTitle(QtWidgets.QApplication.translate("Form","학습 옵션 설정",None,-1))
+        self.opt_groupBox_5.setTitle(QtWidgets.QApplication.translate("Form","GroupBox",None,-1))
+        self.opt_label_cn1_2.setText(QtWidgets.QApplication.translate("Form",
+                                                                      "<html><head/><body><p><span style=\" color:#ff0000;\">※ 새롭게 학습될 인물의 이미지가 저장될 경로입니다.</span></p></body></html>",
+                                                                      None,-1))
+        self.opt_label_saveImgDir.setText(QtWidgets.QApplication.translate("Form","이미지 저장 경로",None,-1))
+        self.opt_pushButton_saveImgDir.setText(QtWidgets.QApplication.translate("Form","폴더찾기",None,-1))
         self.action.setText(QtWidgets.QApplication.translate("Form", "테스트", None, -1))
         self.action.setToolTip(QtWidgets.QApplication.translate("Form", "<html><head/><body><p>툴팁화면</p></body></html>", None, -1))
 
-        self.opt_lineEdit_urlSaveDir.setEnabled(False)
-        self.opt_lineEdit_saveDir.setEnabled(False)
-        self.opt_lineEdit_urlSaveDir.setText("Input Path Add")
-        self.opt_lineEdit_saveDir.setText("Input Path Add")
+        # self.opt_lineEdit_urlSaveDir.setEnabled(False)
+        # self.opt_lineEdit_saveDir.setEnabled(False)
+        # self.opt_lineEdit_urlSaveDir.setText("Input Path Add")
+        # self.opt_lineEdit_saveDir.setText("Input Path Add")
 
         ## 설정탭 콤보박스 및 디폴트 데이터 셋팅
         self.opt_lineEdit_urlSaveDir.setEnabled(True)
         self.opt_lineEdit_saveDir.setEnabled(True)
+        self.opt_lineEdit_saveDir.setEnabled(True)
         self.opt_lineEdit_urlSaveDir.setText("업로드 경로")
         self.opt_lineEdit_saveDir.setText("업로드 경로")
+        self.opt_lineEdit_saveImgDir.setReadOnly(True)
         self.opt_lineEdit_urlSaveDir.setReadOnly(True)
         self.opt_lineEdit_saveDir.setReadOnly(True)
         self.opt_lineEdit_urlSaveDir.setStyleSheet("font:12pt")
         self.opt_lineEdit_saveDir.setStyleSheet("font:12pt")
+        self.opt_lineEdit_saveImgDir.setStyleSheet("font:12pt")
 
         self.opt_comboBox_downFileFmt.clear()
         self.opt_comboBox_downFileFmt.setEnabled(True)
@@ -1336,6 +1391,18 @@ class Ui_Form(QtCore.QObject):
         self.afc_horizontalSlider.sliderReleased.connect(self.chaened_afc_horizontalSlider)
 
         ###########
+        # 수동학습탭 클릭이벤트 핸들러 설정
+        ###########
+
+        self.alr_pushButton_localUpload.clicked.connect(self.click_alr_pushButton_localUpload)
+        self.alr_pushButton_extImage.clicked.connect(self.click_alr_pushButton_extImage)
+        self.alr_pushButton_openFolder.clicked.connect(self.click_alr_pushButton_openFolder)
+        self.alr_pushButton_startLearning.clicked.connect(self.click_alr_pushButton_startLearning)
+        self.alr_pushButton_play.clicked.connect(self.click_alr_pushButton_play)
+        self.alr_pushButton_pause.clicked.connect(self.click_alr_pushButton_pause)
+        self.alr_pushButton_stop.clicked.connect(self.click_alr_pushButton_stop)
+
+        ###########
         # 설정탭 클릭이벤트 핸들러 설정
         ###########
         self.mainTabWidget.currentChanged.connect(self.click_tab)
@@ -1344,6 +1411,7 @@ class Ui_Form(QtCore.QObject):
 
         self.opt_pushButton_urlDownDir.clicked.connect(self.click_opt_pushButton_urlDownDir)
         self.opt_pushButton_saveDir.clicked.connect(self.click_opt_pushButton_saveDir)
+        self.opt_pushButton_saveImgDir.clicked.connect(self.click_opt_pushButton_saveImgDir)
 
         # 작업 클래스 생성
         self.afc = Autofocus()
@@ -1354,12 +1422,10 @@ class Ui_Form(QtCore.QObject):
         # 검출 대상 리스트 생성
         self.cm.createTargetClassList()
 
-        # 비디오 플레이어 connect
-        self.cm.video_player.changeTime.connect(self.set_time)
-        self.cm.video_player.changePixmap.connect(self.setPixMap)
-        self.cm.video_player.setTotalTime.connect(self.set_afc_totalTime)
-
         # 영상 추출
+        self.cm.video_player.changeTime.connect(self.set_time)
+        self.cm.video_player.setTotalTime.connect(self.set_afc_totalTime)
+        self.cm.video_player.changePixmap.connect(self.setPixMap)
         self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
 
         # 오토포커싱
@@ -1367,6 +1433,11 @@ class Ui_Form(QtCore.QObject):
         self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
         # self.afc.changePixmap.connect(self.process_afc)
         self.cm.video_player.afc.changePixmap.connect(self.process_afc)
+
+        # 수동학습
+        self.cm.video_player.changePixmap.connect(self.setAlrPixMap)
+        self.cm.video_player.changeTime.connect(self.set_alr_time)
+
 
     def chang_mainTab(self):
         print("teb changed!!")
@@ -1468,7 +1539,7 @@ class Ui_Form(QtCore.QObject):
             movedIndex = object.tabAt(event.pos()) # 이동할 인덱스
             currentIndex = object.currentIndex()  # 현재 인덱스
             print(object.preIndex, currentIndex, movedIndex)
-            cntIndes = self.mainTabWidget.count()
+            cntIndes = self.mainTabWidget.count() - 1
 
             if currentIndex == cntIndes and movedIndex == object.preIndex:
                 return False
@@ -1885,6 +1956,81 @@ class Ui_Form(QtCore.QObject):
         # 클릭 이벤트 오토포커싱 탭 end
         ###########
 
+    ###########
+    # 클릭 이벤트 수동학습 탭 start
+    ###########
+
+    def click_alr_pushButton_localUpload(self):
+        """
+        MEMO : 학습.로컬업로드 버튼 클릭
+        :return:
+        """
+        print("click_alr_pushButton_localUpload")
+        self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
+
+        if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
+            # video player thread 종료 후 재시작
+            if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
+                self.extClass.clearRowData()
+                self.cm.quit_videoPlayer()
+            else:
+                return
+
+        if not self.cm.local_upload() == "":
+            self.cm.video_player.openVideo(self.cm.uploadPath)
+
+    def click_alr_pushButton_extImage(self):
+        """
+        MEMO : 학습 이미지 추출 버튼 클릭
+        :return:
+        """
+        print("click_alr_pushButton_extImage")
+
+    def click_alr_pushButton_openFolder(self):
+        """
+        MEMO : 학습. 폴더 열기 버튼 클릭
+        :return:
+        """
+        print("click_alr_pushButton_openFolder")
+        import subprocess
+        path = self.opt.get_saveImgDir().replace('\\','/')
+        print(path)
+        subprocess.run(['explorer',os.path.realpath(path)])
+
+    def click_alr_pushButton_startLearning(self):
+        """
+        MEMO : 학습. 학습 시작 버튼 클릭
+        :param self:
+        :return:
+        """
+        print("click_alr_pushButton_startLearning")
+
+    def click_alr_pushButton_play(self):
+        """
+        MEMO : 학습. 영상 재생 버튼 클릭
+        :return:
+        """
+        print("click_alr_pushButton_play")
+        self.cm.video_player.playVideo()
+
+    def click_alr_pushButton_pause(self):
+        """
+        MEMO : 학습. 영상 일시정지 버튼 클릭
+        :return:
+        """
+        print("click_alr_pushButton_pause")
+        self.cm.video_player.pauseVideo()
+
+    def click_alr_pushButton_stop(self):
+        """
+        MEMO : 학습. 영상 정지 버튼 클릭
+        :return:
+        """
+        print("click_alr_pushButton_stop")
+        ###########
+        # 클릭 이벤트  수동학습 탭 end
+        ###########
+
         ###########
         # 클릭 이벤트 설정 탭 start
         ###########
@@ -1907,6 +2053,17 @@ class Ui_Form(QtCore.QObject):
         self.opt.set_directory(button)
 
     def click_opt_pushButton_saveDir(self):
+        """
+        MEMO : 설정 내려받기 저장 파일 경로 폴더찾기 버튼 클릭
+        :return:
+        """
+        print("opt_pushButton_saveDir")
+        # self.opt_lineEdit_saveDir.setText(self.cm.optUrlSaveFileDir())
+        button = self.sender()
+        self.opt.set_directory(button)
+
+
+    def click_opt_pushButton_saveImgDir(self):
         """
         MEMO : 설정 내려받기 저장 파일 경로 폴더찾기 버튼 클릭
         :return:
@@ -1958,6 +2115,12 @@ class Ui_Form(QtCore.QObject):
         # self.afc_label_before_Md.setPixmap(image)
         self.afc_label_after_Md.setPixmap(afc_image)
 
+    @QtCore.Slot(QtGui.QImage)
+    def setAlrPixMap(self,image):
+        image = QtGui.QPixmap.fromImage(image)
+        image = image.scaled(self.alr_label_extMd.size(),QtCore.Qt.KeepAspectRatio)
+        self.alr_label_extMd.setPixmap(image)
+
     @QtCore.Slot(QtGui.QImage, QtCore.QRect)
     def process_afc(self, image, rect):
         image = QtGui.QPixmap.fromImage(image)
@@ -1989,7 +2152,6 @@ class Ui_Form(QtCore.QObject):
         update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
                                                                                  total_hours,total_minutes,
                                                                                  total_seconds)
-        self.afc_horizontalSlider.setValue(cur_time * self.cm.video_player.fps)
         self.ext_video_time.setText(update_time)
 
     @QtCore.Slot(int,int)
@@ -2003,6 +2165,7 @@ class Ui_Form(QtCore.QObject):
         update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
                                                                                  total_hours,total_minutes,
                                                                                  total_seconds)
+        self.afc_horizontalSlider.setValue(cur_time * self.cm.video_player.fps)
         self.afc_before_time.setText(update_time)
 
     @QtCore.Slot(int)
@@ -2010,6 +2173,20 @@ class Ui_Form(QtCore.QObject):
         print(total_time)
         self.afc_horizontalSlider.setMaximum(total_time)
         print(self.afc_horizontalSlider.maximum())
+
+    @QtCore.Slot(int,int)
+    def set_alr_time(self,cur_time,total_time):
+        cur_seconds = int(cur_time % 60)
+        cur_minutes = int((cur_time / 60) % 60)
+        cur_hours = int(cur_time / 3600)
+        total_seconds = int(total_time % 60)
+        total_minutes = int((total_time / 60) % 60)
+        total_hours = int(total_time / 3600)
+        update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
+                                                                                 total_hours,total_minutes,
+                                                                                 total_seconds)
+        self.alr_video_time.setText(update_time)
+
 
     def initVideoLabel(self):
         black_image = QtGui.QImage(1920,1280,QtGui.QImage.Format_Indexed8)
@@ -2021,6 +2198,9 @@ class Ui_Form(QtCore.QObject):
         self.afc_label_before_Md.setPixmap(image)
         image = image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
         self.afc_label_after_Md.setPixmap(image)
+        image = image.scaled(self.alr_label_extMd.size(),QtCore.Qt.KeepAspectRatio)
+        self.alr_label_extMd.setPixmap(image)
+        print("alr size : {} ".format(self.alr_label_extMd.size()))
 
     # @QtCore.Slot(int,int)
     # def set_afc_after_time(self,cur_time,total_time):
