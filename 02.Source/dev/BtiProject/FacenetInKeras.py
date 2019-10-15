@@ -261,7 +261,7 @@ class facenetInKeras():
 #     # facenet class init
 #     faceNet = facenetInKeras()
 #
-#     imgFace = cv2.imread("/home/bit/Downloads/twice.jpg", cv2.IMREAD_COLOR)
+#     imgFace = cv2.imread("/home/bit/Downloads/지수.jpg", cv2.IMREAD_COLOR)
 #     faceDetResults, faceImgArr = faceNet.extract_face(imgFace)
 #
 #     # print("faceDetResults :: ")

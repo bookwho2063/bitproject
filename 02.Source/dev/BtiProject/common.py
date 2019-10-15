@@ -5,7 +5,7 @@ from PySide2.QtCore import *
 
 from time import sleep
 import cv2,time
-import os, re, datetime
+import os, re, datetime, pickle
 from autofocus import Autofocus
 
 # img face recognition test
@@ -15,9 +15,9 @@ import sys
 from skimage import io      #pip install scikit-image
 import cv2
 from keras.models import load_model
-import FacenetInKeras
-import facenetRealTime
-import openfaceRealTime
+import FacenetInKeras, facenetRealTime, openfaceRealTime
+from vggFaceRealTime import vggFaceExtractor as vggExtract
+from vggFaceRealTime import recognitionFace as vggRecog
 
 class cv_video_player(QThread):
     changePixmap = Signal(QImage)
@@ -45,8 +45,11 @@ class cv_video_player(QThread):
         self.afc = Autofocus()
 
         # 얼굴 검출 관련 클래스 설정
-        self.usedFaceStateNm = "openface"        # facenet / facenet2 / openface
+        self.usedFaceStateNm = "vggface"        # facenet / facenet2 / openface / vggface
         self.model = None
+        self.vggExtModel = None
+        self.vggRecogModel = None
+        self.targetPicklePath = "./00.Resource/data/pickle/precompute_features_40000_bat16.pickle"
         self.initModel()
 
     def initModel(self):
@@ -63,12 +66,20 @@ class cv_video_player(QThread):
             self.model = openfaceRealTime.openfaceRealTime()
             self.model.defaultSetOpenface()
             print("========== openface model build")
+        elif self.usedFaceStateNm == 'vggface':
+            # self.vggExtModel = vggExtract()   # 프레임 내 얼굴 위치 검출 및 Crop 후 이미지 파일 저장
+
+            # 프레임 내 얼굴 검출 및 classification
+            # self.vggRecogModel = vggRecog(precompute_features_file="./00.Resource/data/pickle/precompute_features_40000_bat16.pickle")
+            self.vggRecogModel = vggRecog(precompute_features_file=self.targetPicklePath)
+            print("========== vggface model build(self.vggExtModel, self.vggRecogModel)")
 
     def run(self):
-
         # 비디오 업로드 시 모델 업로드 처리
         if self.usedFaceStateNm == "facenet":
             self.model.faceModel = load_model('./00.Resource/model/facenet_keras.h5')
+        elif self.usedFaceStateNm == "vggface":
+            self.vggRecogModel.vggRecogInit()
 
         while self.running:
             start_time =time.time()
@@ -89,18 +100,21 @@ class cv_video_player(QThread):
                     convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0], rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
 
                     # 영상검출탭 검출 수행
-                    if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
-                        self.current_workingFrame = self.cur_frame
+                    # if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
+                    #     self.current_workingFrame = self.cur_frame
 
-                        # 검출수행
-                        rgbImage, resultData = self.extractFaceOrder(rgbImage)
+                    # 검출수행(openface)
+                    # rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
-                        # 결과 데이터가 존재할 경우에만 결과목록에 출력
-                        if len(resultData) > 0:
-                            # 결과 데이터 형태
-                            # list[{dict}, ....{dict}, cur_frame]
-                            resultData.append(str(self.cur_frame))
-                            self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
+                    # 검출수행(vggface)
+                    rgbImage, resultData = self.vggRecogModel.detect_face(rgbImage)
+
+                    # 결과 데이터가 존재할 경우에만 결과목록에 출력
+                    if len(resultData) > 0:
+                        # 결과 데이터 형태(아래)를 맞추기위해 프레임 번호 입력
+                        # list[{dict}, ....{dict}, cur_frame]
+                        resultData.append(str(self.cur_frame))
+                        self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
 
                     # 오토포커싱탭 검출 수행
                     if self.afc_state == 1:
@@ -110,8 +124,11 @@ class cv_video_player(QThread):
                             self.current_workingFrame = 0
 
                         ## TODO :: COPY HERE EXTRACT
-                        # 검출수행
-                        rgbImage, resultData = self.extractFaceOrder(rgbImage)
+                        # 검출수행(openface)
+                        # rgbImage, resultData = self.extractFaceOrder(rgbImage)
+
+                        # 검출수행(vggface)
+                        rgbImage, resultData = self.vggRecogModel.detect_face(rgbImage)
 
                         # self.afc.extract_afcVideo(img = frame, current_workingFrame=self.current_workingFrame )
                         x, y, width, height = self.afc.extract_afcVideo(current_workingFrame=self.current_workingFrame, resultList=resultData)
@@ -392,9 +409,28 @@ class common(object):
             text,ok = QInputDialog().getText(QInputDialog(),title,text,QLineEdit.Normal)
             return text
 
+    def selectPickleFeatureImgList(self, featureList):
+        """
+        featureList 명칭에 해당하는 클래스 이미지 딕셔너리를 생성하여 리턴한다
+        :param featureList: pickle 내 피처 리스트(이미지 파일의 명칭)
+        :return:
+        """
+        resultDict = dict()
+        for feature in featureList:
+
+            # 폴더 내 확장자 제외한 파일명이 동일한 파일을 검색
+            files = os.listdir("./LabelList")
+            for file in files:
+                if os.path.isdir(file):
+                    continue
+                spFile = file.split(".")[0]
+                if spFile == feature:
+                    resultDict[str(feature)] = os.path.join("./LabelList", file)
+        return resultDict
+
     def selectClassImgList(self):
         """
-        학습된 검출 대상 리스트 내역을 조회한다
+        폴더 내 이미지 파일 전체를 조회하여 딕셔너리로 리턴한다
         조회내역은 1.라벨명 2.썸네일이미지경로 및 파일명
         :return: 딕셔너리로 리턴한다
         """
@@ -496,6 +532,38 @@ class common(object):
         elif returnType is "pixmap" or returnType is "PIXMAP":
             return target
 
+    def load_stuff(self, filename):
+        """
+        pickle file load
+        :param filename:
+        :return:
+        """
+        saved_stuff = open(filename, "rb")
+        stuff = pickle.load(saved_stuff)
+        saved_stuff.close()
+        print("=====loaded stuff success")
+        return stuff
+
+    def selectLastUptPickleFeatureList(self):
+        """
+        pickle 폴더 내 마지막으로 생성된 .pickle 파일 조회 후 피처 리스트 리턴
+        :return:
+        """
+        pFolderPath = "./00.Resource/data/pickle"
+        pFileList = list()
+        featureList = list()
+        for file in os.listdir(pFolderPath):
+            if file.split(".")[1] != "pickle":
+                continue
+            pFileList.append(os.path.join(pFolderPath, file))
+
+        pFileList.sort(key=os.path.getmtime)
+        precompute_features_map = self.load_stuff(pFileList[-1])
+
+        for person in precompute_features_map:
+            featureList.append(person.get("name"))
+
+        return featureList
 
     def createTargetClassList(self):
         """
@@ -508,7 +576,8 @@ class common(object):
         """
         # 학습 대상 클래스 리스트 불러오기
         self.classImgCount = 0
-        self.classListDict = self.selectClassImgList()
+        # self.classListDict = self.selectClassImgList()          # 기존 클래스 리스트 리턴
+        self.classListDict = self.selectPickleFeatureImgList(self.selectLastUptPickleFeatureList())  # vggface2 형태로 변경
 
         for classListDictKey, classListDictValue in self.classListDict.items():
             # 썸네일 생성

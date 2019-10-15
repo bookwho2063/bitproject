@@ -1335,8 +1335,6 @@ class Ui_Form(QtCore.QObject):
         self.afc_pushButton_startExt.clicked.connect(self.click_afc_pushButton_startExt)
         self.afc_horizontalSlider.sliderReleased.connect(self.chaened_afc_horizontalSlider)
 
-
-
         ###########
         # 설정탭 클릭이벤트 핸들러 설정
         ###########
@@ -1369,21 +1367,6 @@ class Ui_Form(QtCore.QObject):
         self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
         # self.afc.changePixmap.connect(self.process_afc)
         self.cm.video_player.afc.changePixmap.connect(self.process_afc)
-
-        # video label black
-        #   이미지 리사이즈 기능은 수행되지만 원본 이미지가 손상된다.
-        #     self.ext_label_extMd.installEventFilter(self)
-        #     self.afc_label_before_Md.installEventFilter(self)
-        #
-        # def eventFilter(self, widget,event):
-        #     if event.type() == QtCore.QEvent.Resize and widget is self.ext_label_extMd:
-        #         print("ext resize")
-        #         widget.setPixmap(widget.pixmap().scaled(widget.size(), QtCore.Qt.KeepAspectRatio))
-        #     elif widget is self.afc_label_before_Md:
-
-        #         print("afc resize")
-        #
-        #     return QtCore.QObject.eventFilter(self,widget,event)
 
     def chang_mainTab(self):
         print("teb changed!!")

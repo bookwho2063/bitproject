@@ -95,7 +95,6 @@ class vggFaceFaceExtractor(object):
 
     def extractFace(self, videoFile, saveFolder):
         """
-
         :param videoFile:
         :param saveFolder:
         :return:
@@ -158,8 +157,6 @@ def main():
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
         x = utils.preprocess_input(x, version=1) # or version = 2
-        print("x :: ")
-        print(x)
         return x
 
     def calMeanFeature(imageFolder):
@@ -175,7 +172,7 @@ def main():
             for i in range(0, len(l), n):
                 yield l[i:i+n]
 
-        batchSize = 32
+        batchSize = 2
         faceImageChunks = chunks(faceImages, batchSize)
         fvecs = None
 
@@ -188,45 +185,52 @@ def main():
             else:
                 fvecs = np.append(fvecs, batchFvecs, axis=0)
 
-        print("fvecs :: ")
-        print(fvecs)
-        print("np.array(fvecs).sum(axis=0) / len(fvecs) :: ")
-        print(np.array(fvecs).sum(axis=0) / len(fvecs))
+            print("========== 생성중 ... [ " + str(len(fvecs)) + " ]")
 
         return np.array(fvecs).sum(axis=0) / len(fvecs)
 
 
-    FACE_IMAGES_FOLDER = "../Ref/data/faceImages"
-    VIDEOS_FOLDER = "../Ref/data/videos"
+    FACE_IMAGES_FOLDER = "../dev/BtiProject/00.Resource/data/faceImages"
+    VIDEOS_FOLDER = "../dev/BtiProject/00.Resource/data/videos"
     extractor = vggFaceFaceExtractor()
-    folders = list(glob.iglob(os.path.join(VIDEOS_FOLDER, "*")))
+    folders = list(glob.iglob(os.path.join(FACE_IMAGES_FOLDER, "*")))
+    # folders = list(glob.iglob(os.path.join(VIDEOS_FOLDER, "*")))
     os.makedirs(FACE_IMAGES_FOLDER, exist_ok=True)
     # names = className
     names = [os.path.basename(folder) for folder in folders]
-
     # video 를 읽어서 얼굴 검출 및 파일 저장
     for i, folder in enumerate(folders):
         name = names[i]
         videos = list(glob.iglob(os.path.join(folder, '*.*')))
         save_folder = os.path.join(FACE_IMAGES_FOLDER, name)
-        print(save_folder)
         os.makedirs(save_folder, exist_ok=True)
         for video in videos:
+            print("extract process :: video :: ", video)
             extractor.extractFace(video, save_folder)
 
     # 이미지를 피클 파일(바이너리)로 정리한다.
-    # precompute_features = []
-    # for i, folder in enumerate(folders):
-    #     name = names[i]
-    #     save_folder = os.path.join(FACE_IMAGES_FOLDER, name)
-    #     mean_features = calMeanFeature(imageFolder=save_folder)
-    #     print("mean_features :: ")
-    #     print(mean_features)
-    #     precompute_features.append({"name": name, "features": mean_features})
-    # pickleStuff("../Ref/data/train/precompute_features.pickle", precompute_features) # pickle(binary) data save
+    #precompute_features
+    precompute_features = []
+    for i, folder in enumerate(folders):
+        name = names[i]
+        save_folder = os.path.join(FACE_IMAGES_FOLDER, name)
+        mean_features = calMeanFeature(imageFolder=save_folder)
+        precompute_features.append({"name": name, "features": mean_features})
+    print("Total precompute_features :: ", len(precompute_features))
+    pickleStuff("../dev/BtiProject/00.Resource/data/pickle/precompute_features_40000_bat2.pickle", precompute_features) # pickle(binary) data save
 
 
 if __name__ == "__main__":
     print("model running==============")
+    # print(os.path.dirname(os.path.realpath(__file__)))
+    #
+    # import cv2
+    #
+    # img = cv2.imread("../dev/BtiProject/00.Resource/data/faceImages/jenny/jenny_mp4_13657.png")
+    #
+    # cv2.imshow("", img)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
+
     main()
     print("model running End==============")

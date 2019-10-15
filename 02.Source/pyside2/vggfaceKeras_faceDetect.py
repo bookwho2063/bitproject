@@ -12,6 +12,7 @@ import cv2
 import os, platform, site
 import glob
 import pickle
+from PIL import ImageFont, ImageDraw, Image
 
 def load_stuff(filename):
     saved_stuff = open(filename, "rb")
@@ -42,6 +43,7 @@ class FaceIdentify(object):
     @classmethod
     def draw_label(cls, image, point, label, font=cv2.FONT_HERSHEY_SIMPLEX,
                    font_scale=1, thickness=2):
+        # cv2
         size = cv2.getTextSize(label, font, font_scale, thickness)[0]
         x, y = point
         cv2.rectangle(image, (x, y - size[1]), (x + size[0], y), (255, 0, 0), cv2.FILLED)
@@ -81,7 +83,15 @@ class FaceIdentify(object):
         resized_img = np.array(resized_img)
         return resized_img, (x_a, y_a, x_b - x_a, y_b - y_a)
 
-    def identify_face(self, features, threshold=110):
+    def identify_face(self, features, threshold=100):
+
+        # name 변경용 dict
+        nameChDict = dict()
+        nameChDict['로제'] = 'Rose'
+        nameChDict['제니'] = 'Jennie'
+        nameChDict['리사'] = 'Lisa'
+        nameChDict['지수'] = 'Jisu'
+
         distances = []
         for person in self.precompute_features_map:
             person_features = person.get("features")
@@ -89,18 +99,15 @@ class FaceIdentify(object):
             distances.append(distance)
         min_distance_value = min(distances)
         min_distance_index = distances.index(min_distance_value)
-
-
+        print("min_distance_value :: ", min_distance_value)
+        print("self.precompute_features_map[min_distance_index].get(name) :: ",self.precompute_features_map[min_distance_index].get("name"))
         if min_distance_value < threshold:
-            # print("min_distance_value :: (", str(min_distance_value) + ") :: " + str(self.precompute_features_map[min_distance_index].get("name")))
-            # print("min_distance_index :: ", str(min_distance_index))
-            return self.precompute_features_map[min_distance_index].get("name")
+            return nameChDict[str(self.precompute_features_map[min_distance_index].get("name"))]
         else:
-            print("Not Found min_distance_value :: (", str(min_distance_value) + " )")
-            print("Not Found min_distance_index :: ", str(self.precompute_features_map[min_distance_index].get("name")))
+
             return "???"
 
-    def detect_face(self):
+    def detect_face(self, videoPath, savePath):
         if platform.system() == "Windows":
             # self.face_cascade = cv2.CascadeClassifier('C:\\Users\\JK\\Documents\\GitHub\\bitproject\\haarcascade_frontface.xml')
             face_cascade = cv2.CascadeClassifier(
@@ -114,14 +121,11 @@ class FaceIdentify(object):
 
         # 0 means the default video capture device in OS
         # video_capture = cv2.VideoCapture("/home/bit/jk/twice/valid/valid1.mp4")
-        video_capture = cv2.VideoCapture("/home/bit/Downloads/test5.mp4")
-
-        width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fcc = cv2.VideoWriter_fourcc('D', 'I', 'V', 'X')
-        fps = video_capture.get(cv2.CAP_PROP_FPS)
-
-        video_writer = cv2.VideoWriter('./write_70.avi', fcc, fps, (int(width), int(height)))
+        fps = cv2.CAP_PROP_FPS
+        print("videoPath :: ", videoPath)
+        video_capture = cv2.VideoCapture(videoPath)
+        video_writer = cv2.VideoWriter(savePath, fcc, int(fps), (1280,720))
 
         # infinite loop, break by key ESC
         while True:
@@ -130,26 +134,24 @@ class FaceIdentify(object):
 
             # Capture frame-by-frame
             ret, frame = video_capture.read()
+
+            if video_capture.get(cv2.CAP_PROP_POS_FRAMES) == video_capture.get(cv2.CAP_PROP_FRAME_COUNT):
+                break
+
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=10, minSize=(64, 64))
 
-            # print("faces :: ")
-            # print(faces)
-
             # placeholder for cropped faces
             face_imgs = np.empty((len(faces), self.face_size, self.face_size, 3))
-            # print("face_imgs :: ")
-            # print(face_imgs)
 
             # 검출된 얼굴 수 만큼 루프를 돌며 사각형을 그리고, imgs 어레이에 인풋
             for i, face in enumerate(faces):
+
                 face_img, cropped = self.crop_face(frame, face, margin=10, size=self.face_size)
                 (x, y, w, h) = cropped
 
-                # width > 60 일때만 검출 하도록 변경 조치
-                if w > 70:
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 200, 0), 2)
-                    face_imgs[i, :, :, :] = face_img
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 200, 0), 2)
+                face_imgs[i, :, :, :] = face_img
 
             # imgs 어레이(한 프레임 내 인물 갯수 및 해당 데이터)
             # model.predict 처리할 때 어레이로 묶은걸 한번만 처리한다 사각 박스별로 처리하는게 아니라.
@@ -164,6 +166,8 @@ class FaceIdentify(object):
                 self.draw_label(frame, (face[0], face[1]), label)
                 video_writer.write(frame)
 
+            frame = cv2.resize(frame, (1280,720))
+
             cv2.imshow('Keras Faces', frame)
             if cv2.waitKey(5) == 27:  # ESC key press
                 break
@@ -175,8 +179,44 @@ class FaceIdentify(object):
 
 
 def main():
-    face = FaceIdentify(precompute_features_file="../Ref/data/train/precompute_features.pickle")
-    face.detect_face()
+    # face = FaceIdentify(precompute_features_file="../dev/BtiProject/00.Resource/data/pickle/precompute_features_40000_bat32.pickle")
+    # face = FaceIdentify(precompute_features_file="../dev/BtiProject/00.Resource/data/pickle/precompute_features_20000.pickle")
+
+    # 피클 경로
+    faceList = list()
+    # faceList.append("../dev/BtiProject/00.Resource/data/pickle/precompute_features_20000.pickle")
+    faceList.append("../dev/BtiProject/00.Resource/data/pickle/precompute_features_40000_bat2.pickle")
+    faceList.append("../dev/BtiProject/00.Resource/data/pickle/precompute_features_40000_bat4.pickle")
+    faceList.append("../dev/BtiProject/00.Resource/data/pickle/precompute_features_40000_bat8.pickle")
+    faceList.append("../dev/BtiProject/00.Resource/data/pickle/precompute_features_40000_bat16.pickle")
+    faceList.append("../dev/BtiProject/00.Resource/data/pickle/precompute_features_40000_bat32.pickle")
+
+    # 실 비디오 경로
+    videoList = list()
+    videoList.append("F:/sampleData/bp1.mp4")
+    videoList.append("F:/sampleData/bp3.mp4")
+
+    # 비디오 파일명
+    vNameList = list()
+    vNameList.append("bp1")
+    vNameList.append("bp3")
+
+    # 피클파일명
+    numList = list()
+    # numList.append("20000")
+    numList.append("40000_bat2")
+    numList.append("40000_bat4")
+    numList.append("40000_bat8")
+    numList.append("40000_bat16")
+    numList.append("40000_bat32")
+
+    for picIdx in range(len(faceList)):
+        face = None
+        for idx in range(len(videoList)):
+            face = FaceIdentify(precompute_features_file=str(faceList[picIdx]))
+            face.detect_face(videoList[idx], str("F:/sampleData/result/compareVideo_{}_{}.avi".format(vNameList[idx], numList[picIdx])))
+            del face
+
 
 if __name__ == "__main__":
     main()
