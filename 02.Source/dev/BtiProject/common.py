@@ -51,6 +51,13 @@ class cv_video_player(QThread):
         self.vggRecogModel = None
         self.targetPicklePath = "./00.Resource/data/pickle/precompute_features_40000_bat16.pickle"
         self.initModel()
+        self.classList = None
+
+    def setTargetClass(self, classList):
+        self.classList = list()
+        self.classList = classList
+        print("self.classList :: ",self.classList)
+
 
     def initModel(self):
         if self.usedFaceStateNm == 'facenet':
@@ -565,9 +572,50 @@ class common(object):
 
         return featureList
 
-    def createTargetClassList(self):
+    def getSelectedClassList(self, targetFlag):
+        """
+         선택된 클래스 리스트를 조회 및 리턴한다.
+        :param targetFlag: 탭 약어(ext, afc, alr)
+        :return selectedList: 체크 클래스 리스트 리턴
+        """
+        # init variable
+        selectedList = list()   # Return List
+        targetWidget = None     # target TableWidget
+
+        # Flag Type 별 target TableWidget setting
+        if targetFlag == "ext":
+            targetWidget = self.form.ext_tableWidget_classList
+        elif targetFlag == "afc":
+            targetWidget = self.form.afc_tableWidget_classList
+        else:
+            targetWidget = self.form.alr_tableWidget_classList
+
+        firstWidget = self.form.ext_tableWidget_classList
+
+        for wIdx in range(firstWidget.columnCount()):
+            targetWidget = firstWidget.cellWidget(0, wIdx)
+            if targetWidget == None:
+                continue
+
+            targetLayout = targetWidget.layout()
+            targetLayout2 = targetLayout.itemAt(1).layout()
+            targetCheckbox = targetLayout.itemAt(0).widget()
+
+            # 체크 확인
+            isChecked = targetCheckbox.checkState()
+            if isChecked is QtCore.Qt.CheckState.Unchecked:
+                continue
+
+            targetLabel2 = targetLayout2.itemAt(1).widget()
+            selectedList.append(targetLabel2.text())
+
+        print("selectedList(className) :: ", selectedList)
+        return selectedList
+
+    def createTargetClassList(self, targetFlag):
         """
         # 검출 대상 클래스 썸네일 이미지 및 목록을 생성하여 출력한다
+        :param: targetFlag (ext(검출), afc(포커싱), alr(학습)
         :return: bool (Class Create Success boolean)
 
         Step.
@@ -579,39 +627,51 @@ class common(object):
         # self.classListDict = self.selectClassImgList()          # 기존 클래스 리스트 리턴
         self.classListDict = self.selectPickleFeatureImgList(self.selectLastUptPickleFeatureList())  # vggface2 형태로 변경
 
+        # checkbox Group
+        btnGrp = QtWidgets.QButtonGroup()
         for classListDictKey, classListDictValue in self.classListDict.items():
+
             # 썸네일 생성
             thumbnailImgInExt = self.createThumnail_filePath("pixmap", os.path.abspath(classListDictValue), 50, 50, 80)
-            thumbnailImgInAfc = self.createThumnail_filePath("pixmap", os.path.abspath(classListDictValue), 50, 50, 80)
 
-            # VLayout을 생성하여 이미지 라벨 및 이름라벨 입력
             extImgItem = QLabel()
             extImgItem.setPixmap(thumbnailImgInExt)
+
+            hBoxExt = QHBoxLayout()
+            hBoxExt.setAlignment(Qt.AlignCenter)
+
+            if targetFlag != "alr":     # 학습탭을 제외한 나머지 탭은 체크박스 생성
+                chkboxExt = QtWidgets.QCheckBox()
+                if targetFlag == "ext":  # 검출탭의 경우 체크박스는 검출이 끝난 이후 표출
+                    chkboxExt.setVisible(False)
+                    btnGrp.setExclusive(False)
+                else:   # 오토포커싱일경우
+                    btnGrp.setExclusive(True)   # 그룹내 버튼은 한개만 선택되도록 변경
+
+                chkboxExt.setCheckState(QtCore.Qt.Unchecked)            # 버튼 체크해제
+                btnGrp.addButton(chkboxExt, int(self.classImgCount))    # 버튼 그룹 추가
+                hBoxExt.addWidget(chkboxExt)                            # 버튼 레이아웃 추가
 
             vBoxExt = QVBoxLayout()
             vBoxExt.setAlignment(Qt.AlignCenter)
             vBoxExt.addWidget(extImgItem)
             vBoxExt.addWidget(QLabel(str(classListDictKey), alignment=Qt.AlignHCenter))
-
-            afcImgItem = QLabel()
-            afcImgItem.setPixmap(thumbnailImgInAfc)
-            vBoxAfc = QVBoxLayout()
-            vBoxAfc.setAlignment(Qt.AlignCenter)
-            vBoxAfc.addWidget(afcImgItem)
-            vBoxAfc.addWidget(QLabel(str(classListDictKey), alignment=Qt.AlignHCenter))
+            hBoxExt.addLayout(vBoxExt)
 
             # Layout Widget 생성
             qWExt = QWidget()
-            qWAfc = QWidget()
-            qWExt.setLayout(vBoxExt)
-            qWAfc.setLayout(vBoxAfc)
+            qWExt.setLayout(hBoxExt)
+            btnGrp.setParent(qWExt)
 
-            # 레이아웃(썸네일+이름라벨) 테이블 적용
-            self.form.ext_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWExt)
-            self.form.afc_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWAfc)
+            # 레이아웃(checkbox+썸네일+이름라벨) 테이블 적용
+            if targetFlag == "ext":
+                self.form.ext_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWExt)
+            elif targetFlag == "afc":
+                self.form.afc_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWExt)
+            elif targetFlag == "alr":
+                self.form.alr_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWExt)
+
             self.classImgCount = self.classImgCount + 1
-
-
 
 
     def downloadYouTubeUrl(self, url):

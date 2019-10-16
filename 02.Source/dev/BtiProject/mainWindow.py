@@ -633,8 +633,14 @@ class Ui_Form(QtCore.QObject):
         self.alr_tableWidget_classList.setMinimumSize(QtCore.QSize(640,0))
         self.alr_tableWidget_classList.setMaximumSize(QtCore.QSize(16777215,80))
         self.alr_tableWidget_classList.setObjectName("alr_tableWidget_classList")
-        self.alr_tableWidget_classList.setColumnCount(0)
-        self.alr_tableWidget_classList.setRowCount(0)
+
+        self.alr_tableWidget_classList.setColumnCount(10)
+        self.alr_tableWidget_classList.setRowCount(1)
+        self.alr_tableWidget_classList.horizontalHeader().hide()
+        self.alr_tableWidget_classList.verticalHeader().hide()
+        self.alr_tableWidget_classList.setShowGrid(False)
+        self.alr_tableWidget_classList.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
         self.alr_horizontalLayout_top.addWidget(self.alr_tableWidget_classList)
         self.verticalLayout_15.addLayout(self.alr_horizontalLayout_top)
         self.alr_widget_video_Md = QtWidgets.QWidget(self.tab_alr)
@@ -1419,8 +1425,10 @@ class Ui_Form(QtCore.QObject):
         self.extClass = Extract(self)
         self.opt = Option(self)
 
-        # 검출 대상 리스트 생성
-        self.cm.createTargetClassList()
+        # 검출 대상 리스트 생성(검출탭, 포커싱탭, 학습탭)
+        self.cm.createTargetClassList("ext")
+        self.cm.createTargetClassList("afc")
+        self.cm.createTargetClassList("alr")
 
         # 영상 추출
         self.cm.video_player.changeTime.connect(self.set_time)
@@ -1486,9 +1494,15 @@ class Ui_Form(QtCore.QObject):
         self.afc_tableWidget_classList.verticalHeader().hide()
         self.afc_tableWidget_classList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
 
+        # 헤더 사이즈 고정 (학습탭)
+        self.alr_tableWidget_classList.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.alr_tableWidget_classList.verticalHeader().hide()
+        self.alr_tableWidget_classList.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+
         # 컬럼 높이 테이블 고정사이즈로 변경
         self.ext_tableWidget_classList.setRowHeight(0, int(self.ext_tableWidget_classList.maximumHeight()))
         self.afc_tableWidget_classList.setRowHeight(0, int(self.afc_tableWidget_classList.maximumHeight()))
+        self.alr_tableWidget_classList.setRowHeight(0, int(self.alr_tableWidget_classList.maximumHeight()))
 
     def ext_default_tHeader_setting(self):
         """
@@ -1551,6 +1565,9 @@ class Ui_Form(QtCore.QObject):
                     self.cm.quit_videoPlayer()
                     self.initVideoLabel()
 
+                    # 검출대상리스트 헤더 및 기본 설정 (검출 / 오토포커싱 공통)
+                    self.comm_tableWidget_classList_tHeader_setting()
+
                     object.preIndex = movedIndex
                     event.accept()
                     print(object.preIndex,currentIndex,movedIndex)
@@ -1562,7 +1579,6 @@ class Ui_Form(QtCore.QObject):
             print("key pressed!!")
             event.ignore()
             return True
-
 
         return False
 
