@@ -11,11 +11,16 @@ class Option(object):
 
         if platform.system() == 'Windows':
             self.basepath = os.path.join(os.path.expanduser('~'),'Downloads')
+            self.ui.opt_lineEdit_saveImgDir.setText(os.path.abspath('./00.Resource/tmp'))
         else:
             self.basepath = os.path.join(os.path.expanduser('~'),'Downloads')
+            self.ui.opt_lineEdit_saveImgDir.setText(os.path.abspath('./00.Resource/tmp'))
 
         self.ui.opt_lineEdit_saveDir.setText(self.basepath)
         self.ui.opt_lineEdit_urlSaveDir.setText(self.basepath)
+
+        if not os.path.exists(self.ui.opt_lineEdit_saveImgDir.text()):
+            os.mkdir(self.ui.opt_lineEdit_saveImgDir.text())
 
     def set_directory(self, button):
         selected_directory = QtWidgets.QFileDialog.getExistingDirectory()
@@ -50,3 +55,6 @@ class Option(object):
 
     def get_coordFileFmt(self):
         return self.ui.opt_comboBox_coordFmt.currentText()
+
+    def get_saveImgDir(self):
+        return self.ui.opt_lineEdit_saveImgDir.text()
