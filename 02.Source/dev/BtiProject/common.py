@@ -580,17 +580,15 @@ class common(object):
         """
         # init variable
         selectedList = list()   # Return List
-        targetWidget = None     # target TableWidget
+        firstWidget = None     # target TableWidget
 
         # Flag Type 별 target TableWidget setting
         if targetFlag == "ext":
-            targetWidget = self.form.ext_tableWidget_classList
+            firstWidget = self.form.ext_tableWidget_classList
         elif targetFlag == "afc":
-            targetWidget = self.form.afc_tableWidget_classList
+            firstWidget = self.form.afc_tableWidget_classList
         else:
-            targetWidget = self.form.alr_tableWidget_classList
-
-        firstWidget = self.form.ext_tableWidget_classList
+            firstWidget = self.form.alr_tableWidget_classList
 
         for wIdx in range(firstWidget.columnCount()):
             targetWidget = firstWidget.cellWidget(0, wIdx)
@@ -606,6 +604,7 @@ class common(object):
             if isChecked is QtCore.Qt.CheckState.Unchecked:
                 continue
 
+            # 선택된 타겟 레이아웃의 라벨명(클래스명) 추출
             targetLabel2 = targetLayout2.itemAt(1).widget()
             selectedList.append(targetLabel2.text())
 
@@ -646,10 +645,12 @@ class common(object):
                     chkboxExt.setVisible(False)
                     btnGrp.setExclusive(False)
                 else:   # 오토포커싱일경우
-                    btnGrp.setExclusive(True)   # 그룹내 버튼은 한개만 선택되도록 변경
+                    chkboxExt.setVisible(True)
+                    btnGrp.setExclusive(True)   # 그룹내 버튼은 한개만 선택되도록 옵션추가
 
                 chkboxExt.setCheckState(QtCore.Qt.Unchecked)            # 버튼 체크해제
-                btnGrp.addButton(chkboxExt, int(self.classImgCount))    # 버튼 그룹 추가
+                # btnGrp.addButton(chkboxExt, int(self.classImgCount))    # 버튼 그룹 추가
+                btnGrp.addButton(chkboxExt)  # 버튼 그룹 추가
                 hBoxExt.addWidget(chkboxExt)                            # 버튼 레이아웃 추가
 
             vBoxExt = QVBoxLayout()

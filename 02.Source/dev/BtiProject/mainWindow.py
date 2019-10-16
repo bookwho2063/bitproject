@@ -1792,13 +1792,16 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_selectSave")
-        self.clearYN = self.cm.create_massage_box("YesNo", "선택 내역을 내려받기 하시겠습니까?")
 
-        if self.clearYN:
-            resultData = self.extClass.extGetDownloadData('sel')
-            print("download Data info :: (sel)")
-            print(resultData)
-            ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
+        self.cm.getSelectedClassList("ext")
+
+        # self.clearYN = self.cm.create_massage_box("YesNo", "선택 내역을 내려받기 하시겠습니까?")
+        #
+        # if self.clearYN:
+        #     resultData = self.extClass.extGetDownloadData('sel')
+        #     print("download Data info :: (sel)")
+        #     print(resultData)
+        #     ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
 
     def click_ext_pushButton_startExt(self):
         """
@@ -1859,6 +1862,8 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("afc_pushButton_startExt")
+
+        self.cm.getSelectedClassList("afc")
 
         self.cm.video_player.pauseVideo()
 
