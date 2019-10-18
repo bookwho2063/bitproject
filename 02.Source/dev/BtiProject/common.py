@@ -178,6 +178,7 @@ class cv_video_player(QThread):
                         self.afc.changePixmap.emit(convertToQtFormat.copy(), QRect(x, y, width, height))
                     elif self.afc_state == 2:
                         x, y, width, height = self.afc.play_afcResult(playFrame=self.cur_frame)
+                        self.afc.changePixmap.emit(convertToQtFormat.copy(),QRect(x,y,width,height))
 
                     # 학습 이미지 추출 수행
                     if self.alr_state == 1:
@@ -869,15 +870,18 @@ class common(object):
         print("size : {}".format(size))
         self.out = cv2.VideoWriter(file_name,fourcc,self.video_player.fps,size)
 
-    def saveVideo(self, resultList):
-        for result in resultList:
-            self.video_player.cap.set(cv2.CAP_PROP_POS_FRAMES, int(result[-1]))
-            for i in range(self.video_player.buffertime * self.video_player.fps):
-                ref, frame = self.video_player.cap.read()
-                if ref:
-                    self.out.write(frame)
-                else:
-                    break
+    def saveVideo(self, resultList, targetFlag='ext'):
+        if targetFlag == 'ext':
+            for result in resultList:
+                self.video_player.cap.set(cv2.CAP_PROP_POS_FRAMES, int(result[-1]))
+                for i in range(self.video_player.buffertime * self.video_player.fps):
+                    ref, frame = self.video_player.cap.read()
+                    if ref:
+                        self.out.write(frame)
+                    else:
+                        break
+        else:
+            self.video_player.afc.save_afcVideoFile(self.video_player.cap, self.out)
 
     def saveCoordFile(self,resultList,file_name,type='CSV',):
 

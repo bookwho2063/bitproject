@@ -122,15 +122,16 @@ class Autofocus(QObject):
                 x,y,width,height = self.play_afcResult(current_savingFrame)
 
                 if not (width == self.width or height == self.height):
-                    resized_x,resized_y,ratio = self.set_saveCoord(width,height,out_width,out_height)
+                    resized_x,resized_y,size = self.set_saveCoord(width,height,out_width,out_height)
                     crop_frame = frame[int(y): int(y + height),int(x): int(x + width),:]
-                    crop_frame = cv2.resize(crop_frame,dsize=None,fx=ratio,fy=ratio)
+                    crop_frame = cv2.resize(crop_frame,dsize=size)
                     back_img[resized_y:resized_y + crop_frame.shape[0],
                     resized_x:resized_x + crop_frame.shape[1]] = crop_frame
                     save_frame = back_img
                 else:
                     save_frame = frame
-                    out.write(save_frame)
+
+                out.write(save_frame)
             else:
                 break
 
@@ -157,36 +158,47 @@ class Autofocus(QObject):
 
         return move_coord
 
-        def play_afcResult(self,current_workingFrame):
-            index = int(current_workingFrame / self.afc_extFrameRate)
-            if current_workingFrame == 0:
-                self.cur_coord = self.afc_coordDict[0]
-                self.dst_coord = self.cur_coord
+    def play_afcResult(self,current_workingFrame):
+        index = int(current_workingFrame / self.afc_extFrameRate)
+        if current_workingFrame == 0:
+            self.cur_coord = self.afc_coordDict[0]
+            self.dst_coord = self.cur_coord
 
-            if not current_workingFrame % self.afc_extFrameRate and index in self.afc_coordDict.keys():
-                self.dst_coord = self.afc_coordDict[index]
+        if not current_workingFrame % self.afc_extFrameRate and index in self.afc_coordDict.keys():
+            self.dst_coord = self.afc_coordDict[index]
 
-                print("frame : {} index : {} dst_coord : {}".format(current_workingFrame,index,self.dst_coord))
+            print("frame : {} index : {} dst_coord : {}".format(current_workingFrame,index,self.dst_coord))
 
-            self.cur_coord = self.smooth_movedSection(self.cur_coord,self.dst_coord,
-                                                      current_workingFrame % self.afc_extFrameRate,
-                                                      self.afc_extFrameRate)
+        self.cur_coord = self.smooth_movedSection(self.cur_coord,self.dst_coord,
+                                                  current_workingFrame % self.afc_extFrameRate,
+                                                  self.afc_extFrameRate)
 
-            return self.cur_coord
+        return self.cur_coord
 
-        def set_saveCoord(self,width,height,target_width,tartget_height):
+    def set_saveCoord(self,width,height,target_width,tartget_height):
+        if target_width / tartget_height > width / height:
+            ratio = tartget_height / height
+            x = abs(int((target_width - ratio * width) / 2))
+            y = 0
 
-            if target_width / tartget_height > width / height:
-                ratio = tartget_height / height
-                x = abs(int((target_width - ratio * width) / 2))
-                y = 0
-                print(x,y)
-                return x,y,ratio
-            else:
-                ratio = target_width / width
-                x = 0
-                y = abs(int((tartget_height - ratio * height) / 2))
-                return x,y,ratio
+            resize_width = int(ratio * width)
+            resize_height = int(ratio * height)
+
+            if resize_height > tartget_height:
+                resize_height = tartget_height
+            return x,y,(resize_width,resize_height)
+        else:
+            ratio = target_width / width
+            x = 0
+            y = abs(int((tartget_height - ratio * height) / 2))
+
+            resize_width = int(ratio * width)
+            resize_height = int(ratio * height)
+
+            if resize_width > target_width:
+                resize_width = target_width
+
+            return x,y,(resize_width,resize_height)
 
     if __name__ == '__main__':
         afc = Autofocus()
