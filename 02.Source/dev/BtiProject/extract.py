@@ -41,8 +41,8 @@ class Extract(object):
         """
         tableModel = self.table.model()
         rowCnt = self.table.model().rowCount()
+        chkList = []
         if rowCnt > 0:
-            chkList = []
             for rowNum in range(rowCnt):
                 modelItem = tableModel.item(int(rowNum), 0)
                 chkState = modelItem.checkState()
