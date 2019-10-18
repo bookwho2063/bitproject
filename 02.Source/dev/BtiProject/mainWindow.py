@@ -19,7 +19,6 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from common import common,cv_video_player
 from extract import Extract
 from option import Option
-from autoLearning import AutoLearning
 from time import sleep
 import datetime
 import os
@@ -1352,12 +1351,6 @@ class Ui_Form(QtCore.QObject):
         self.opt_comboBox_bufTime.setCurrentIndex(0)
         self.opt_comboBox_bufTime.setStyleSheet("font:12pt")
 
-        ###########
-        # 메인 탭 이벤트 핸들러 설정
-        ###########
-
-        self.mainTabWidget.currentChanged.connect(self.chang_mainTab)
-
 
         ###########
         # 설정.콤보박스 이벤트 핸들러 설정
@@ -1426,12 +1419,15 @@ class Ui_Form(QtCore.QObject):
         self.cm = common(self)
         self.extClass = Extract(self)
         self.opt = Option(self)
-        self.alr = AutoLearning(self)
 
         # 검출 대상 리스트 생성(검출탭, 포커싱탭, 학습탭)
-        self.cm.createTargetClassList("ext")
-        self.cm.createTargetClassList("afc")
-        self.cm.createTargetClassList("alr")
+        self.ext_btnGrp = self.cm.createTargetClassList("ext")
+        self.afc_btnGrp = self.cm.createTargetClassList("afc")
+        self.alr_btnGrp = self.cm.createTargetClassList("alr")
+
+        # 검출 대상 리스트 이벤트 핸들러 추가
+        self.ext_btnGrp.buttonClicked.connect(self.click_ext_btnGrp)
+        self.afc_btnGrp.buttonClicked.connect(self.click_afc_btnGrp)
 
         # 영상 추출
         self.cm.video_player.changeTime.connect(self.set_time)
@@ -1447,14 +1443,37 @@ class Ui_Form(QtCore.QObject):
         self.cm.video_player.changePixmap.connect(self.set_before_PixMap)
         # self.afc.changePixmap.connect(self.process_afc)
         self.cm.video_player.afc.changePixmap.connect(self.process_afc)
+        self.cm.video_player.finishAfc.connect(self.enabled_afc_horizontalSlider)
 
         # 수동학습
         self.cm.video_player.changePixmap.connect(self.setAlrPixMap)
         self.cm.video_player.changeTime.connect(self.set_alr_time)
 
+    def click_ext_btnGrp(self):
+        '''
+        영상 clip의 클래스 선택 checkbox buttongroup을 클릭할 시 동작한다.
+        :return:
+        '''
 
-    def chang_mainTab(self):
-        print("teb changed!!")
+        print("click_ext_btnGrp")
+        print("현재 선택된 class : {}".format(self.cm.getSelectedClassList('ext')))
+
+
+    def click_afc_btnGrp(self):
+        '''
+        영상 clip의 클래스 선택 checkbox buttongroup을 클릭할 시 동작한다.
+        :return:
+        '''
+        print("click_afc_btnGrp")
+
+        changed_className = self.cm.getSelectedClassList('afc')
+
+        print("현재 클래스 : {} 변경될 클래스 : {}".format(self.afc.getClassName(),changed_className))
+
+        if not self.afc.getClassName() == changed_className:
+            self.afc.setClassName(changed_className)
+
+
 
     def change_opt_comboBox_downFileFmt(self):
         """
@@ -1687,14 +1706,7 @@ class Ui_Form(QtCore.QObject):
         print("click_ext_pushButton_mdDown")
         # TODO : tableview에서 검출 정보 가지고 오기
         # TODO : 팝업창으로 좌표파일의 저장 여부 물어보기
-        #### 샘플 결과
-        # [{'x': 1028, 'y': 253, 'w': 157, 'h': 157, 'percent': '99.99', 'labelname': 'jenny'}, {'x': 612, 'y': 823, 'w': 72, 'h': 72, 'percent': '82.66', 'labelname': 'lisa'}, '277']
-        # resultList = [[{'x': 360,'y': 129,'w': 132,'h': 132,'percent': '98.48','labelname': 'roje'},
-        #                {'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},
-        #                {'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},'0'],
-        #               [{'x': 313,'y': 43,'w': 102,'h': 102,'percent': '97.64','labelname': 'roje'},'1000'],
-        #               [{'x': 260,'y': 42,'w': 144,'h': 144,'percent': '95.4','labelname': 'roje'},'2000'],
-        #               [{'x': 313,'y': 42,'w': 102,'h': 144,'percent': '95.4','labelname': 'jisu'},'5000']]
+        # TODO : 영상 다운로드 시 layer 전환이 늦게 됨
 
         resultList = self.extClass.extGetDownloadData()
         print("resultList :: ", resultList)
@@ -1876,6 +1888,7 @@ class Ui_Form(QtCore.QObject):
             # video player thread 종료 후 재시작
             if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
                 self.cm.quit_videoPlayer()
+                self.afc.quit_afcProcess()
                 self.initVideoLabel()
             else:
                 return
@@ -1891,18 +1904,22 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("afc_pushButton_startExt")
+        class_name = self.cm.getSelectedClassList("afc")
+        if not class_name == []:
+            self.afc.setClassName(class_name[0])
 
-        self.cm.getSelectedClassList("afc")
+            self.cm.video_player.pauseVideo()
 
-        self.cm.video_player.pauseVideo()
-        self.cm.video_player.usedFaceStateNm = "vggface"
-        if self.cm.video_player.cap.isOpened():
-            if self.cm.video_player.afc_state == 0:
-                self.cm.video_player.afc_state = 1
+            if self.cm.video_player.cap.isOpened():
+                if self.cm.video_player.afc_state == 0:
+                    self.cm.video_player.afc_state = 1
+                    self.afc_horizontalSlider.setEnabled(False)
 
-            self.cm.video_player.moveFrame(self.cm.video_player.current_workingFrame)
+                self.cm.video_player.moveFrame(self.cm.video_player.current_workingFrame)
 
-        self.cm.video_player.playVideo()
+            self.cm.video_player.playVideo()
+        else:
+            self.cm.create_massage_box("Confirm",text='오토포커싱 대상이 선택하지 않았습니다.')
 
             
 
@@ -1913,6 +1930,31 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("afc_pushButton_mdDown")
+        ###########################
+        # loading 창 띄우기
+        ############################
+
+        self.cm.video_player.pauseVideo()
+        result = self.afc.get_coordResult()
+
+        if result == {}:
+            self.cm.create_massage_box("confirm","기 추출된 내역이 없습니다.")
+        else:
+            self.stackedLayout.setCurrentIndex(0)
+            realTime = self.cm.getMicrotimes()
+            self.cm.openVideoWriter(file_path="./faceExtractVideo_{}{}".format(realTime,self.opt.get_downFileFmt()),
+                                    format=self.opt.get_downFileFmt())
+            self.cm.saveVideo([],"afc")
+            self.cm.closeVideoWriter()
+
+            # saveCoord = True
+            # if saveCoord:
+            #     self.cm.saveCoordFile([]],
+            #                           "./faceExtractCoord{}.{}".format(realTime, self.opt.get_coordFileFmt()),
+            #                           self.opt.get_coordFileFmt())
+
+            self.cm.create_massage_box("Confirm","영상 내려받기가 완료되었습니다.")
+            self.stackedLayout.setCurrentIndex(1)
 
 
 
@@ -1977,6 +2019,13 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("afc_pushButton_stop")
+
+        # TODO : 초기화 붙이기
+        self.cm.video_player.afc_state = 2
+        if self.afc_horizontalSlider.isEnabled():
+            self.afc_horizontalSlider.setDisabled(True)
+        else:
+            self.afc_horizontalSlider.setDisabled(False)
 
 
     def click_afc_label_before_Md(self):
@@ -2317,6 +2366,9 @@ class Ui_Form(QtCore.QObject):
                                                                                  total_seconds)
         self.alr_video_time.setText(update_time)
 
+    @QtCore.Slot(int)
+    def enabled_afc_horizontalSlider(self,state):
+        self.afc_horizontalSlider.setDisabled(state)
 
     def initVideoLabel(self):
         black_image = QtGui.QImage(1920,1280,QtGui.QImage.Format_Indexed8)

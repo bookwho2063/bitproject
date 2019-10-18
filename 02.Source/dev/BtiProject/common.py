@@ -24,6 +24,7 @@ class cv_video_player(QThread):
     endExt = Signal()
     setTotalTime = Signal(int)
     saveFaceInitAlr = Signal(dict)
+    finishAfc = Signal(bool)
 
 
     # changeAfcFrame = Signal(QImage,QRect)
@@ -44,7 +45,7 @@ class cv_video_player(QThread):
         self.current_workingFrame = 0
 
         # afc 클래스
-        self.afc = Autofocus()
+        self.afc = afc
 
         # 얼굴 검출 관련 클래스 설정
         # facenet / facenet2 / openface / vggface / vggalr
@@ -159,21 +160,19 @@ class cv_video_player(QThread):
 
                     # 오토포커싱탭 검출 수행
                     if self.afc_state == 1:
-                        # if self.afc_state and self.cur_frame > self.current_workingFrame:
                         self.current_workingFrame = self.cur_frame
-                        if self.cur_frame == 1:
-                            self.current_workingFrame = 0
 
                         if self.usedFaceStateNm == "openface":
                             # 검출수행(openface)
                             rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
-                        if self.usedFaceStateNm == "vggface":
+                        elif self.usedFaceStateNm == "vggface":
                             # 검출수행(vggface)
                             rgbImage, resultData = self.vggRecogModel.detect_face(rgbImage)
-
-                        # self.afc.extract_afcVideo(img = frame, current_workingFrame=self.current_workingFrame )
-                        x, y, width, height = self.afc.extract_afcVideo(current_workingFrame=self.current_workingFrame, resultList=resultData)
+                        if not self.current_workingFrame % self.afc.afc_extFrameRate:
+                            x, y, width, height = self.afc.extract_afcVideo(current_workingFrame=self.current_workingFrame, resultList=resultData)
+                        else:
+                            x,y,width,height = self.afc.extract_afcVideo(current_workingFrame=self.current_workingFrame)
 
                         self.afc.changePixmap.emit(convertToQtFormat.copy(), QRect(x, y, width, height))
                     elif self.afc_state == 2:
@@ -192,15 +191,17 @@ class cv_video_player(QThread):
                     self.changePixmap.emit(convertToQtFormat.copy())
                     # print("self.cur_frame % self.fps :: ", self.cur_frame % self.fps)
                 else:
-                    self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+                    self.moveFrame(0)
                     self.play = False
                     # 영상 종료 시 각 탭별 상태값 변경
                     if self.ext_state  == 1:
                         self.ext_state = 2
                     if self.afc_state == 1:
                         self.afc_state = 2
+                        self.finishAfc.emit(True)
                     if self.alr_state == 1:
                         self.alr_state = 2
+
             time.sleep(self.getWaitTime(start_time,self.fps)*0.9)
             # 학습 이미지 추출 완료
 
@@ -330,7 +331,7 @@ class cv_video_player(QThread):
 
     def openVideo(self,file_path):
         self.cap = cv2.VideoCapture(file_path)
-        self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+
         if self.cap.isOpened():
             self.total_frame = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
             self.cur_frame = self.cap.get(cv2.CAP_PROP_POS_FRAMES)
@@ -365,30 +366,6 @@ class cv_video_player(QThread):
         return wait_time if wait_time > 0 else 0
     def isPlaying(self):
         return self.play
-
-    # def play_Demo(self):
-    #     print("thread start")
-    #     while True:
-    #
-    #         if self.play and self.cap.isOpened():
-    #             ret,frame = self.cap.read()
-    #             self.cur_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
-    #
-    #             if ret:
-    #                 rgbImage = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-    #                 convertToQtFormat = QImage(rgbImage.data,rgbImage.shape[1],rgbImage.shape[0],
-    #                                            rgbImage.shape[1] * rgbImage.shape[2],QImage.Format_RGB888)
-    #                 self.changePixmap.emit(convertToQtFormat.copy())
-    #             else:
-    #                 self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
-    #                 self.play = False
-    #
-    #         if not self.cur_frame % round(self.fps):
-    #             # print("cur frame : {} total frame : {} ".format(self.cur_frame, self.total_frame))
-    #             # print("fps : {} {}".format(round(self.fps), self.cur_frame / round(self.fps)))
-    #             self.changeTime.emit(int(self.cur_frame / self.fps),int(self.duration))
-    #
-    #         time.sleep(0.025)
 
 
 class common(object):
@@ -447,7 +424,6 @@ class common(object):
 
     def quit_videoPlayer(self):
         self.video_player.stopVideo()
-        self.video_player.initScreen()
 
     def create_massage_box(self, type, text=""):
         '''
@@ -700,7 +676,7 @@ class common(object):
         """
         # 검출 대상 클래스 썸네일 이미지 및 목록을 생성하여 출력한다
         :param: targetFlag (ext(검출), afc(포커싱), alr(학습)
-        :return: bool (Class Create Success boolean)
+        :return: tablewidget에 생성된 button group을 반환한다.
 
         Step.
         this->selectClassImgList(self)->
@@ -756,6 +732,9 @@ class common(object):
                 self.form.alr_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWExt)
 
             self.classImgCount = self.classImgCount + 1
+
+        return btnGrp
+
 
     def classCheckBoxOnOffHandler(self, typeStr, flag):
         """
