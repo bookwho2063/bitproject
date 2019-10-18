@@ -4,7 +4,7 @@ from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 
 from time import sleep
-import cv2,time
+import cv2, time
 import os, re, datetime, pickle
 from autofocus import Autofocus
 
@@ -13,17 +13,18 @@ import dlib
 import matplotlib.pyplot as plt
 import sys
 from skimage import io      #pip install scikit-image
-import cv2
 from keras.models import load_model
 import FacenetInKeras, facenetRealTime, openfaceRealTime
-from vggFaceRealTime import vggFaceExtractor as vggExtract
 from vggFaceRealTime import recognitionFace as vggRecog
 
 class cv_video_player(QThread):
     changePixmap = Signal(QImage)
     changeTime = Signal(int,int)
     changeExtFrame = Signal(QImage,list)
+    endExt = Signal()
     setTotalTime = Signal(int)
+    saveFaceInitAlr = Signal(dict)
+
 
     # changeAfcFrame = Signal(QImage,QRect)
 
@@ -35,9 +36,10 @@ class cv_video_player(QThread):
         self.running = True
         self.fps = 0
 
-        # 추출 작업 0 : 시작 전  1 : 작업 중  2 : 완료
+        # 추출 작업 0:시작 전 / 1:작업 중 / 2:완료
         self.ext_state = 0
         self.afc_state = 0
+        self.alr_state = 0
         self.buffertime = 3
         self.current_workingFrame = 0
 
@@ -45,23 +47,53 @@ class cv_video_player(QThread):
         self.afc = Autofocus()
 
         # 얼굴 검출 관련 클래스 설정
-        self.usedFaceStateNm = "vggface"        # facenet / facenet2 / openface / vggface
+        # facenet / facenet2 / openface / vggface / vggalr
+        self.usedFaceStateNm = "vggface"
         self.model = None
-        self.vggExtModel = None
         self.vggRecogModel = None
-        self.targetPicklePath = "./00.Resource/data/pickle/precompute_features_40000_bat16.pickle"
-        self.initModel()
+        # self.targetPicklePath = "./00.Resource/data/pickle/precompute_features_40000_bat16.pickle"
+        self.targetPicklePath = self.selectLastUptPickleFeatureList("path")
         self.classList = None
+        self.saveClassName = None       # 얼굴이미지 저장 클래스명
+        self.saveClassNamePath = None   # 얼굴이미지 저장 폴더명
+
+        # 검출알고리즘에 따른 선택 분기
+        self.initModel()
 
     def setTargetClass(self, classList):
         self.classList = list()
         self.classList = classList
         print("self.classList :: ",self.classList)
 
+    def selectLastUptPickleFeatureList(self, flag):
+        """
+        pickle 폴더 내 마지막으로 생성된 .pickle 파일 조회 후 피처 리스트 리턴
+        :param: flag(path:pickle Path(str) / feature:pickle Feature(list)
+        :return:
+        """
+        pFolderPath = "./00.Resource/data/pickle"
+        pFileList = list()
+        featureList = list()
+        for file in os.listdir(pFolderPath):
+            if file.split(".")[1] != "pickle":
+                continue
+            pFileList.append(os.path.join(pFolderPath, file))
+
+        pFileList.sort(key=os.path.getmtime)
+        if flag == "path":
+            return pFileList[-1]
+        elif flag == "feature":
+            precompute_features_map = self.load_stuff(pFileList[-1])
+
+            for person in precompute_features_map:
+                featureList.append(person.get("name"))
+
+            return featureList
 
     def initModel(self):
         if self.usedFaceStateNm == 'facenet':
             self.model = FacenetInKeras.facenetInKeras()
+            self.model.faceModel = load_model('./00.Resource/model/facenet_keras.h5')
             print("========== facenet model build")
 
         elif self.usedFaceStateNm == 'facenet2':
@@ -74,19 +106,12 @@ class cv_video_player(QThread):
             self.model.defaultSetOpenface()
             print("========== openface model build")
         elif self.usedFaceStateNm == 'vggface':
-            # self.vggExtModel = vggExtract()   # 프레임 내 얼굴 위치 검출 및 Crop 후 이미지 파일 저장
-
-            # 프레임 내 얼굴 검출 및 classification
-            # self.vggRecogModel = vggRecog(precompute_features_file="./00.Resource/data/pickle/precompute_features_40000_bat16.pickle")
             self.vggRecogModel = vggRecog(precompute_features_file=self.targetPicklePath)
-            print("========== vggface model build(self.vggExtModel, self.vggRecogModel)")
+            # 프레임 내 얼굴 검출 및 classification
+            self.vggRecogModel.vggRecogInit()
+            print("========== vggface model build(self.vggRecogModel)")
 
     def run(self):
-        # 비디오 업로드 시 모델 업로드 처리
-        if self.usedFaceStateNm == "facenet":
-            self.model.faceModel = load_model('./00.Resource/model/facenet_keras.h5')
-        elif self.usedFaceStateNm == "vggface":
-            self.vggRecogModel.vggRecogInit()
 
         while self.running:
             start_time =time.time()
@@ -107,21 +132,30 @@ class cv_video_player(QThread):
                     convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0], rgbImage.shape[1] * rgbImage.shape[2], QImage.Format_RGB888)
 
                     # 영상검출탭 검출 수행
-                    # if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
-                    #     self.current_workingFrame = self.cur_frame
+                    if self.ext_state == 1:
+                        # 검출수행(openface)
+                        if self.usedFaceStateNm == "openface":
+                            rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
-                    # 검출수행(openface)
-                    # rgbImage, resultData = self.extractFaceOrder(rgbImage)
+                        # 검출수행(vggface)
+                        if self.usedFaceStateNm == "vggface":
+                            rgbImage, resultData = self.vggRecogModel.detect_face(rgbImage)
 
-                    # 검출수행(vggface)
-                    rgbImage, resultData = self.vggRecogModel.detect_face(rgbImage)
+                        # 검출 조건에 따른 내역 생성
+                        if self.ext_state and self.cur_frame % (self.fps * self.buffertime) == 0 and self.cur_frame > self.current_workingFrame:
+                            self.current_workingFrame = self.cur_frame
+                            if len(resultData) > 0:
+                                resultData.append(str(self.cur_frame))
+                                self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
 
-                    # 결과 데이터가 존재할 경우에만 결과목록에 출력
-                    if len(resultData) > 0:
-                        # 결과 데이터 형태(아래)를 맞추기위해 프레임 번호 입력
-                        # list[{dict}, ....{dict}, cur_frame]
-                        resultData.append(str(self.cur_frame))
-                        self.changeExtFrame.emit(convertToQtFormat.copy(), resultData)
+                    elif self.ext_state == 2:
+                        # 체크박스 초기화 시그널
+                        self.endExt.emit()
+
+                        # 영상 검출 종료 시
+                        # if self.ext_state == 2:
+                        # if int(self.cur_frame) == int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT) - 1):
+                        #     print("영상이 종료되었습니다... 초기화 작업을 수행합니다.")
 
                     # 오토포커싱탭 검출 수행
                     if self.afc_state == 1:
@@ -130,12 +164,13 @@ class cv_video_player(QThread):
                         if self.cur_frame == 1:
                             self.current_workingFrame = 0
 
-                        ## TODO :: COPY HERE EXTRACT
-                        # 검출수행(openface)
-                        # rgbImage, resultData = self.extractFaceOrder(rgbImage)
+                        if self.usedFaceStateNm == "openface":
+                            # 검출수행(openface)
+                            rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
-                        # 검출수행(vggface)
-                        rgbImage, resultData = self.vggRecogModel.detect_face(rgbImage)
+                        if self.usedFaceStateNm == "vggface":
+                            # 검출수행(vggface)
+                            rgbImage, resultData = self.vggRecogModel.detect_face(rgbImage)
 
                         # self.afc.extract_afcVideo(img = frame, current_workingFrame=self.current_workingFrame )
                         x, y, width, height = self.afc.extract_afcVideo(current_workingFrame=self.current_workingFrame, resultList=resultData)
@@ -144,13 +179,46 @@ class cv_video_player(QThread):
                     elif self.afc_state == 2:
                         x, y, width, height = self.afc.play_afcResult(playFrame=self.cur_frame)
 
+                    # 학습 이미지 추출 수행
+                    if self.alr_state == 1:
+                        self.current_workingFrame = self.cur_frame
+                        # 이미지 저장
+                        self.vggRecogModel.saveFolder = os.path.join(self.saveClassNamePath, self.saveClassName)
+                        self.vggRecogModel.className = self.saveClassName
+                        print("self.vggRecogModel.saveFolder :: ", self.vggRecogModel.saveFolder)
+                        print("self.vggRecogModel.className :: ", self.vggRecogModel.className)
+                        self.vggRecogModel.extractFace(rgbImage, self.cur_frame)
+
                     self.changePixmap.emit(convertToQtFormat.copy())
                     # print("self.cur_frame % self.fps :: ", self.cur_frame % self.fps)
                 else:
                     self.cap.set(cv2.CAP_PROP_POS_FRAMES,0)
                     self.play = False
-                # print("종료 시간 : ",time.time())
+                    # 영상 종료 시 각 탭별 상태값 변경
+                    if self.ext_state  == 1:
+                        self.ext_state = 2
+                    if self.afc_state == 1:
+                        self.afc_state = 2
+                    if self.alr_state == 1:
+                        self.alr_state = 2
             time.sleep(self.getWaitTime(start_time,self.fps)*0.9)
+            # 학습 이미지 추출 완료
+
+    def learningPickle(self):
+        """
+        검출된 이미지를 이용하여 피클파일 생성
+        :return:
+        """
+        print("피클 파일을 생성합니다")
+        ret, pickleFilePath = self.vggRecogModel.createPickle()
+        if ret == True:
+            print("========== Create pickle file")
+            return True, pickleFilePath
+        else:
+            print("========== Failed Create pickle")
+            return False, pickleFilePath
+
+
 
     def extractFaceOrder(self, rgbImage):
         """
@@ -327,18 +395,14 @@ class common(object):
     ## 공통 클래스 변수 설정
     uploadPath = ""
     uploadUrl = ""
-    callTabObjNm = ""
-    savePath = ""
-    saveOptFilePath = ""
     saveUrlPath = ""
     saveFileNm = ""
-    saveFmt = ""
-    saveResol = ""
-    saveProgressPer = ""
+    classNmAlr = ""
 
     def __init__(self, ui):
         self.form = ui
         self.video_player = cv_video_player(ui.afc)
+        # self.video_player.targetPicklePath = self.selectLastUptPickleFeatureList("path")
         self.youtubeUrlValidCheck = re.compile(
             "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$")
 
@@ -366,8 +430,20 @@ class common(object):
 
 
     def url_upload(self):
+        """
+        URL 업로드 팝업창 생성
+        :return:
+        """
         self.uploadUrl = self.create_input_dialog("text","URL 입력창","URL 주소")
         return self.uploadUrl
+
+    def inputAlrClassName(self):
+        """
+        학습 클래스명 입력
+        :return:
+        """
+        self.classNmAlr = self.create_input_dialog("text","학습클래스명","클래스명")
+        return self.classNmAlr
 
     def quit_videoPlayer(self):
         self.video_player.stopVideo()
@@ -551,9 +627,10 @@ class common(object):
         print("=====loaded stuff success")
         return stuff
 
-    def selectLastUptPickleFeatureList(self):
+    def selectLastUptPickleFeatureList(self, flag):
         """
         pickle 폴더 내 마지막으로 생성된 .pickle 파일 조회 후 피처 리스트 리턴
+        :param: flag(path:pickle Path(str) / feature:pickle Feature(list)
         :return:
         """
         pFolderPath = "./00.Resource/data/pickle"
@@ -565,12 +642,15 @@ class common(object):
             pFileList.append(os.path.join(pFolderPath, file))
 
         pFileList.sort(key=os.path.getmtime)
-        precompute_features_map = self.load_stuff(pFileList[-1])
+        if flag == "path":
+            return pFileList[-1]
+        elif flag == "feature":
+            precompute_features_map = self.load_stuff(pFileList[-1])
 
-        for person in precompute_features_map:
-            featureList.append(person.get("name"))
+            for person in precompute_features_map:
+                featureList.append(person.get("name"))
 
-        return featureList
+            return featureList
 
     def getSelectedClassList(self, targetFlag):
         """
@@ -587,8 +667,8 @@ class common(object):
             firstWidget = self.form.ext_tableWidget_classList
         elif targetFlag == "afc":
             firstWidget = self.form.afc_tableWidget_classList
-        else:
-            firstWidget = self.form.alr_tableWidget_classList
+        elif targetFlag == "clear":
+            firstWidget = self.form.ext_tableWidget_classList
 
         for wIdx in range(firstWidget.columnCount()):
             targetWidget = firstWidget.cellWidget(0, wIdx)
@@ -602,6 +682,11 @@ class common(object):
             # 체크 확인
             isChecked = targetCheckbox.checkState()
             if isChecked is QtCore.Qt.CheckState.Unchecked:
+                continue
+
+            # "clear" flag 입력 시 체크박스 초기화 (별도 기능 추가)
+            if targetFlag == "clear":
+                targetCheckbox.setCheckState(QtCore.Qt.CheckState.Unchecked)
                 continue
 
             # 선택된 타겟 레이아웃의 라벨명(클래스명) 추출
@@ -624,13 +709,11 @@ class common(object):
         # 학습 대상 클래스 리스트 불러오기
         self.classImgCount = 0
         # self.classListDict = self.selectClassImgList()          # 기존 클래스 리스트 리턴
-        self.classListDict = self.selectPickleFeatureImgList(self.selectLastUptPickleFeatureList())  # vggface2 형태로 변경
+        self.classListDict = self.selectPickleFeatureImgList(self.selectLastUptPickleFeatureList("feature"))  # vggface2 형태로 변경
 
         # checkbox Group
         btnGrp = QtWidgets.QButtonGroup()
         for classListDictKey, classListDictValue in self.classListDict.items():
-
-            # 썸네일 생성
             thumbnailImgInExt = self.createThumnail_filePath("pixmap", os.path.abspath(classListDictValue), 50, 50, 80)
 
             extImgItem = QLabel()
@@ -673,6 +756,45 @@ class common(object):
                 self.form.alr_tableWidget_classList.setCellWidget(0, int(self.classImgCount), qWExt)
 
             self.classImgCount = self.classImgCount + 1
+
+    def classCheckBoxOnOffHandler(self, typeStr, flag):
+        """
+        클래스 리스트 체크박스를 일괄 핸들링 할 수 있다.
+        :param typeStr: ext / afc / alr
+        :param flag: clear(초기화) / show(보임) / hide(숨김)
+        :return:
+        """
+        firstWidget = None  # target TableWidget
+
+        # Flag Type 별 target TableWidget setting
+        if typeStr == "ext":
+            firstWidget = self.form.ext_tableWidget_classList
+        elif typeStr == "afc":
+            firstWidget = self.form.afc_tableWidget_classList
+        elif typeStr == "alr":
+            firstWidget = self.form.alr_tableWidget_classList
+
+        stateCd = True
+        for wIdx in range(firstWidget.columnCount()):
+            targetWidget = firstWidget.cellWidget(0, wIdx)
+            if targetWidget == None:
+                continue
+
+            targetLayout = targetWidget.layout()
+            targetCheckbox = targetLayout.itemAt(0).widget()
+
+            targetCheckbox.setCheckState(QtCore.Qt.CheckState.Unchecked)
+            if flag == "show": # 체크박스 보임
+                targetCheckbox.setVisible(True)
+            elif flag == "hide": # 체크박스 숨김
+                targetCheckbox.setVisible(False)
+            else:
+                continue
+            if targetCheckbox.checkState():
+                stateCd = False
+
+        # 체크박스가 하나라도 체크상태이면 False Return (초기화가 되지않음을 뜻한다)
+        return stateCd
 
 
     def downloadYouTubeUrl(self, url):

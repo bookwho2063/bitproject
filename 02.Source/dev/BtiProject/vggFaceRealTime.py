@@ -1,6 +1,8 @@
 import cv2
-import os, glob, pickle, platform, site
+import os, glob, pickle, platform, site, datetime
 import numpy as np
+import tensorflow as tf
+from keras import backend as K
 from time import sleep
 from keras.engine import Model
 from keras import layers, models
@@ -15,10 +17,11 @@ from scipy.spatial import distance as scipyDistance
 
 def load_stuff(filename):
     """
-    pickle file load
+        피클 파일 로드
     :param filename:
     :return:
     """
+    print("filename :: ", filename)
     saved_stuff = open(filename, "rb")
     stuff = pickle.load(saved_stuff)
     saved_stuff.close()
@@ -27,56 +30,121 @@ def load_stuff(filename):
 
 def pickleStuff(fileName, stuff):
     """
-    pickle file generator
+        피클 파일 생성
     :param fileName:
     :param stuff:
-    :return:
+    :return: pickle data List
     """
     saveStuff = open(fileName, "wb")
     pickle.dump(stuff, saveStuff)
     saveStuff.close()
     print("=====create stuff success")
 
-class vggFaceExtractor(object):
+def getDayTime(flag):
+    """
+    날자 형식을 리턴한다.
+    :param flag: yyyymmdd / yyyymmddhhmmss
+    :return:
+    """
+    now = datetime.datetime.now()
+    if flag == "yyyymmdd":
+        dt = now.strptime('%Y%m%d')
+        return dt
+    else:
+        dt = now.strptime('%Y%m%d%H%M%S')
+        return dt
 
-    def __new__(cls, weight_file=None, face_size=224):
+
+
+
+def appendPickleStuff(stuff, name, feature):
+    """
+        pickle 데이터를 추가한다 (검출 얼굴 임베딩 데이터 값 추가)
+    :param stuff: 피클 데이터
+    :param appendData:
+    :return:
+    """
+    stuff.append({"name": name, "features": feature})
+
+class recognitionFace(object):
+    """
+    INFO : VGGFACE2를 이용하여 영상 내 프레임에서 얼굴을 검출하는 클래스
+    """
+    def __new__(cls, precompute_features_file=None, weight_file=None, face_size=224):
         if not hasattr(cls, 'instance'):
-            cls.instance = super(vggFaceExtractor, cls).__new__(cls)
+            cls.instance = super(recognitionFace, cls).__new__(cls)
         return cls.instance
 
-    def __init__(self, face_size=224):
-        self.FACE_IMAGES_FOLDER = "../00.Resource/data/faceImages"
-        self.VIDEOS_FOLDER = "../00.Resource/data/videos"
-        self.resnet50Features = None
-        self.osName = ""            # OS명
-        self.face_cascade = ""      # cascade 타겟변수
-        self.faceSize = face_size   # 얼굴 검출 사진 사이즈
-        self.batchSize = 16         # 배치사이즈
-        self.className = None       # 사용자가 입력한 클래스명
-        self.saveFolder = None      # vggfaceInit() 을 통해 생성되는 클래스폴더경로
-        self.savePkPath = "../00.Resource/data/pickle/"  # 피클파일 저장경로
-        self.savePkNm = "precompute_features_40000_bat2.pickle"         # 피클파일 저장파일명
+    def __init__(self, precompute_features_file=None, face_size=224):
+        self.face_size = face_size
+        self.precompute_features_map = load_stuff(precompute_features_file)
+        self.face_cascade = None
+        self.model = None
 
+        self.FACE_IMAGES_FOLDER = "./00.Resource/tmp"
+        self.osName = ""  # OS명
+        self.face_cascade = ""  # cascade 타겟변수
+        self.faceSize = face_size  # 얼굴 검출 사진 사이즈
+        self.batchSize = 16  # 배치사이즈
+        self.className = None  # 사용자가 입력한 클래스명
+        self.saveFolder = None  # vggfaceInit() 을 통해 생성되는 클래스폴더경로
+        self.savePkPath = "./00.Resource/data/pickle/"  # 피클파일 저장경로
+        self.savePkNm = "savePickle_"  # 피클파일 저장파일명
 
+    def vggRecogInit(self):
+        """
+        클래스를 초기화한다 (최초 프로그램 시작시 수행하므로 기타변수들 여기서 추가하지말 것)
+        :return:
+        """
+        if self.model == None:
+            self.model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3),
+                                 pooling='avg')  # pooling: None, avg or max
+            self.model.predict(np.zeros((1, 224, 224, 3)))
+            self.session = K.get_session()
+            self.graph = tf.get_default_graph()
+            self.graph.finalize()
 
     def createPickle(self):
         """
         pickle 파일을 생성한다.
         :return: 저장 성공여부
         """
-        pickleDataList = []
-        faceFolder = self.FACE_IMAGES_FOLDER
-        className = self.className
+        folders = list(glob.iglob(os.path.join(self.FACE_IMAGES_FOLDER, "*")))
+        names = [os.path.basename(folder) for folder in folders]
+
+        dt = getDayTime("yyyymmddhhmmss")
+        self.savePkNm = self.savePkNm + str(dt) + ".pickle"
+        precompute_features = []
         pickleFilePath = os.path.join(self.savePkPath, self.savePkNm)
-        mean_features = self.calMeanFeature(imageFolder=os.path.join(faceFolder, className))
-        pickleDataList.append({"name": className, "features": mean_features})
-        pickleStuff(pickleFilePath, pickleDataList)
+
+        # pickle data read
+        for i, folder in enumerate(folders):
+            name = names[i]
+            save_folder = os.path.join(self.FACE_IMAGES_FOLDER, name)
+            mean_features = self.calMeanFeature(imageFolder=save_folder)
+            precompute_features.append({"name": name, "features": mean_features})
+
+            # 대표 이미지 저장을 위하여 피클 생성 폴더 이미지 리스트 조회
+            imgs = os.listdir(save_folder)
+            imgs.sort()
+            for img in imgs:
+                if img.split(".")[-1] == "png" or img.split(".")[-1] == "PNG":
+                    # 대표이미지 생성 및 LabelList 폴더 저장
+                    name = name + ".png"
+                    labelImgPath = os.path.join("./LabelList", name)
+                    img = os.path.join(save_folder, img)
+                    cv2.imread(img, cv2.IMREAD_COLOR)
+                    cv2.imwrite(labelImgPath, img)
+                    break
+
+        # 피클 파일 생성
+        pickleStuff(pickleFilePath, precompute_features)
+
 
         if os.path.isfile(pickleFilePath):
-            return True
+            return True, pickleFilePath
         else:
-            return False
-
+            return False, pickleFilePath
 
     def loadPickle(self, loadPath):
         """
@@ -181,12 +249,14 @@ class vggFaceExtractor(object):
             print("imgfile :: ", imgfile)
             cv2.imwrite(imgfile, face_img)
 
+
     def image2x(self, imagePath):
         """
         이미지의 평균치를 구한다.
         :param imagePath:
         :return:
         """
+        print("image2x.imagePath :: ", imagePath)
         img = image.load_img(imagePath, target_size=(224, 224))
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
@@ -194,7 +264,14 @@ class vggFaceExtractor(object):
         return x
 
     def calMeanFeature(self, imageFolder):
+        print("imageFolder :: ", imageFolder)
         faceImages = list(glob.iglob(os.path.join(imageFolder, "*")))
+
+        print("faceImages :: ")
+        print(faceImages)
+
+        print("faceImages len :: ")
+        print(len(faceImages))
 
         def chunks(l, n):
             """
@@ -211,64 +288,21 @@ class vggFaceExtractor(object):
 
         for faceImageChunk in faceImageChunks:
             images = np.concatenate([self.image2x(faceImage) for faceImage in faceImageChunk])
-            batchFvecs = self.resnet50Features.predict(images)
+            print("images type :: ", type(images))
+            print("images :: ", images)
+            batchFvecs = self.model.predict(images)
+
+            print("type :: ",type(batchFvecs))
+            print("batchFvecs :: ", batchFvecs)
+            print("fvecs :: ", fvecs)
 
             if fvecs is None:
                 fvecs = batchFvecs
             else:
                 fvecs = np.append(fvecs, batchFvecs, axis=0)
 
-            print("========== 생성중 ... [ " + str(len(fvecs)) + " ]")
+            # print("========== 생성중 ... [ " + str(len(fvecs)) + " ]")
         return np.array(fvecs).sum(axis=0) / len(fvecs)
-
-    def vggfaceInit(self):
-        """
-        초기화 작업
-        :return:
-        """
-        if self.resnet50Features is None:
-            self.resnet50Features = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg')
-        if self.FACE_IMAGES_FOLDER is None:
-            self.FACE_IMAGES_FOLDER = "../00.Resource/data/faceImages"
-        if self.VIDEOS_FOLDER is None:
-            self.VIDEOS_FOLDER = "../00.Resource/data/videos"
-        if self.className is None:
-            self.className = "className"
-
-        # 영상이 저장될 클래스 네임폴더 생성
-        targetFolder = os.path.join(self.FACE_IMAGES_FOLDER, self.className)
-        if os.path.isdir(targetFolder):
-            print("===== folder exist!!!! :: ", targetFolder)
-        else:
-            print("===== folder create :: ", targetFolder)
-            os.makedirs(targetFolder, exist_ok=True)
-            self.saveFolder = targetFolder
-
-
-class recognitionFace(object):
-    """
-    INFO : VGGFACE2를 이용하여 영상 내 프레임에서 얼굴을 검출하는 클래스
-    """
-    def __new__(cls, precompute_features_file=None):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(recognitionFace, cls).__new__(cls)
-        return cls.instance
-
-    def __init__(self, precompute_features_file=None):
-        self.face_size = 224
-        self.precompute_features_map = load_stuff(precompute_features_file)
-        self.face_cascade = None
-        print("Loading VGG Face model...")
-        self.model = None
-        print("Loading VGG Face model done")
-
-    def vggRecogInit(self):
-        """
-        class init method
-        :return:
-        """
-        if self.model == None:
-                self.model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg')  # pooling: None, avg or max
 
 
     @classmethod
@@ -382,10 +416,14 @@ class recognitionFace(object):
             # 데이터 메타데이터셋 정립
             for idx in range(len(predicted_names)):
                 (cName, cPer) = predicted_names[idx]
-                tempCoordList[idx]['labelname'] = str(cName)
-                tempCoordList[idx]['percent'] = str(round(float(cPer),2))
-        else:
-            print("=========== len(face_imgs) < 0")
+                if cName != "???":
+                    tempCoordList[idx]['labelname'] = str(cName)
+                    tempCoordList[idx]['percent'] = str(round(float(cPer),2))
+                    predicted_names[idx] = (cName, str(round(float(cPer),2)))
+                else:
+                    tempCoordList[idx]['labelname'] = "???"
+                    tempCoordList[idx]['percent'] = "0"
+                    predicted_names[idx] = ("???", "0")
 
         # draw results
         for i, face in enumerate(faces):
@@ -393,3 +431,10 @@ class recognitionFace(object):
             self.draw_label(frame, (face[0], face[1]), label)
 
         return frame, tempCoordList
+
+
+# if __name__ == "__main__":
+#
+#     data = load_stuff("./00.Resource/data/pickle/precompute_features_40000_bat4.pickle")
+#     print(type(data))
+#     print(data)

@@ -19,6 +19,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from common import common,cv_video_player
 from extract import Extract
 from option import Option
+from autoLearning import AutoLearning
 from time import sleep
 import datetime
 import os
@@ -1231,6 +1232,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_urlUpload.setText(QtWidgets.QApplication.translate("Form", "URL 업로드", None, -1))
         self.ext_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
         self.ext_pushButton_mdDown.setText(QtWidgets.QApplication.translate("Form", "영상 내려받기", None, -1))
+        self.ext_pushButton_mdDown.setVisible(False)
         # self.ext_label_extMd.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.ext_video_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
         self.ext_pushButton_allClear.setText(QtWidgets.QApplication.translate("Form", "초기화", None, -1))
@@ -1424,6 +1426,7 @@ class Ui_Form(QtCore.QObject):
         self.cm = common(self)
         self.extClass = Extract(self)
         self.opt = Option(self)
+        self.alr = AutoLearning(self)
 
         # 검출 대상 리스트 생성(검출탭, 포커싱탭, 학습탭)
         self.cm.createTargetClassList("ext")
@@ -1435,6 +1438,9 @@ class Ui_Form(QtCore.QObject):
         self.cm.video_player.setTotalTime.connect(self.set_afc_totalTime)
         self.cm.video_player.changePixmap.connect(self.setPixMap)
         self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
+        self.cm.video_player.endExt.connect(self.endExtProcSetting)
+        self.cm.video_player.saveFaceInitAlr.connect(self.saveFaceInitAlr)
+
 
         # 오토포커싱
         self.cm.video_player.changeTime.connect(self.set_afc_before_time)
@@ -1571,9 +1577,23 @@ class Ui_Form(QtCore.QObject):
                     object.preIndex = movedIndex
                     event.accept()
                     print(object.preIndex,currentIndex,movedIndex)
+
+                    # 탭 검출대상 리스트 초기화
+                    self.cm.createTargetClassList("ext")
+                    self.cm.createTargetClassList("afc")
+                    self.cm.createTargetClassList("alr")
                 else:
                     event.ignore()
                     return True
+
+            # 검출 및 오토포커싱 일 경우 검출 모델 지정
+            # if int(movedIndex) < 2:
+            #     self.cm.video_player.usedFaceStateNm = "vggface"
+            #     self.cm.video_player.initModel()
+            # elif int(movedIndex) == 2:
+            #     self.cm.video_player.usedFaceStateNm = "vggalr"
+            #     self.cm.video_player.initModel()
+
 
         elif object is self.mainTabWidget.tabBar() and event.type() == QtCore.QEvent.KeyPress:
             print("key pressed!!")
@@ -1712,7 +1732,7 @@ class Ui_Form(QtCore.QObject):
             if self.cm.uploadPath  is not "":
                 if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
                     # video player thread 종료 후 재시작
-                    if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+                    if self.cm.create_massage_box("yesno", text="기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
                         self.extClass.clearRowData()
                         self.cm.quit_videoPlayer()
 
@@ -1754,7 +1774,7 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_allClear")
-        self.clearYN = self.cm.create_massage_box("YesNo","모든 검출 내역이 초기화 됩니다 계속하시겠습니까?")
+        self.clearYN = self.cm.create_massage_box("YesNo", text="모든 검출 내역이 초기화 됩니다 계속하시겠습니까?")
 
         if self.clearYN:
             self.extClass.clearRowData()
@@ -1809,10 +1829,19 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_startExt")
+
+        if self.cm.classCheckBoxOnOffHandler("ext", "clear"):
+            self.cm.classCheckBoxOnOffHandler("ext", "hide")
+
         self.cm.video_player.pauseVideo()
+        self.cm.video_player.usedFaceStateNm = "vggface"
 
         if self.cm.video_player.ext_state == 0:
             self.cm.video_player.ext_state = 1
+
+
+        # 클래스 리스트 체크박스 초기화
+        self.cm.getSelectedClassList("clear")
 
         self.cm.video_player.moveFrame(self.cm.video_player.current_workingFrame)
         self.cm.video_player.playVideo()
@@ -1866,7 +1895,7 @@ class Ui_Form(QtCore.QObject):
         self.cm.getSelectedClassList("afc")
 
         self.cm.video_player.pauseVideo()
-
+        self.cm.video_player.usedFaceStateNm = "vggface"
         if self.cm.video_player.cap.isOpened():
             if self.cm.video_player.afc_state == 0:
                 self.cm.video_player.afc_state = 1
@@ -1902,10 +1931,10 @@ class Ui_Form(QtCore.QObject):
 
             if self.cm.video_player.isRunning() and self.cm.video_player.afc_state:
                 # video player thread 종료 후 재시작
-                if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
+                if self.cm.create_massage_box("yesno",text="기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
                     self.extClass.clearRowData()
                     self.cm.quit_videoPlayer()
-
+            self.cm.video_player.usedFaceStateNm = "vggface"
             self.cm.video_player.openVideo(self.cm.uploadPath)
 
         self.stackedLayout.setCurrentIndex(1)
@@ -2006,6 +2035,42 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_alr_pushButton_extImage")
+        className = ""
+        # 추출 파일명 확인 없으면 메시지 리턴
+        if self.cm.inputAlrClassName() == "":
+            if self.cm.create_massage_box("Confirm", text='업로드된 영상이 없습니다.\n얼굴 추출 영상을 먼저 업로드해주세요.'):
+                return
+
+        className = self.cm.classNmAlr
+        if className != "":
+            # 해당 클래스명으로 폴더생성
+            path = self.opt.get_saveImgDir().replace('\\', '/')
+            if os.path.exists(path) == False:
+                os.mkdir(path)
+            fullPath = os.path.join(path, className)
+            if os.path.exists(fullPath) == False:
+                os.mkdir(fullPath)
+
+            # 클래스 폴더 관련 변수 데이터 저장
+            self.cm.video_player.targetPicklePath = self.cm.selectLastUptPickleFeatureList("path")
+            self.cm.video_player.saveClassNamePath = path   # 상위폴더
+            self.cm.video_player.saveClassName = className  # 클래스폴더명
+
+            self.cm.video_player.usedFaceStateNm = "vggface"
+            # 비디오 일시정지
+            self.cm.video_player.pauseVideo()
+
+            if self.cm.video_player.cap.isOpened():
+                if self.cm.video_player.alr_state == 0:
+                    self.cm.video_player.alr_state = 1
+
+                self.cm.video_player.moveFrame(self.cm.video_player.current_workingFrame)
+
+            self.cm.video_player.playVideo()
+        else:
+            if self.cm.create_massage_box("rConfirm", text='클래스명을 입력해주세요.'):
+                return
+
 
     def click_alr_pushButton_openFolder(self):
         """
@@ -2016,7 +2081,9 @@ class Ui_Form(QtCore.QObject):
         import subprocess
         path = self.opt.get_saveImgDir().replace('\\','/')
         print(path)
-        subprocess.run(['explorer',os.path.realpath(path)])
+        # subprocess.run(['explorer',os.path.realpath(path)])
+        # subprocess.run(['explorer', os.path.realpath(path)])
+
 
     def click_alr_pushButton_startLearning(self):
         """
@@ -2025,6 +2092,28 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_alr_pushButton_startLearning")
+        if self.cm.create_massage_box("yesno", text="학습을 진행하시겠습니까?"):
+            # 로딩바 on
+            self.stackedLayout.setCurrentIndex(1)
+            retCode, picklePath = self.cm.video_player.learningPickle()
+            if retCode == True:
+                # 로딩바 off
+                self.stackedLayout.setCurrentIndex(0)
+
+                self.cm.create_massage_box("confirm", "학습이 완료되었습니다.")
+                # 학습 완료 시 클래스 리스트 초기화 하고
+                self.cm.createTargetClassList("ext")
+                self.cm.createTargetClassList("afc")
+                self.cm.createTargetClassList("alr")
+            else:
+                self.stackedLayout.setCurrentIndex(0)
+                self.cm.create_massage_box("confirm", "학습이 실패하였습니다.")
+
+
+
+
+
+
 
     def click_alr_pushButton_play(self):
         """
@@ -2102,6 +2191,27 @@ class Ui_Form(QtCore.QObject):
         # img label update
         ##########
 
+    @QtCore.Slot(dict)
+    def saveFaceInitAlr(self):
+        """
+        학습에 필요한 기본 설정 변수를 셋팅한다.
+        :return:
+        """
+        initDict = dict()
+        self.opt.get_saveImgDir()
+
+    @QtCore.Slot()
+    def endExtProcSetting(self):
+        """
+        검출 영상 종료 후 클래스 리스트 체크박스 초기화
+        :param typeStr:
+        :param flag:
+        :return:
+        """
+        if self.cm.classCheckBoxOnOffHandler("ext", "clear"):
+            self.cm.classCheckBoxOnOffHandler("ext", "show")
+        self.cm.create_massage_box("Confirm", "영상 검출이 완료되었습니다.")
+
     @QtCore.Slot(list)
     def insertAtResultListData(self,image,dataList):
         """
@@ -2116,7 +2226,6 @@ class Ui_Form(QtCore.QObject):
         image = QtGui.QPixmap.fromImage(image)
         image = image.scaled(self.ext_label_extMd.size(),QtCore.Qt.KeepAspectRatio)
         self.ext_label_extMd.setPixmap(image)
-
 
 
     @QtCore.Slot(QtGui.QImage)
