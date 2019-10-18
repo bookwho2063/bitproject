@@ -1448,6 +1448,7 @@ class Ui_Form(QtCore.QObject):
         # 수동학습
         self.cm.video_player.changePixmap.connect(self.setAlrPixMap)
         self.cm.video_player.changeTime.connect(self.set_alr_time)
+        self.cm.video_player.alrExtEnd.connect(self.endAlrExt)
 
     def click_ext_btnGrp(self):
         '''
@@ -2127,11 +2128,19 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_alr_pushButton_openFolder")
-        import subprocess
-        path = self.opt.get_saveImgDir().replace('\\','/')
-        print(path)
-        # subprocess.run(['explorer',os.path.realpath(path)])
-        # subprocess.run(['explorer', os.path.realpath(path)])
+        import subprocess, platform
+        # OS 별 File Seperator 설정
+        pSysNm = platform.system()
+
+        if pSysNm is "Windows":
+            path = self.opt.get_saveImgDir().replace('\\', '/')
+            subprocess.run(['explorer', os.path.realpath(path)])
+        elif pSysNm is "Darwin":
+            path = self.opt.get_saveImgDir().replace('\\', '/')
+            subprocess.run(['nautilus', os.path.realpath(path)])
+        elif str(pSysNm) == "Linux":
+            path = self.opt.get_saveImgDir().replace('\\', '/')
+            subprocess.run(['nautilus', os.path.realpath(path)])
 
 
     def click_alr_pushButton_startLearning(self):
@@ -2143,20 +2152,27 @@ class Ui_Form(QtCore.QObject):
         print("click_alr_pushButton_startLearning")
         if self.cm.create_massage_box("yesno", text="학습을 진행하시겠습니까?"):
             # 로딩바 on
-            self.stackedLayout.setCurrentIndex(1)
+            self.stackedLayout.setCurrentIndex(0)
             retCode, picklePath = self.cm.video_player.learningPickle()
             if retCode == True:
                 # 로딩바 off
-                self.stackedLayout.setCurrentIndex(0)
-
                 self.cm.create_massage_box("confirm", "학습이 완료되었습니다.")
-                # 학습 완료 시 클래스 리스트 초기화 하고
-                self.cm.createTargetClassList("ext")
-                self.cm.createTargetClassList("afc")
-                self.cm.createTargetClassList("alr")
+                #TODO: 191018학습 완료 시 클래스 리스트 초기화 하고 피클 정보도 새로 업로드 해야함 (제일 처음에 피클 최신으로 끼우는거 다시)
+
+                # 검출대상 리스트 초기화
+                self.cm.classCheckBoxOnOffHandler("ext", "delete")
+                self.cm.classCheckBoxOnOffHandler("afc", "delete")
+                self.cm.classCheckBoxOnOffHandler("alr", "delete")
+
+                # 검출 대상 리스트 생성(검출탭, 포커싱탭, 학습탭)
+                self.ext_btnGrp = self.cm.createTargetClassList("ext")
+                self.afc_btnGrp = self.cm.createTargetClassList("afc")
+                self.alr_btnGrp = self.cm.createTargetClassList("alr")
+
             else:
-                self.stackedLayout.setCurrentIndex(0)
                 self.cm.create_massage_box("confirm", "학습이 실패하였습니다.")
+
+            self.stackedLayout.setCurrentIndex(1)
 
 
 
@@ -2193,6 +2209,7 @@ class Ui_Form(QtCore.QObject):
         ###########
         # 클릭 이벤트 설정 탭 start
         ###########
+
 
     def click_tab_opt(self):
         """
@@ -2239,6 +2256,23 @@ class Ui_Form(QtCore.QObject):
         ##########
         # img label update
         ##########
+
+    @QtCore.Slot()
+    def endAlrExt(self):
+        self.cm.create_massage_box("Confirm", "영상내 얼굴 이미지 검출이 완료되었습니다.")
+        if self.cm.create_massage_box("YesNo", text="얼굴 이미지 폴더를 오픈하시겠습니까?"):
+            import subprocess, platform
+            # OS 별 File Seperator 설정
+            pSysNm = platform.system()
+            if pSysNm is "Windows":
+                path = self.opt.get_saveImgDir().replace('\\', '/')
+                subprocess.run(['explorer', os.path.realpath(path)])
+            elif pSysNm is "Darwin":
+                path = self.opt.get_saveImgDir().replace('\\', '/')
+                subprocess.run(['nautilus', os.path.realpath(path)])
+            elif str(pSysNm) == "Linux":
+                path = self.opt.get_saveImgDir().replace('\\', '/')
+                subprocess.run(['nautilus', os.path.realpath(path)])
 
     @QtCore.Slot(dict)
     def saveFaceInitAlr(self):

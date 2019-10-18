@@ -48,10 +48,10 @@ def getDayTime(flag):
     """
     now = datetime.datetime.now()
     if flag == "yyyymmdd":
-        dt = now.strptime('%Y%m%d')
+        dt = datetime.datetime.today().strftime("%Y%m%d")
         return dt
     else:
-        dt = now.strptime('%Y%m%d%H%M%S')
+        dt = datetime.datetime.today().strftime("%Y%m%d%H%M%S")
         return dt
 
 
@@ -133,8 +133,8 @@ class recognitionFace(object):
                     name = name + ".png"
                     labelImgPath = os.path.join("./LabelList", name)
                     img = os.path.join(save_folder, img)
-                    cv2.imread(img, cv2.IMREAD_COLOR)
-                    cv2.imwrite(labelImgPath, img)
+                    thumnailImg = cv2.imread(img, cv2.IMREAD_COLOR)
+                    cv2.imwrite(labelImgPath, thumnailImg)
                     break
 
         # 피클 파일 생성

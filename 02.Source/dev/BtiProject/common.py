@@ -22,6 +22,7 @@ class cv_video_player(QThread):
     changeTime = Signal(int,int)
     changeExtFrame = Signal(QImage,list)
     endExt = Signal()
+    alrExtEnd = Signal()
     setTotalTime = Signal(int)
     saveFaceInitAlr = Signal(dict)
     finishAfc = Signal(bool)
@@ -201,6 +202,7 @@ class cv_video_player(QThread):
                         self.finishAfc.emit(True)
                     if self.alr_state == 1:
                         self.alr_state = 2
+                        self.alrExtEnd.emit()
 
             time.sleep(self.getWaitTime(start_time,self.fps)*0.9)
             # 학습 이미지 추출 완료
@@ -698,6 +700,7 @@ class common(object):
             hBoxExt = QHBoxLayout()
             hBoxExt.setAlignment(Qt.AlignCenter)
 
+
             if targetFlag != "alr":     # 학습탭을 제외한 나머지 탭은 체크박스 생성
                 chkboxExt = QtWidgets.QCheckBox()
                 if targetFlag == "ext":  # 검출탭의 경우 체크박스는 검출이 끝난 이후 표출
@@ -740,7 +743,7 @@ class common(object):
         """
         클래스 리스트 체크박스를 일괄 핸들링 할 수 있다.
         :param typeStr: ext / afc / alr
-        :param flag: clear(초기화) / show(보임) / hide(숨김)
+        :param flag: clear(초기화) / show(보임) / hide(숨김) / delete(클래스 리스트 초기화)
         :return:
         """
         firstWidget = None  # target TableWidget
@@ -753,10 +756,16 @@ class common(object):
         elif typeStr == "alr":
             firstWidget = self.form.alr_tableWidget_classList
 
+
         stateCd = True
         for wIdx in range(firstWidget.columnCount()):
             targetWidget = firstWidget.cellWidget(0, wIdx)
             if targetWidget == None:
+                continue
+
+            # 해당 셀 위젯 초기화(삭제)
+            if flag == "delete":
+                firstWidget.removeCellWidget(0, wIdx)
                 continue
 
             targetLayout = targetWidget.layout()
