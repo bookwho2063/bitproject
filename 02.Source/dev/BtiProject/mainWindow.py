@@ -1890,11 +1890,11 @@ class Ui_Form(QtCore.QObject):
             if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
                 self.cm.quit_videoPlayer()
                 self.afc.quit_afcProcess()
-                self.initVideoLabel()
             else:
                 return
 
         if not self.cm.local_upload() == "":
+            self.initVideoLabel()
             self.cm.video_player.openVideo(self.cm.uploadPath)
             self.cm.video_player.afc.setUp(self.cm.form)
 
@@ -2418,18 +2418,14 @@ class Ui_Form(QtCore.QObject):
         self.alr_label_extMd.setPixmap(image)
         print("alr size : {} ".format(self.alr_label_extMd.size()))
 
-    # @QtCore.Slot(int,int)
-    # def set_afc_after_time(self,cur_time,total_time):
-    #     cur_seconds = int(cur_time % 60)
-    #     cur_minutes = int((cur_time / 60) % 60)
-    #     cur_hours = int(cur_time / 3600)
-    #     total_seconds = int(total_time % 60)
-    #     total_minutes = int((total_time / 60) % 60)
-    #     total_hours = int(total_time / 3600)
-    #     update_time = "{0:02d}:{1:02d}:{2:02d} / {3:02d}:{4:02d}:{5:02d}".format(cur_hours,cur_minutes,cur_seconds,
-    #                                                                              total_hours,total_minutes,
-    #                                                                              total_seconds)
-    #     self.afc_after_time.setText(update_time)
+    def closeEvent(self, event):
+        self.thread.quit()
+        self.thread.wait()
+
+        self.cm.video_player.stopVideo()
+        self.cm.video_player.wait()
+
+        super(Ui_Form, self).closeEvent(event)
 
 
 if __name__ == "__main__":

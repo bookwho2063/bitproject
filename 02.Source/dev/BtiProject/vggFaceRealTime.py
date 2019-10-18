@@ -410,7 +410,8 @@ class recognitionFace(object):
 
         # 페이스 데이터 검증
         if len(face_imgs) > 0:
-            features_faces = self.model.predict(face_imgs)
+            with self.session.as_default():
+                features_faces = self.model.predict(face_imgs)
             predicted_names = [self.identify_face(features_face) for features_face in features_faces]
 
             # 데이터 메타데이터셋 정립
