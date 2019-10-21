@@ -11,8 +11,14 @@ class Extract(object):
         MEMO : 영상검출 테이블 내역을 초기화 한다. (전체삭제도 동일사용)
         :return:
         """
-        while self.table.model().rowCount() > 0:
-            self.table.model().removeRow(self.table.model().rowCount()-1)
+        retCode = True
+        try:
+            while self.table.model().rowCount() > 0:
+                self.table.model().removeRow(self.table.model().rowCount()-1)
+        except:
+            retCode = False
+
+        return retCode
 
     def deleteRowData(self):
         """
@@ -127,11 +133,6 @@ class Extract(object):
         imgItems.setEditable(False)
         dModel.setItem(rowCnt, 1, imgItems)
 
-        # 검출 결과 정보 입력
-        #
-        print("dataList :: ")
-        print(dataList)
-
         # 검출 정보 추출 (프레임 번호 제외)
         extInfoStr = ""     # 검출 명,정확도 정보
         extCoordStr = ""    # 검출 좌표 정보
@@ -162,12 +163,6 @@ class Extract(object):
                 extCoordStr = coordXStr + "," + coordYStr + "," + coordWStr + "," + coordHStr + "/"
             elif extCoordStr != "":
                 extCoordStr = extCoordStr + coordXStr + "," + coordYStr + "," + coordWStr + "," + coordHStr + "/"
-
-        print("extInfoStr :: ", extInfoStr)
-        print("dataList[-1] :: ", dataList[-1])
-        print("extCoordStr :: ", extCoordStr)
-        print("names :: ", names)
-        print("pers :: ", pers)
 
         for colIdx in range(2,7):
             if colIdx == 2:     # 검출 정보

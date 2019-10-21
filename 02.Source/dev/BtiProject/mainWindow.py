@@ -303,7 +303,7 @@ class Ui_Form(QtCore.QObject):
         self.horizontalLayout.addWidget(self.ext_pushButton_selectSave)
         self.verticalLayout_6.addLayout(self.horizontalLayout)
         self.verticalLayout_8.addWidget(self.ext_splitter_Md)
-        self.mainTabWidget.addTab(self.tab_ext, "영상검출")
+        self.mainTabWidget.addTab(self.tab_ext, "영상클립")
 
         ########
         #	afcTab Default
@@ -1455,9 +1455,28 @@ class Ui_Form(QtCore.QObject):
         영상 clip의 클래스 선택 checkbox buttongroup을 클릭할 시 동작한다.
         :return:
         '''
-
+        # TODO : 19.10.21 Select Target Class Sort
         print("click_ext_btnGrp")
-        print("현재 선택된 class : {}".format(self.cm.getSelectedClassList('ext')))
+        # print("현재 선택된 class : {}".format(self.cm.getSelectedClassList('ext')))
+
+        selectClass = self.cm.getSelectedClassList('ext')
+
+        if len(self.cm.video_player.totalExtData) <= 0:
+            self.cm.create_massage_box("confirm", text='검색 내역이 존재하지않습니다.')
+            return
+
+        # 검출 내역중 체크박스 선택 클래스 내역 추출
+        if self.extClass.clearRowData():
+            sortingDataList = list()        # 생성 데이터 리스트
+            for targetFrameList in self.cm.video_player.totalExtData:       # 전체 프레임 데이터 리스트
+                for targetIdx in range(len(targetFrameList)-1):
+                    # 선택한 클래스 있는지 확인
+                    for target in selectClass:
+                        if str(targetFrameList[targetIdx]['labelname']) == str(target):
+                            # 소팅 데이터 및 대상 썸네일 이미지 정리
+                            self.extClass.extAddRowData(self.cm.video_player.totalExtImgs[targetIdx], targetFrameList)
+        else:
+            print("테이블 내역 초기화에 실패하였습니다.")
 
 
     def click_afc_btnGrp(self):
@@ -1585,11 +1604,15 @@ class Ui_Form(QtCore.QObject):
                 return False
 
             if movedIndex < cntIndes:
-                if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n탭을 이동하시겠습니까?'):
+                if self.cm.create_massage_box("yesno", text='기 추출된 내역이 모두 삭제됩니다.\n탭을 이동하시겠습니까?'):
                     self.afc.quit_afcProcess()
                     self.extClass.clearRowData()
                     self.cm.quit_videoPlayer()
                     self.initVideoLabel()
+
+                    # 검출 전체 데이터 초기화
+                    self.cm.video_player.totalExtData = list()
+                    self.cm.video_player.totalExtImgs = list()
 
                     # 검출대상리스트 헤더 및 기본 설정 (검출 / 오토포커싱 공통)
                     self.comm_tableWidget_classList_tHeader_setting()
@@ -1848,6 +1871,9 @@ class Ui_Form(QtCore.QObject):
 
         self.cm.video_player.pauseVideo()
         self.cm.video_player.usedFaceStateNm = "vggface"
+
+        # 가장 최신의 피클파일로 설정
+        self.cm.video_player.vggRecogModel.precompute_features_map = self.cm.selectLastUptPickleFeatureList("map")
 
         if self.cm.video_player.ext_state == 0:
             self.cm.video_player.ext_state = 1
@@ -2164,6 +2190,12 @@ class Ui_Form(QtCore.QObject):
                 self.cm.classCheckBoxOnOffHandler("afc", "delete")
                 self.cm.classCheckBoxOnOffHandler("alr", "delete")
 
+                # video_player 의 __init__ 타겟 피클파일 변수정보를 최신화 시켜준다.
+                self.cm.video_player.targetPicklePath = self.cm.video_player.selectLastUptPickleFeatureList("path")
+                self.cm.video_player.usedFaceStateNm = "vggface"
+                # 가장 최신의 피클파일로 설정
+                self.cm.video_player.vggRecogModel.precompute_features_map = self.cm.selectLastUptPickleFeatureList("map")
+
                 # 검출 대상 리스트 생성(검출탭, 포커싱탭, 학습탭)
                 self.ext_btnGrp = self.cm.createTargetClassList("ext")
                 self.afc_btnGrp = self.cm.createTargetClassList("afc")
@@ -2173,11 +2205,6 @@ class Ui_Form(QtCore.QObject):
                 self.cm.create_massage_box("confirm", "학습이 실패하였습니다.")
 
             self.stackedLayout.setCurrentIndex(1)
-
-
-
-
-
 
 
     def click_alr_pushButton_play(self):

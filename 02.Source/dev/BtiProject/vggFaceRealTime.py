@@ -70,14 +70,14 @@ class recognitionFace(object):
     """
     INFO : VGGFACE2를 이용하여 영상 내 프레임에서 얼굴을 검출하는 클래스
     """
-    def __new__(cls, precompute_features_file=None, weight_file=None, face_size=224):
+    def __new__(cls, weight_file=None, face_size=224):
         if not hasattr(cls, 'instance'):
             cls.instance = super(recognitionFace, cls).__new__(cls)
         return cls.instance
 
-    def __init__(self, precompute_features_file=None, face_size=224):
+    def __init__(self, face_size=224):
         self.face_size = face_size
-        self.precompute_features_map = load_stuff(precompute_features_file)
+        self.precompute_features_map = None
         self.face_cascade = None
         self.model = None
 
@@ -91,18 +91,50 @@ class recognitionFace(object):
         self.savePkPath = "./00.Resource/data/pickle/"  # 피클파일 저장경로
         self.savePkNm = "savePickle_"  # 피클파일 저장파일명
 
+    def selectLastUptPickleFeatureList(self, flag):
+        """
+        pickle 폴더 내 마지막으로 생성된 .pickle 파일 조회 후 피처 리스트 리턴
+        :param: flag(path:pickle Path(str) / feature:pickle Feature(list)
+        :return:
+        """
+        pFolderPath = "./00.Resource/data/pickle"
+        pFileList = list()
+        featureList = list()
+        for file in os.listdir(pFolderPath):
+            if file.split(".")[1] != "pickle":
+                continue
+            pFileList.append(os.path.join(pFolderPath, file))
+
+        pFileList.sort(key=os.path.getmtime)
+        if flag == "path":
+            return pFileList[-1]
+        elif flag == "feature":
+            precompute_features_map = self.load_stuff(pFileList[-1])
+
+            for person in precompute_features_map:
+                featureList.append(person.get("name"))
+
+            return featureList
+
+    def changePicklefile(self):
+        self.precompute_features_map = load_stuff(self.selectLastUptPickleFeatureList("path"))
+
     def vggRecogInit(self):
         """
         클래스를 초기화한다 (최초 프로그램 시작시 수행하므로 기타변수들 여기서 추가하지말 것)
         :return:
         """
         if self.model == None:
-            self.model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3),
-                                 pooling='avg')  # pooling: None, avg or max
+            print("model :: ", self.model)
+            print("model type :: ", type(self.model))
+            self.model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg')  # pooling: None, avg or max
             self.model.predict(np.zeros((1, 224, 224, 3)))
             self.session = K.get_session()
             self.graph = tf.get_default_graph()
             self.graph.finalize()
+
+    def changePickle(self, targetPath):
+        load_stuff(targetPath)
 
     def createPickle(self):
         """
@@ -246,7 +278,12 @@ class recognitionFace(object):
             # 이미지 데이터 특정경로 저장
             imgfile = os.path.basename(self.className) + str(frameNum) + ".png"
             imgfile = os.path.join(str(self.saveFolder), str(imgfile))
-            print("imgfile :: ", imgfile)
+
+            # rgb to bgr
+            b,g,r = cv2.split(face_img)
+            face_img = cv2.merge([r,g,b])
+
+            # img write
             cv2.imwrite(imgfile, face_img)
 
 
@@ -351,11 +388,11 @@ class recognitionFace(object):
     def identify_face(self, features, threshold=100):
 
         # name 변경용 dict
-        nameChDict = dict()
-        nameChDict['로제'] = 'Rose'
-        nameChDict['제니'] = 'Jennie'
-        nameChDict['리사'] = 'Lisa'
-        nameChDict['지수'] = 'Jisoo'
+        # nameChDict = dict()
+        # nameChDict['로제'] = 'Rose'
+        # nameChDict['제니'] = 'Jennie'
+        # nameChDict['리사'] = 'Lisa'
+        # nameChDict['지수'] = 'Jisoo'
 
         distances = []
         for person in self.precompute_features_map:
@@ -364,12 +401,13 @@ class recognitionFace(object):
             distances.append(distance)
         min_distance_value = min(distances)
         min_distance_index = distances.index(min_distance_value)
-        print("min_distance_value :: ", min_distance_value)
-        print("self.precompute_features_map[min_distance_index].get(name) :: ",
-              self.precompute_features_map[min_distance_index].get("name"))
+
+        print("=== 검출 대상명 :: ", self.precompute_features_map[min_distance_index].get("name"))
+        print("=== 스코어 :: ", min_distance_value)
+
         if min_distance_value < threshold:
-            # return str(self.precompute_features_map[min_distance_index].get("name")), str(min_distance_value)
-            return nameChDict[str(self.precompute_features_map[min_distance_index].get("name"))], str(min_distance_value)
+            return str(self.precompute_features_map[min_distance_index].get("name")), str(min_distance_value)
+            # return nameChDict[str(self.precompute_features_map[min_distance_index].get("name"))], str(min_distance_value)
         else:
             return "???", "???"
 
@@ -385,7 +423,6 @@ class recognitionFace(object):
         :param frame:
         :return:
         """
-
         self.osSetting()
         predicted_names = list()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -432,10 +469,3 @@ class recognitionFace(object):
             self.draw_label(frame, (face[0], face[1]), label)
 
         return frame, tempCoordList
-
-
-# if __name__ == "__main__":
-#
-#     data = load_stuff("./00.Resource/data/pickle/precompute_features_40000_bat4.pickle")
-#     print(type(data))
-#     print(data)
