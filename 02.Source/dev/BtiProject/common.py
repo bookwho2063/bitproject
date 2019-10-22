@@ -334,6 +334,7 @@ class cv_video_player(QThread):
         self.cap.release()
         self.ext_state = 0
         self.afc_state = 0
+        self.alr_state = 0
         self.current_workingFrame = 0
         self.changeTime.emit(0,0)
 
