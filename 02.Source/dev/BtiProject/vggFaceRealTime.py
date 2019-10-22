@@ -21,7 +21,6 @@ def load_stuff(filename):
     :param filename:
     :return:
     """
-    print("filename :: ", filename)
     saved_stuff = open(filename, "rb")
     stuff = pickle.load(saved_stuff)
     saved_stuff.close()
@@ -128,8 +127,8 @@ class recognitionFace(object):
         :return:
         """
         if self.model == None:
-            print("model :: ", self.model)
-            print("model type :: ", type(self.model))
+            # print("model :: ", self.model)
+            # print("model type :: ", type(self.model))
             self.model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg')  # pooling: None, avg or max
             self.model.predict(np.zeros((1, 224, 224, 3)))
             self.session = K.get_session()
@@ -256,7 +255,6 @@ class recognitionFace(object):
         """
         # OS에 따라 처리분기
         self.osSetting()
-        print("OS Setting OK")
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(
@@ -266,24 +264,15 @@ class recognitionFace(object):
             minSize=(64, 64)
         )
 
-        print("self.face_cascade.detectMultiScale OK")
-        print("self.face_cascade.detectMultiScale faces :: ", faces)
-
         # only keep the biggest face as the main subject
         face = None
         if len(faces) > 1:  # Get the largest face as main face
             face = max(faces, key=lambda rectangle: (rectangle[2] * rectangle[3]))  # area = w * h
-            print("얼굴이 여러개라 가장 큰 값의 얼굴만 챙깁니다.")
         elif len(faces) == 1:
             face = faces[0]
-            print("얼굴이 한개라 한개있는 데이터 얼굴만 챙깁니다.")
 
         if face is not None:
-            print("face is not None :: ")
-
             face_img, cropped = self.cropFace(frame, face, margin=40, size=self.faceSize)
-
-            print("face_img, cropped OK :: {} {}".format(face_img, cropped))
 
             (x, y, w, h) = cropped
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 200, 0), 2)
@@ -292,15 +281,12 @@ class recognitionFace(object):
             # 이미지 데이터 특정경로 저장
             imgfile = os.path.basename(self.className) + str(frameNum) + ".png"
             imgfile = os.path.join(str(self.saveFolder), str(imgfile))
-            print("이미지 명 :: ", imgfile)
 
             # 이미지 데이터파일명이 폴더 내 존재하는 경우
             if os.path.exists(imgfile):
-                print("===== 대상 이미지가 폴더에 존재해서 명칭을 변경합니다.")
                 dayOfMillieSecond = getDayTime("yyyymmddhhmmssmm")
                 imgfile = os.path.basename(self.className) + str(dayOfMillieSecond) + ".png"
                 imgfile = os.path.join(str(self.saveFolder), str(imgfile))
-            print("===== 변경 이미지 명 :: ", imgfile)
 
             # rgb to bgr
             b,g,r = cv2.split(face_img)
@@ -316,7 +302,6 @@ class recognitionFace(object):
         :param imagePath:
         :return:
         """
-        print("image2x.imagePath :: ", imagePath)
         img = image.load_img(imagePath, target_size=(224, 224))
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
@@ -324,14 +309,7 @@ class recognitionFace(object):
         return x
 
     def calMeanFeature(self, imageFolder):
-        print("imageFolder :: ", imageFolder)
         faceImages = list(glob.iglob(os.path.join(imageFolder, "*")))
-
-        print("faceImages :: ")
-        print(faceImages)
-
-        print("faceImages len :: ")
-        print(len(faceImages))
 
         def chunks(l, n):
             """
@@ -348,14 +326,7 @@ class recognitionFace(object):
 
         for faceImageChunk in faceImageChunks:
             images = np.concatenate([self.image2x(faceImage) for faceImage in faceImageChunk])
-            print("images type :: ", type(images))
-            print("images :: ", images)
             batchFvecs = self.model.predict(images)
-
-            print("type :: ",type(batchFvecs))
-            print("batchFvecs :: ", batchFvecs)
-            print("fvecs :: ", fvecs)
-
             if fvecs is None:
                 fvecs = batchFvecs
             else:
@@ -425,8 +396,8 @@ class recognitionFace(object):
         min_distance_value = min(distances)
         min_distance_index = distances.index(min_distance_value)
 
-        print("=== 검출 대상명 :: ", self.precompute_features_map[min_distance_index].get("name"))
-        print("=== 스코어 :: ", min_distance_value)
+        # print("=== 검출 대상명 :: ", self.precompute_features_map[min_distance_index].get("name"))
+        # print("=== 스코어 :: ", min_distance_value)
 
         if min_distance_value < threshold:
             return str(self.precompute_features_map[min_distance_index].get("name")), str(min_distance_value)

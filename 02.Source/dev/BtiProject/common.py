@@ -203,7 +203,6 @@ class cv_video_player(QThread):
                     # 영상 종료 시 각 탭별 상태값 변경
                     if self.ext_state == 1:
                         self.ext_state = 2
-                        print("영상 클립 추출을 종료합니다.")
                         self.endExt.emit()
 
                     if self.afc_state == 1:
@@ -399,7 +398,6 @@ class common(object):
         :return: URL PATH String
         """
         self.saveUrlPath = QFileDialog.getExistingDirectory(None, "폴더선택", "/", QFileDialog.ShowDirsOnly)
-        print("select folder :: ", self.saveUrlPath)
         return self.saveUrlPath
 
     def local_upload(self):
@@ -407,7 +405,6 @@ class common(object):
         Title : 로컬 경로의 파일의 경로를 읽어온다
         '''
         path =  QFileDialog.getOpenFileName(QFileDialog(),"비디오 선택","","Video Files (*.avi *.mp4)")[0]
-        print(path)
         if path == "":
             return path
         else:
@@ -678,7 +675,6 @@ class common(object):
             targetLabel2 = targetLayout2.itemAt(1).widget()
             selectedList.append(targetLabel2.text())
 
-        print("selectedList(className) :: ", selectedList)
         return selectedList
 
     def createTargetClassList(self, targetFlag):
@@ -830,9 +826,6 @@ class common(object):
             # format = infoList.get("format", None)
             ext = infoList.get("ext",None)
 
-            print("format :{} ".format(format))
-            print("ext :{} ".format(ext))
-
             if title is not None or title is not "":
                 if ydl.download([str(url)]) == 1:
                     self.create_massage_box("confirm","URL 영상 다운로드에 실패하였습니다.\nURL을 확인해주세요.")
@@ -870,10 +863,10 @@ class common(object):
             size = (int(self.video_player.cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
                     int(self.video_player.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
-        print("file name : {}".format(file_name))
-        print("fps : {}".format(self.video_player.fps))
-        print(fourcc)
-        print("size : {}".format(size))
+        # print("file name : {}".format(file_name))
+        # print("fps : {}".format(self.video_player.fps))
+        # print(fourcc)
+        # print("size : {}".format(size))
         self.out = cv2.VideoWriter(file_name,fourcc,self.video_player.fps,size)
 
     def saveVideo(self, resultList, targetFlag='ext'):
@@ -895,7 +888,6 @@ class common(object):
             import csv
             resultList[0][0]['frame_num'] = None
             keys = resultList[0][0].keys()
-            print(keys)
             with open(file_name,'wt',newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file,keys)
                 dict_writer.writeheader()
@@ -910,7 +902,6 @@ class common(object):
                     json.dump(result,output_file,ensure_ascii=False,indent="\t")
 
     def closeVideoWriter(self):
-        print("다운로드 완료")
         self.out.release()
 
     def downloadVideo(self, frameList):

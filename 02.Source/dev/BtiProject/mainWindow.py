@@ -1491,7 +1491,7 @@ class Ui_Form(QtCore.QObject):
 
         changed_className = self.cm.getSelectedClassList('afc')
 
-        print("현재 클래스 : {} 변경될 클래스 : {}".format(self.afc.getClassName(),changed_className))
+        # print("현재 클래스 : {} 변경될 클래스 : {}".format(self.afc.getClassName(),changed_className))
 
         if not self.afc.getClassName() == changed_className:
             self.afc.setClassName(changed_className)
@@ -1503,28 +1503,28 @@ class Ui_Form(QtCore.QObject):
         MEMO : 내려받기 확장자 변경 이벤트
         :return:
         """
-        print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
+        # print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
     def change_opt_comboBox_downFileDef(self):
         """
         MEMO : 내려받기 화질 선택 변경 이벤트
         :return:
         """
-        print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
+        # print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
     def change_opt_comboBox_coordFmt(self):
         """
         MEMO : 좌표파일 확장자 선택 변경 이벤트
         :return:
         """
-        print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
+        # print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
     def change_opt_comboBox_bufTime(self):
         """
         MEMO : 추출 영상 버퍼시간 변경 이벤트
         :return:
         """
-        print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
+        # print("opt_comboBox_bufTime_Change 변경 값 ::",self.opt_comboBox_bufTime.currentText())
 
 
     def comm_tableWidget_classList_tHeader_setting(self):
@@ -1597,10 +1597,10 @@ class Ui_Form(QtCore.QObject):
     def eventFilter(self, object, event):
         # TODO : 영상 추출, 오토포커싱 초기화
         if object is self.mainTabWidget.tabBar() and event.type() == QtCore.QEvent.MouseButtonPress :
-            print(event.type())
+            # print(event.type())
             movedIndex = object.tabAt(event.pos()) # 이동할 인덱스
             currentIndex = object.currentIndex()  # 현재 인덱스
-            print(object.preIndex, currentIndex, movedIndex)
+            # print(object.preIndex, currentIndex, movedIndex)
             cntIndes = self.mainTabWidget.count() - 1
 
             if currentIndex == cntIndes and movedIndex == object.preIndex:
@@ -1622,7 +1622,7 @@ class Ui_Form(QtCore.QObject):
 
                     object.preIndex = movedIndex
                     event.accept()
-                    print(object.preIndex,currentIndex,movedIndex)
+                    # print(object.preIndex,currentIndex,movedIndex)
 
                     # 탭 검출대상 리스트 초기화
                     self.cm.createTargetClassList("ext")
@@ -1642,7 +1642,7 @@ class Ui_Form(QtCore.QObject):
 
 
         elif object is self.mainTabWidget.tabBar() and event.type() == QtCore.QEvent.KeyPress:
-            print("key pressed!!")
+            # print("key pressed!!")
             event.ignore()
             return True
 
@@ -1697,7 +1697,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출 탭 클릭
         :return:
         """
-        print("click_tab_ext")
+        # print("click_tab_ext")
         # if self.cm.create_mcged")
 
 
@@ -1729,7 +1729,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.영상 내려받기 버튼 클릭
         :return:
         """
-        print("click_ext_pushButton_mdDown")
+        # print("click_ext_pushButton_mdDown")
 
 
         resultList = self.extClass.extGetDownloadData()
@@ -1756,9 +1756,7 @@ class Ui_Form(QtCore.QObject):
         self.stackedLayout.setCurrentIndex(0)
 
         if self.cm.url_upload() is not "":
-            print(self.cm.uploadUrl)
             self.cm.uploadPath = self.cm.downloadYouTubeUrl(self.cm.uploadUrl)
-            print(self.cm.uploadPath)
             if self.cm.uploadPath  is not "":
                 if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
                     # video player thread 종료 후 재시작
@@ -1832,8 +1830,6 @@ class Ui_Form(QtCore.QObject):
 
         if self.clearYN:
             resultData = self.extClass.extGetDownloadData('all')
-            print("download Data info :: (all)")
-            print(resultData)
             ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
 
     def click_ext_pushButton_selectSave(self):
@@ -1981,9 +1977,7 @@ class Ui_Form(QtCore.QObject):
         self.stackedLayout.setCurrentIndex(0)
 
         if self.cm.url_upload() is not "":
-            print(self.cm.uploadUrl)
             self.cm.uploadPath = self.cm.downloadYouTubeUrl(self.cm.uploadUrl)
-            print(self.cm.uploadPath)
 
             if self.cm.video_player.isRunning() and self.cm.video_player.afc_state:
                 # video player thread 종료 후 재시작
@@ -2057,7 +2051,7 @@ class Ui_Form(QtCore.QObject):
         print("afc_label_after_Md")
 
     def chaened_afc_horizontalSlider(self):
-        print("slider min,max {} {}".format(self.afc_horizontalSlider.minimum(),self.afc_horizontalSlider.maximum()))
+        # print("slider min,max {} {}".format(self.afc_horizontalSlider.minimum(),self.afc_horizontalSlider.maximum()))
         if self.cm.video_player.isPlaying():
             self.cm.video_player.pauseVideo()
             self.cm.video_player.moveFrame(self.afc_horizontalSlider.value())
@@ -2108,11 +2102,9 @@ class Ui_Form(QtCore.QObject):
             # 해당 클래스명으로 폴더생성
             path = self.opt.get_saveImgDir().replace('\\', '/')
             if os.path.exists(path) == False:
-                print("os.path.exists(path) == False :: ")
                 os.mkdir(path)
             fullPath = os.path.join(path, className)
             if os.path.exists(fullPath) == False:
-                print("os.path.exists(fullPath) == False :: ")
                 os.mkdir(fullPath)
 
             # 클래스 폴더 관련 변수 데이터 저장
@@ -2338,7 +2330,7 @@ class Ui_Form(QtCore.QObject):
         afc_image = QtGui.QPixmap.fromImage(image)
         # 좌표 처리
         afc_image = afc_image.copy(QtCore.QRect(405,77,500,430))  # QtCore.QRect(x, y, width, height)
-        print("width : {} height : {}".format(afc_image.width(), afc_image.height()))
+        # print("width : {} height : {}".format(afc_image.width(), afc_image.height()))
         afc_image = afc_image.scaled(self.afc_label_after_Md.size(),QtCore.Qt.KeepAspectRatio)
         # self.afc_label_before_Md.setPixmap(image)
         self.afc_label_after_Md.setPixmap(afc_image)
@@ -2398,9 +2390,9 @@ class Ui_Form(QtCore.QObject):
 
     @QtCore.Slot(int)
     def set_afc_totalTime(self, total_time):
-        print(total_time)
+        # print(total_time)
         self.afc_horizontalSlider.setMaximum(total_time)
-        print(self.afc_horizontalSlider.maximum())
+        # print(self.afc_horizontalSlider.maximum())
 
     @QtCore.Slot(int,int)
     def set_alr_time(self,cur_time,total_time):
@@ -2431,7 +2423,7 @@ class Ui_Form(QtCore.QObject):
         self.afc_label_after_Md.setPixmap(image)
         image = image.scaled(self.alr_label_extMd.size(),QtCore.Qt.KeepAspectRatio)
         self.alr_label_extMd.setPixmap(image)
-        print("alr size : {} ".format(self.alr_label_extMd.size()))
+        # print("alr size : {} ".format(self.alr_label_extMd.size()))
 
     def closeEvent(self, event):
         self.thread.quit()
@@ -2449,7 +2441,7 @@ if __name__ == "__main__":
 
     # 패키지 경로(절대/상대) Validation Proc
     if __package__ is None:
-        print(path.dirname(path.dirname(path.abspath(__file__))))
+        # print(path.dirname(path.dirname(path.abspath(__file__))))
         sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
         from extract import Extract
         from option import Option
