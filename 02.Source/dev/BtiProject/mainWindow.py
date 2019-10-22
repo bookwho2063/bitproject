@@ -2029,12 +2029,13 @@ class Ui_Form(QtCore.QObject):
         print("afc_pushButton_stop")
 
         # TODO : 초기화 붙이기
-        self.cm.video_player.afc_state = 2
-        if self.afc_horizontalSlider.isEnabled():
-            self.afc_horizontalSlider.setDisabled(True)
-        else:
-            self.afc_horizontalSlider.setDisabled(False)
+        self.afc.quit_afcProcess()
+        self.cm.quit_videoPlayer()
+        self.initVideoLabel()
 
+        # 검출 전체 데이터 초기화
+        self.cm.video_player.totalExtData = list()
+        self.cm.video_player.totalExtImgs = list()
 
     def click_afc_label_before_Md(self):
         """
@@ -2426,8 +2427,6 @@ class Ui_Form(QtCore.QObject):
         # print("alr size : {} ".format(self.alr_label_extMd.size()))
 
     def closeEvent(self, event):
-        self.thread.quit()
-        self.thread.wait()
 
         self.cm.video_player.stopVideo()
         self.cm.video_player.wait()

@@ -42,7 +42,6 @@ class Autofocus(QObject):
         current_accuracy = 0
         if not resultList == []:
             for result in resultList:
-                print(result)
                 if result['labelname'] == self.class_name and current_accuracy < float(result['percent']):
                     current_result = result
                     current_accuracy = float(result['percent'])
@@ -55,8 +54,8 @@ class Autofocus(QObject):
 
             x,y = [x if x > 0 else 0 for x in [x,y]]
 
-            print("result",current_result)
-            print("make_afcSection ",[x,y,self.afc_width,self.afc_height])
+            # print("result",current_result)
+            # print("make_afcSection ",[x,y,self.afc_width,self.afc_height])
             return [x,y,self.afc_width,self.afc_height]
 
 
@@ -82,8 +81,8 @@ class Autofocus(QObject):
                 self.afc_coordDict[index] = result
                 self.dst_coord = self.afc_coordDict[index]
 
-        print("frame : {} cur_coord : {} dst_coord dst_coord : {}".format(current_workingFrame,index,self.cur_coord,
-                                                                          self.dst_coord))
+        # print("frame : {} cur_coord : {} dst_coord dst_coord : {}".format(current_workingFrame,index,self.cur_coord,
+        #                                                                   self.dst_coord))
 
         self.cur_coord = self.smooth_movedSection(self.cur_coord,self.dst_coord,
                                                   current_workingFrame % self.afc_extFrameRate,
@@ -158,19 +157,19 @@ class Autofocus(QObject):
 
         return move_coord
 
-    def play_afcResult(self,current_workingFrame):
-        index = int(current_workingFrame / self.afc_extFrameRate)
-        if current_workingFrame == 0:
+    def play_afcResult(self,playFrame):
+        index = int(playFrame / self.afc_extFrameRate)
+        if playFrame == 0:
             self.cur_coord = self.afc_coordDict[0]
             self.dst_coord = self.cur_coord
 
-        if not current_workingFrame % self.afc_extFrameRate and index in self.afc_coordDict.keys():
+        if not playFrame % self.afc_extFrameRate and index in self.afc_coordDict.keys():
             self.dst_coord = self.afc_coordDict[index]
 
-            print("frame : {} index : {} dst_coord : {}".format(current_workingFrame,index,self.dst_coord))
+            # print("frame : {} index : {} dst_coord : {}".format(current_workingFrame,index,self.dst_coord))
 
         self.cur_coord = self.smooth_movedSection(self.cur_coord,self.dst_coord,
-                                                  current_workingFrame % self.afc_extFrameRate,
+                                                  playFrame % self.afc_extFrameRate,
                                                   self.afc_extFrameRate)
 
         return self.cur_coord
@@ -185,7 +184,7 @@ class Autofocus(QObject):
             resize_height = int(ratio * height)
 
             if resize_height > tartget_height:
-                resize_height = tartget_height
+                resize_heightc = tartget_height
             return x,y,(resize_width,resize_height)
         else:
             ratio = target_width / width
@@ -200,11 +199,3 @@ class Autofocus(QObject):
 
             return x,y,(resize_width,resize_height)
 
-    if __name__ == '__main__':
-        afc = Autofocus()
-
-        x,y,ratio = afc.set_saveCoord(300,600,1080,1920)
-        print(x,300 * ratio,y,600 * ratio)
-
-        x,y,ratio = afc.set_saveCoord(900,900,1080,1920)
-        print(x,300 * ratio,y,600 * ratio)
