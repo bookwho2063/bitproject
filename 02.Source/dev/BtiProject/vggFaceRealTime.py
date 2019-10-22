@@ -17,7 +17,7 @@ from scipy.spatial import distance as scipyDistance
 
 def load_stuff(filename):
     """
-        피클 파일 로드
+    피클 파일 로드
     :param filename:
     :return:
     """
@@ -57,11 +57,9 @@ def getDayTime(flag):
         return dt
 
 
-
-
 def appendPickleStuff(stuff, name, feature):
     """
-        pickle 데이터를 추가한다 (검출 얼굴 임베딩 데이터 값 추가)
+    pickle 데이터를 추가한다 (검출 얼굴 임베딩 데이터 값 추가)
     :param stuff: 피클 데이터
     :param appendData:
     :return:
@@ -111,7 +109,7 @@ class recognitionFace(object):
         if flag == "path":
             return pFileList[-1]
         elif flag == "feature":
-            precompute_features_map = self.load_stuff(pFileList[-1])
+            precompute_features_map = load_stuff(pFileList[-1])
 
             for person in precompute_features_map:
                 featureList.append(person.get("name"))

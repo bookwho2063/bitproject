@@ -137,6 +137,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_tableWidget_classList.setObjectName("ext_tableWidget_classList")
 
         self.ext_tableWidget_classList.setColumnCount(10)
+        self.ext_tableWidget_classList.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.ext_tableWidget_classList.setRowCount(1)
         self.ext_tableWidget_classList.horizontalHeader().hide()
         self.ext_tableWidget_classList.verticalHeader().hide()
@@ -263,7 +264,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_default_tHeader_setting()
 
         # 테이블 Row Grid show()
-        self.ext_tableView_extResultList.setShowGrid(False)
+        self.ext_tableView_extResultList.setShowGrid(True)
 
         self.verticalLayout_6.addWidget(self.ext_tableView_extResultList)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -287,20 +288,20 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_selectDelete.setFont(font)
         self.ext_pushButton_selectDelete.setObjectName("ext_pushButton_selectDelete")
         self.horizontalLayout.addWidget(self.ext_pushButton_selectDelete)
-        self.ext_pushButton_allSave = QtWidgets.QPushButton(self.ext_widget_result_Md)
-        self.ext_pushButton_allSave.setMaximumSize(QtCore.QSize(16777215, 57))
-        font = QtGui.QFont()
-        font.setPointSize(9)
-        self.ext_pushButton_allSave.setFont(font)
-        self.ext_pushButton_allSave.setObjectName("ext_pushButton_allSave")
-        self.horizontalLayout.addWidget(self.ext_pushButton_allSave)
-        self.ext_pushButton_selectSave = QtWidgets.QPushButton(self.ext_widget_result_Md)
-        self.ext_pushButton_selectSave.setMaximumSize(QtCore.QSize(16777215, 57))
-        font = QtGui.QFont()
-        font.setPointSize(9)
-        self.ext_pushButton_selectSave.setFont(font)
-        self.ext_pushButton_selectSave.setObjectName("ext_pushButton_selectSave")
-        self.horizontalLayout.addWidget(self.ext_pushButton_selectSave)
+        # self.ext_pushButton_allSave = QtWidgets.QPushButton(self.ext_widget_result_Md)
+        # self.ext_pushButton_allSave.setMaximumSize(QtCore.QSize(16777215, 57))
+        # font = QtGui.QFont()
+        # font.setPointSize(9)
+        # self.ext_pushButton_allSave.setFont(font)
+        # self.ext_pushButton_allSave.setObjectName("ext_pushButton_allSave")
+        # self.horizontalLayout.addWidget(self.ext_pushButton_allSave)
+        # self.ext_pushButton_selectSave = QtWidgets.QPushButton(self.ext_widget_result_Md)
+        # self.ext_pushButton_selectSave.setMaximumSize(QtCore.QSize(16777215, 57))
+        # font = QtGui.QFont()
+        # font.setPointSize(9)
+        # self.ext_pushButton_selectSave.setFont(font)
+        # self.ext_pushButton_selectSave.setObjectName("ext_pushButton_selectSave")
+        # self.horizontalLayout.addWidget(self.ext_pushButton_selectSave)
         self.verticalLayout_6.addLayout(self.horizontalLayout)
         self.verticalLayout_8.addWidget(self.ext_splitter_Md)
         self.mainTabWidget.addTab(self.tab_ext, "영상클립")
@@ -382,6 +383,7 @@ class Ui_Form(QtCore.QObject):
         self.afc_tableWidget_classList.setSizeIncrement(QtCore.QSize(0, 80))
         self.afc_tableWidget_classList.setObjectName("afc_tableWidget_classList")
 
+        self.afc_tableWidget_classList.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.afc_tableWidget_classList.setColumnCount(10)
         self.afc_tableWidget_classList.setRowCount(1)
         self.afc_tableWidget_classList.horizontalHeader().hide()
@@ -634,6 +636,7 @@ class Ui_Form(QtCore.QObject):
         self.alr_tableWidget_classList.setMaximumSize(QtCore.QSize(16777215,80))
         self.alr_tableWidget_classList.setObjectName("alr_tableWidget_classList")
 
+        self.alr_tableWidget_classList.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.alr_tableWidget_classList.setColumnCount(10)
         self.alr_tableWidget_classList.setRowCount(1)
         self.alr_tableWidget_classList.horizontalHeader().hide()
@@ -1196,9 +1199,9 @@ class Ui_Form(QtCore.QObject):
         Form.setTabOrder(self.ext_pushButton_localUpload, self.ext_pushButton_mdDown)
         Form.setTabOrder(self.ext_pushButton_mdDown, self.ext_pushButton_allClear)
         Form.setTabOrder(self.ext_pushButton_allClear, self.ext_pushButton_selectDelete)
-        Form.setTabOrder(self.ext_pushButton_selectDelete, self.ext_pushButton_allSave)
-        Form.setTabOrder(self.ext_pushButton_allSave, self.ext_pushButton_selectSave)
-        Form.setTabOrder(self.ext_pushButton_selectSave,self.ext_tableWidget_classList)
+        # Form.setTabOrder(self.ext_pushButton_selectDelete, self.ext_pushButton_allSave)
+        # Form.setTabOrder(self.ext_pushButton_allSave, self.ext_pushButton_selectSave)
+        Form.setTabOrder(self.ext_pushButton_selectDelete,self.ext_tableWidget_classList)
         Form.setTabOrder(self.ext_tableWidget_classList, self.opt_lineEdit_urlSaveDir)
         Form.setTabOrder(self.opt_lineEdit_urlSaveDir, self.opt_pushButton_urlDownDir)
         Form.setTabOrder(self.opt_pushButton_urlDownDir, self.opt_lineEdit_saveDir)
@@ -1234,10 +1237,10 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_mdDown.setVisible(False)
         # self.ext_label_extMd.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.ext_video_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
-        self.ext_pushButton_allClear.setText(QtWidgets.QApplication.translate("Form", "초기화", None, -1))
-        self.ext_pushButton_selectDelete.setText(QtWidgets.QApplication.translate("Form", "선택 삭제", None, -1))
-        self.ext_pushButton_allSave.setText(QtWidgets.QApplication.translate("Form", "전체 내려받기", None, -1))
-        self.ext_pushButton_selectSave.setText(QtWidgets.QApplication.translate("Form", "선택 내려받기", None, -1))
+        self.ext_pushButton_allClear.setText(QtWidgets.QApplication.translate("Form", "검출 내역 초기화", None, -1))
+        self.ext_pushButton_selectDelete.setText(QtWidgets.QApplication.translate("Form", "검출 내역 선택 삭제", None, -1))
+        # self.ext_pushButton_allSave.setText(QtWidgets.QApplication.translate("Form", "전체 내려받기", None, -1))
+        # self.ext_pushButton_selectSave.setText(QtWidgets.QApplication.translate("Form", "선택 내려받기", None, -1))
 
         # 오토 포커싱탭 버튼 및 라벨 설정
         self.afc_pushButton_localUpload.setText(QtWidgets.QApplication.translate("Form", "로컬 업로드", None, -1))
@@ -1371,8 +1374,8 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_stop.clicked.connect(self.click_ext_pushButton_stop)
         self.ext_pushButton_allClear.clicked.connect(self.click_ext_pushButton_allClear)
         self.ext_pushButton_selectDelete.clicked.connect(self.click_ext_pushButton_selectDelete)
-        self.ext_pushButton_allSave.clicked.connect(self.click_ext_pushButton_allSave)
-        self.ext_pushButton_selectSave.clicked.connect(self.click_ext_pushButton_selectSave)
+        # self.ext_pushButton_allSave.clicked.connect(self.click_ext_pushButton_allSave)
+        # self.ext_pushButton_selectSave.clicked.connect(self.click_ext_pushButton_selectSave)
         self.ext_pushButton_startExt.clicked.connect(self.click_ext_pushButton_startExt)
         self.ext_pushButton_mdDown.clicked.connect(self.click_ext_pushButton_mdDown)
         # 영상 검출 내역 더블클릭 이벤트
@@ -1465,8 +1468,6 @@ class Ui_Form(QtCore.QObject):
             self.cm.create_massage_box("confirm", text='검색 내역이 존재하지않습니다.')
             return
 
-        # 검출 내역중 체크박스 선택 클래스 내역 추출
-        # 겹치는 내용 제거
         compareList = list()
         if self.extClass.clearRowData():
             sortingDataList = list()        # 생성 데이터 리스트
@@ -1558,6 +1559,7 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         # QStandardItemModel 로 모델 생성
+        self.modelAttr = QtGui.QStandardItemModel()
         self.modelAttr = QtGui.QStandardItemModel()
         self.modelAttr.setColumnCount(7)
         self.modelAttr.setHeaderData(0, QtCore.Qt.Horizontal, "선택")
@@ -1721,17 +1723,11 @@ class Ui_Form(QtCore.QObject):
         if not self.cm.local_upload() == "":
             self.cm.video_player.openVideo(self.cm.uploadPath)
 
-
-
-
     def click_ext_pushButton_mdDown(self):
         """
         MEMO : 영상검출.영상 내려받기 버튼 클릭
         :return:
         """
-        # print("click_ext_pushButton_mdDown")
-
-
         resultList = self.extClass.extGetDownloadData()
         saveCoord = True
         self.stackedLayout.setCurrentIndex(0)
@@ -1741,6 +1737,7 @@ class Ui_Form(QtCore.QObject):
         self.cm.saveVideo(resultList)
         self.cm.closeVideoWriter()
 
+        # 좌표정보 입력
         if saveCoord:
             self.cm.saveCoordFile(resultList,"./faceExtractCoord{}.{}".format(realTime,self.opt.get_coordFileFmt()),self.opt.get_coordFileFmt())
 
@@ -1821,33 +1818,33 @@ class Ui_Form(QtCore.QObject):
         if self.clearYN:
             self.extClass.deleteRowData()
 
-    def click_ext_pushButton_allSave(self):
-        """
-        MEMO : 영상검출.검출내역테이블 전체 내려받기 버튼 클릭
-        :return:
-        """
-        self.clearYN = self.cm.create_massage_box("YesNo", "전체 검출 내역을 내려받기 하시겠습니까?")
+    # def click_ext_pushButton_allSave(self):
+    #     """
+    #     MEMO : 영상검출.검출내역테이블 전체 내려받기 버튼 클릭
+    #     :return:
+    #     """
+    #     self.clearYN = self.cm.create_massage_box("YesNo", "전체 검출 내역을 내려받기 하시겠습니까?")
+    #
+    #     if self.clearYN:
+    #         resultData = self.extClass.extGetDownloadData('all')
+    #         ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
 
-        if self.clearYN:
-            resultData = self.extClass.extGetDownloadData('all')
-            ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
-
-    def click_ext_pushButton_selectSave(self):
-        """
-        MEMO : 영상검출.검출내역테이블 선택내역 영상 내려받기
-        :return:
-        """
-        print("click_ext_pushButton_selectSave")
-
-        self.cm.getSelectedClassList("ext")
-
-        # self.clearYN = self.cm.create_massage_box("YesNo", "선택 내역을 내려받기 하시겠습니까?")
-        #
-        # if self.clearYN:
-        #     resultData = self.extClass.extGetDownloadData('sel')
-        #     print("download Data info :: (sel)")
-        #     print(resultData)
-        #     ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
+    # def click_ext_pushButton_selectSave(self):
+    #     """
+    #     MEMO : 영상검출.검출내역테이블 선택내역 영상 내려받기
+    #     :return:
+    #     """
+    #     print("click_ext_pushButton_selectSave")
+    #
+    #     self.cm.getSelectedClassList("ext")
+    #
+    #     # self.clearYN = self.cm.create_massage_box("YesNo", "선택 내역을 내려받기 하시겠습니까?")
+    #     #
+    #     # if self.clearYN:
+    #     #     resultData = self.extClass.extGetDownloadData('sel')
+    #     #     print("download Data info :: (sel)")
+    #     #     print(resultData)
+    #     #     ## TODO :: 191005_영상다운로드 & 좌표다운로드 메서드 쪽으로 넘기기
 
     def click_ext_pushButton_startExt(self):
         """

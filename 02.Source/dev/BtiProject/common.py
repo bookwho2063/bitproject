@@ -17,6 +17,19 @@ from keras.models import load_model
 import FacenetInKeras, facenetRealTime, openfaceRealTime
 from vggFaceRealTime import recognitionFace as vggRecog
 
+
+def load_stuff(filename):
+    """
+    pickle file load
+    :param filename:
+    :return:
+    """
+    saved_stuff = open(filename, "rb")
+    stuff = pickle.load(saved_stuff)
+    saved_stuff.close()
+    print("=====loaded stuff success111")
+    return stuff
+
 class cv_video_player(QThread):
     changePixmap = Signal(QImage)
     changeTime = Signal(int,int)
@@ -63,17 +76,7 @@ class cv_video_player(QThread):
         # 검출알고리즘에 따른 선택 분기
         self.initModel()
 
-    def load_stuff(self, filename):
-        """
-        pickle file load
-        :param filename:
-        :return:
-        """
-        saved_stuff = open(filename, "rb")
-        stuff = pickle.load(saved_stuff)
-        saved_stuff.close()
-        print("=====loaded stuff success111")
-        return stuff
+
 
     def selectLastUptPickleFeatureList(self, flag):
         """
@@ -90,7 +93,7 @@ class cv_video_player(QThread):
             pFileList.append(os.path.join(pFolderPath, file))
 
         pFileList.sort(key=os.path.getmtime)
-        precompute_features_map = self.load_stuff(pFileList[-1])
+        precompute_features_map = load_stuff(pFileList[-1])
         if flag == "path":
             return pFileList[-1]
         elif flag == "feature":
@@ -597,18 +600,6 @@ class common(object):
         elif returnType is "pixmap" or returnType is "PIXMAP":
             return target
 
-    def load_stuff(self, filename):
-        """
-        pickle file load
-        :param filename:
-        :return:
-        """
-        saved_stuff = open(filename, "rb")
-        stuff = pickle.load(saved_stuff)
-        saved_stuff.close()
-        print("=====loaded stuff success")
-        return stuff
-
     def selectLastUptPickleFeatureList(self, flag):
         """
         pickle 폴더 내 마지막으로 생성된 .pickle 파일 조회 후 피처 리스트 리턴
@@ -624,7 +615,7 @@ class common(object):
             pFileList.append(os.path.join(pFolderPath, file))
 
         pFileList.sort(key=os.path.getmtime)
-        precompute_features_map = self.load_stuff(pFileList[-1])
+        precompute_features_map = load_stuff(pFileList[-1])
         if flag == "path":
             return pFileList[-1]
         elif flag == "feature":
