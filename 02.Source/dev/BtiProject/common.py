@@ -72,7 +72,7 @@ class cv_video_player(QThread):
         saved_stuff = open(filename, "rb")
         stuff = pickle.load(saved_stuff)
         saved_stuff.close()
-        print("=====loaded stuff success")
+        print("=====loaded stuff success111")
         return stuff
 
     def selectLastUptPickleFeatureList(self, flag):
@@ -100,7 +100,6 @@ class cv_video_player(QThread):
         elif flag == "map":
             return precompute_features_map
 
-
     def initModel(self):
         if self.usedFaceStateNm == 'facenet':
             self.model = FacenetInKeras.facenetInKeras()
@@ -126,6 +125,7 @@ class cv_video_player(QThread):
             # 프레임 내 얼굴 검출 및 classification
             self.vggRecogModel.vggRecogInit()
             print("========== vggface model build(self.vggRecogModel)")
+
 
     def run(self):
         while self.running:
@@ -428,7 +428,7 @@ class common(object):
         학습 클래스명 입력
         :return:
         """
-        self.classNmAlr = self.create_input_dialog("text","학습클래스명","클래스명")
+        self.classNmAlr = self.create_input_dialog("text","학습클래스명","클래스명 입력")
         return self.classNmAlr
 
     def quit_videoPlayer(self):

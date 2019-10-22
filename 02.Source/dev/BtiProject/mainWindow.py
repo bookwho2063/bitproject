@@ -1466,13 +1466,16 @@ class Ui_Form(QtCore.QObject):
             return
 
         # 검출 내역중 체크박스 선택 클래스 내역 추출
+        # 겹치는 내용 제거
+        compareList = list()
         if self.extClass.clearRowData():
             sortingDataList = list()        # 생성 데이터 리스트
             for targetFrameList in self.cm.video_player.totalExtData:       # 전체 프레임 데이터 리스트
                 for targetIdx in range(len(targetFrameList)-1):
                     # 선택한 클래스 있는지 확인
                     for target in selectClass:
-                        if str(targetFrameList[targetIdx]['labelname']) == str(target):
+                        if str(targetFrameList[targetIdx]['labelname']) == str(target) and str(targetFrameList[-1]) not in compareList:
+                            compareList.append(targetFrameList[-1])
                             # 소팅 데이터 및 대상 썸네일 이미지 정리
                             self.extClass.extAddRowData(self.cm.video_player.totalExtImgs[targetIdx], targetFrameList)
         else:
@@ -1645,9 +1648,6 @@ class Ui_Form(QtCore.QObject):
 
         return False
 
-        # TODO : 종료시 close event를 사용하여 Thread 종료 넣기
-        # TODO : video label 크기 변동 시 내부 이미지 크기 조정
-
     def click_ext_tableView_extResultList(self):
         """
         검출 테이블 데이터 더블클릭 이벤트
@@ -1706,6 +1706,8 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.로컬업로드 버튼 클릭
         :return:
         """
+
+
         self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
 
         if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
@@ -1728,18 +1730,10 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_mdDown")
-        # TODO : tableview에서 검출 정보 가지고 오기
-        # TODO : 팝업창으로 좌표파일의 저장 여부 물어보기
-        # TODO : 영상 다운로드 시 layer 전환이 늦게 됨
+
 
         resultList = self.extClass.extGetDownloadData()
-        print("resultList :: ", resultList)
-
         saveCoord = True
-        ##########################
-        ###########################
-        # loading 창 띄우기
-        ############################
         self.stackedLayout.setCurrentIndex(0)
 
         realTime = self.cm.getMicrotimes()
@@ -1865,9 +1859,13 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_startExt")
+        # TODO : Upload Ext Click
 
         if self.cm.classCheckBoxOnOffHandler("ext", "clear"):
             self.cm.classCheckBoxOnOffHandler("ext", "hide")
+            # SORTING 을 위한 전역 변수 초기화
+            self.cm.video_player.totalExtImgs = list()
+            self.cm.video_player.totalExtData = list()
 
         self.cm.video_player.pauseVideo()
         self.cm.video_player.usedFaceStateNm = "vggface"
@@ -1875,9 +1873,8 @@ class Ui_Form(QtCore.QObject):
         # 가장 최신의 피클파일로 설정
         self.cm.video_player.vggRecogModel.precompute_features_map = self.cm.selectLastUptPickleFeatureList("map")
 
-        if self.cm.video_player.ext_state == 0:
+        if self.cm.video_player.ext_state == 0 or self.cm.video_player.ext_state == 2:
             self.cm.video_player.ext_state = 1
-
 
         # 클래스 리스트 체크박스 초기화
         self.cm.getSelectedClassList("clear")
@@ -1886,22 +1883,12 @@ class Ui_Form(QtCore.QObject):
         self.cm.video_player.playVideo()
 
 
-
-        ###########
-        # 클릭 이벤트 영상검출 탭 end
-        ###########
-
-        ###########
-        # 클릭 이벤트 오토포커싱 탭 start
-        ###########
-
     def click_tab_afc(self):
         """
         MEMO : 오토포커싱 탭 클릭
         :return:
         """
         print("click_tab_afc")
-
 
 
     def click_afc_pushButton_localUpload(self):
@@ -1938,7 +1925,7 @@ class Ui_Form(QtCore.QObject):
             self.cm.video_player.pauseVideo()
 
             if self.cm.video_player.cap.isOpened():
-                if self.cm.video_player.afc_state == 0:
+                if self.cm.video_player.afc_state == 0 or self.cm.video_player.afc_state == 2:
                     self.cm.video_player.afc_state = 1
                     self.afc_horizontalSlider.setEnabled(False)
 
@@ -2097,7 +2084,6 @@ class Ui_Form(QtCore.QObject):
         if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
             # video player thread 종료 후 재시작
             if self.cm.create_massage_box("yesno",text='기 추출된 내역이 모두 삭제됩니다.\n계속하시겠습니까?'):
-                self.extClass.clearRowData()
                 self.cm.quit_videoPlayer()
             else:
                 return
@@ -2122,9 +2108,11 @@ class Ui_Form(QtCore.QObject):
             # 해당 클래스명으로 폴더생성
             path = self.opt.get_saveImgDir().replace('\\', '/')
             if os.path.exists(path) == False:
+                print("os.path.exists(path) == False :: ")
                 os.mkdir(path)
             fullPath = os.path.join(path, className)
             if os.path.exists(fullPath) == False:
+                print("os.path.exists(fullPath) == False :: ")
                 os.mkdir(fullPath)
 
             # 클래스 폴더 관련 변수 데이터 저장
@@ -2137,7 +2125,7 @@ class Ui_Form(QtCore.QObject):
             self.cm.video_player.pauseVideo()
 
             if self.cm.video_player.cap.isOpened():
-                if self.cm.video_player.alr_state == 0:
+                if self.cm.video_player.alr_state == 0 or self.cm.video_player.alr_state == 2:
                     self.cm.video_player.alr_state = 1
 
                 self.cm.video_player.moveFrame(self.cm.video_player.current_workingFrame)

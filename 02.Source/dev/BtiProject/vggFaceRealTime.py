@@ -43,12 +43,15 @@ def pickleStuff(fileName, stuff):
 def getDayTime(flag):
     """
     날자 형식을 리턴한다.
-    :param flag: yyyymmdd / yyyymmddhhmmss
+    :param flag: yyyymmdd / yyyymmddhhmmssmm / yyyymmddhhmmss
     :return:
     """
     now = datetime.datetime.now()
     if flag == "yyyymmdd":
         dt = datetime.datetime.today().strftime("%Y%m%d")
+        return dt
+    elif flag == "yyyymmddhhmmssmm":
+        dt = datetime.datetime.today().strftime("%Y%m%d%H%M%s")
         return dt
     else:
         dt = datetime.datetime.today().strftime("%Y%m%d%H%M%S")
@@ -253,6 +256,7 @@ class recognitionFace(object):
         """
         # OS에 따라 처리분기
         self.osSetting()
+        print("OS Setting OK")
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(
@@ -262,15 +266,25 @@ class recognitionFace(object):
             minSize=(64, 64)
         )
 
+        print("self.face_cascade.detectMultiScale OK")
+        print("self.face_cascade.detectMultiScale faces :: ", faces)
+
         # only keep the biggest face as the main subject
         face = None
         if len(faces) > 1:  # Get the largest face as main face
             face = max(faces, key=lambda rectangle: (rectangle[2] * rectangle[3]))  # area = w * h
+            print("얼굴이 여러개라 가장 큰 값의 얼굴만 챙깁니다.")
         elif len(faces) == 1:
             face = faces[0]
+            print("얼굴이 한개라 한개있는 데이터 얼굴만 챙깁니다.")
 
         if face is not None:
+            print("face is not None :: ")
+
             face_img, cropped = self.cropFace(frame, face, margin=40, size=self.faceSize)
+
+            print("face_img, cropped OK :: {} {}".format(face_img, cropped))
+
             (x, y, w, h) = cropped
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 200, 0), 2)
             # cv2.imshow('Faces', frame)
@@ -278,6 +292,15 @@ class recognitionFace(object):
             # 이미지 데이터 특정경로 저장
             imgfile = os.path.basename(self.className) + str(frameNum) + ".png"
             imgfile = os.path.join(str(self.saveFolder), str(imgfile))
+            print("이미지 명 :: ", imgfile)
+
+            # 이미지 데이터파일명이 폴더 내 존재하는 경우
+            if os.path.exists(imgfile):
+                print("===== 대상 이미지가 폴더에 존재해서 명칭을 변경합니다.")
+                dayOfMillieSecond = getDayTime("yyyymmddhhmmssmm")
+                imgfile = os.path.basename(self.className) + str(dayOfMillieSecond) + ".png"
+                imgfile = os.path.join(str(self.saveFolder), str(imgfile))
+            print("===== 변경 이미지 명 :: ", imgfile)
 
             # rgb to bgr
             b,g,r = cv2.split(face_img)
