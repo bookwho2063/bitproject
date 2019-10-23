@@ -369,6 +369,7 @@ class Ui_Form(QtCore.QObject):
         font.setPointSize(12)
         self.afc_pushButton_mdDown.setFont(font)
         self.afc_pushButton_mdDown.setObjectName("afc_pushButton_mdDown")
+        self.afc_pushButton_mdDown.setVisible(False)
         self.afc_horizontalLayout_top.addWidget(self.afc_pushButton_mdDown)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.afc_horizontalLayout_top.addItem(spacerItem3)
@@ -2299,6 +2300,7 @@ class Ui_Form(QtCore.QObject):
         if self.cm.classCheckBoxOnOffHandler("ext", "clear"):
             self.cm.classCheckBoxOnOffHandler("ext", "show")
         self.cm.create_massage_box("Confirm", "영상 검출이 완료되었습니다.")
+        self.ext_pushButton_mdDown.setVisible(True)
 
     @QtCore.Slot(list)
     def insertAtResultListData(self,image,dataList):
@@ -2408,6 +2410,7 @@ class Ui_Form(QtCore.QObject):
     @QtCore.Slot(int)
     def enabled_afc_horizontalSlider(self,state):
         self.afc_horizontalSlider.setDisabled(state)
+        self.afc_pushButton_mdDown.setVisible(state)
 
     def initVideoLabel(self):
         black_image = QtGui.QImage(1920,1280,QtGui.QImage.Format_Indexed8)
