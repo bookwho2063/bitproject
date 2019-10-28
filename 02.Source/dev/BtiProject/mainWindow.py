@@ -1337,6 +1337,7 @@ class Ui_Form(QtCore.QObject):
         self.opt_comboBox_coordFmt.clear()
         self.opt_comboBox_coordFmt.setEnabled(True)
         self.opt_comboBox_coordFmt.addItem("CSV")
+        self.opt_comboBox_coordFmt.addItem("JSON")
         self.opt_comboBox_coordFmt.setStyleSheet("font:12pt")
 
         self.opt_comboBox_bbox.clear()
