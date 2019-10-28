@@ -264,7 +264,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_default_tHeader_setting()
 
         # 테이블 Row Grid show()
-        self.ext_tableView_extResultList.setShowGrid(True)
+        self.ext_tableView_extResultList.setShowGrid(False)
 
         self.verticalLayout_6.addWidget(self.ext_tableView_extResultList)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -1429,9 +1429,14 @@ class Ui_Form(QtCore.QObject):
         self.afc_btnGrp = self.cm.createTargetClassList("afc")
         self.alr_btnGrp = self.cm.createTargetClassList("alr")
 
+        print("self.ext_btnGrp :: ", self.ext_btnGrp)
+        print("self.afc_btnGrp :: ", self.afc_btnGrp)
+        print("self.alr_btnGrp :: ", self.alr_btnGrp)
+
         # 검출 대상 리스트 이벤트 핸들러 추가
         self.ext_btnGrp.buttonClicked.connect(self.click_ext_btnGrp)
         self.afc_btnGrp.buttonClicked.connect(self.click_afc_btnGrp)
+
 
         # 영상 추출
         self.cm.video_player.changeTime.connect(self.set_time)
@@ -1440,7 +1445,6 @@ class Ui_Form(QtCore.QObject):
         self.cm.video_player.changeExtFrame.connect(self.insertAtResultListData)
         self.cm.video_player.endExt.connect(self.endExtProcSetting)
         self.cm.video_player.saveFaceInitAlr.connect(self.saveFaceInitAlr)
-
 
         # 오토포커싱
         self.cm.video_player.changeTime.connect(self.set_afc_before_time)
@@ -1489,16 +1493,22 @@ class Ui_Form(QtCore.QObject):
         영상 clip의 클래스 선택 checkbox buttongroup을 클릭할 시 동작한다.
         :return:
         '''
-        print("click_afc_btnGrp")
 
+        print("click_afc_btnGrp")
+        print("selected Class")
+        self.cm.video_player.pauseVideo()
         changed_className = self.cm.getSelectedClassList('afc')
 
-        # print("현재 클래스 : {} 변경될 클래스 : {}".format(self.afc.getClassName(),changed_className))
-
         if not self.afc.getClassName() == changed_className:
+            print("Change Class Name")
             self.afc.setClassName(changed_className)
 
-
+        # 클래스 변경 전 일시정지 -> 이름 변경 -> 검출시작 버튼 클릭 순
+        # 영상재생 상태 1 -> 선택처리
+        if self.cm.video_player.afc_state == 1:
+            print("검출 클래스 변경!!")
+            self.cm.video_player.pauseVideo()
+            self.click_afc_pushButton_startExt()
 
     def change_opt_comboBox_downFileFmt(self):
         """
@@ -1599,6 +1609,12 @@ class Ui_Form(QtCore.QObject):
     ###########
     def eventFilter(self, object, event):
         # TODO : 영상 추출, 오토포커싱 초기화
+
+        # print("object :: ", object)
+
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            print("click object :: ", object)
+
         if object is self.mainTabWidget.tabBar() and event.type() == QtCore.QEvent.MouseButtonPress :
             # print(event.type())
             movedIndex = object.tabAt(event.pos()) # 이동할 인덱스
@@ -1628,9 +1644,12 @@ class Ui_Form(QtCore.QObject):
                     # print(object.preIndex,currentIndex,movedIndex)
 
                     # 탭 검출대상 리스트 초기화
-                    self.cm.createTargetClassList("ext")
-                    self.cm.createTargetClassList("afc")
-                    self.cm.createTargetClassList("alr")
+                    self.ext_btnGrp = self.cm.createTargetClassList("ext")
+                    self.afc_btnGrp = self.cm.createTargetClassList("afc")
+                    self.alr_btnGrp = self.cm.createTargetClassList("alr")
+
+                    self.ext_btnGrp.buttonClicked.connect(self.click_ext_btnGrp)
+                    self.afc_btnGrp.buttonClicked.connect(self.click_afc_btnGrp)
                 else:
                     event.ignore()
                     return True
@@ -1709,8 +1728,6 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.로컬업로드 버튼 클릭
         :return:
         """
-
-
         self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
 
         if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
@@ -1882,7 +1899,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱 탭 클릭
         :return:
         """
-        print("click_tab_afc")
+        print("click_tab_afc123132")
 
 
     def click_afc_pushButton_localUpload(self):
@@ -2180,6 +2197,8 @@ class Ui_Form(QtCore.QObject):
                 self.afc_btnGrp = self.cm.createTargetClassList("afc")
                 self.alr_btnGrp = self.cm.createTargetClassList("alr")
 
+                self.ext_btnGrp.buttonClicked.connect(self.click_ext_btnGrp)
+                self.afc_btnGrp.buttonClicked.connect(self.click_afc_btnGrp)
             else:
                 self.cm.create_massage_box("confirm", "학습이 실패하였습니다.")
 

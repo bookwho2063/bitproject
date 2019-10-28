@@ -27,7 +27,9 @@ def load_stuff(filename):
     saved_stuff = open(filename, "rb")
     stuff = pickle.load(saved_stuff)
     saved_stuff.close()
-    print("=====loaded stuff success111")
+
+    # print("=====loaded stuff success111 :: ", filename)
+    # print("stuff111 :: ", stuff)
     return stuff
 
 class cv_video_player(QThread):
@@ -43,7 +45,7 @@ class cv_video_player(QThread):
 
     # changeAfcFrame = Signal(QImage,QRect)
 
-    def __init__(self, afc =None, parent=None):
+    def __init__(self, afc=None, parent=None):
         QThread.__init__(self)
         # self.openVideo()
         self.play = True
@@ -72,6 +74,7 @@ class cv_video_player(QThread):
         self.saveClassNamePath = None   # 얼굴이미지 저장 폴더명
         self.totalExtData = list()      # 검출 전체 데이터 리스트
         self.totalExtImgs = list()      # 검출 전체 이미지 리스트
+        self.targetStuff = None         # 최신 피클 데이터
 
         # 검출알고리즘에 따른 선택 분기
         self.initModel()
@@ -94,6 +97,9 @@ class cv_video_player(QThread):
 
         pFileList.sort(key=os.path.getmtime)
         precompute_features_map = load_stuff(pFileList[-1])
+        if type(precompute_features_map) is not None:
+            print("targetStuff 설정 완료")
+            self.targetStuff = precompute_features_map
         if flag == "path":
             return pFileList[-1]
         elif flag == "feature":
@@ -124,7 +130,7 @@ class cv_video_player(QThread):
             #     del self.vggRecogModel
             print("===== vggRecogModel class 생성!!!")
             self.vggRecogModel = vggRecog()
-            self.vggRecogModel.precompute_features_map = self.targetPicklePath
+            self.vggRecogModel.changePicklefile()
             # 프레임 내 얼굴 검출 및 classification
             self.vggRecogModel.vggRecogInit()
             print("========== vggface model build(self.vggRecogModel)")
@@ -223,7 +229,10 @@ class cv_video_player(QThread):
         검출된 이미지를 이용하여 피클파일 생성
         :return:
         """
-        ret, pickleFilePath = self.vggRecogModel.createPickle()
+        if self.targetStuff is not None:
+            ret, pickleFilePath = self.vggRecogModel.createPickle(targetStuffList=self.targetStuff)
+        else:
+            ret, pickleFilePath = self.vggRecogModel.createPickle(targetStuffList=None)
         if ret == True:
             print("========== Create pickle file")
             return True, pickleFilePath
@@ -616,6 +625,8 @@ class common(object):
 
         pFileList.sort(key=os.path.getmtime)
         precompute_features_map = load_stuff(pFileList[-1])
+        if precompute_features_map is not None:
+            self.video_player.targetStuff = precompute_features_map
         if flag == "path":
             return pFileList[-1]
         elif flag == "feature":
@@ -694,7 +705,6 @@ class common(object):
 
             hBoxExt = QHBoxLayout()
             hBoxExt.setAlignment(Qt.AlignCenter)
-
 
             if targetFlag != "alr":     # 학습탭을 제외한 나머지 탭은 체크박스 생성
                 chkboxExt = QtWidgets.QCheckBox()

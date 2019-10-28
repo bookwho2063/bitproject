@@ -11,7 +11,6 @@ class Autofocus(QObject):
     def __init__(self):
         super(Autofocus,self).__init__()
         self.afc_coordDict = {}  # 검출 좌표 dict
-
         self.class_name = ""
 
 
@@ -26,6 +25,7 @@ class Autofocus(QObject):
         self.afc_extFrameRate = int(ui.cm.video_player.fps )
 
     def setClassName(self, name):
+        print("name :: ", name)
         self.class_name = name
 
     def getClassName(self):

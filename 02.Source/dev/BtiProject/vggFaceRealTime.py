@@ -24,7 +24,8 @@ def load_stuff(filename):
     saved_stuff = open(filename, "rb")
     stuff = pickle.load(saved_stuff)
     saved_stuff.close()
-    print("=====loaded stuff success")
+    # print("=====loaded stuff success :: ", filename)
+    # print("stuff :: ", stuff)
     return stuff
 
 def pickleStuff(fileName, stuff):
@@ -90,6 +91,7 @@ class recognitionFace(object):
         self.saveFolder = None  # vggfaceInit() 을 통해 생성되는 클래스폴더경로
         self.savePkPath = "./00.Resource/data/pickle/"  # 피클파일 저장경로
         self.savePkNm = "savePickle_"  # 피클파일 저장파일명
+        self.targetStuff = None
 
     def selectLastUptPickleFeatureList(self, flag):
         """
@@ -110,7 +112,8 @@ class recognitionFace(object):
             return pFileList[-1]
         elif flag == "feature":
             precompute_features_map = load_stuff(pFileList[-1])
-
+            # 피클 데이터 공용변수 설정
+            self.targetStuff = precompute_features_map
             for person in precompute_features_map:
                 featureList.append(person.get("name"))
 
@@ -136,7 +139,7 @@ class recognitionFace(object):
     def changePickle(self, targetPath):
         load_stuff(targetPath)
 
-    def createPickle(self):
+    def createPickle(self, targetStuffList=None):
         """
         pickle 파일을 생성한다.
         :return: 저장 성공여부
@@ -146,15 +149,19 @@ class recognitionFace(object):
 
         dt = getDayTime("yyyymmddhhmmss")
         self.savePkNm = self.savePkNm + str(dt) + ".pickle"
-        precompute_features = []
+        # precompute_features = []
         pickleFilePath = os.path.join(self.savePkPath, self.savePkNm)
+
+        if targetStuffList is None:
+            targetStuffList = []
 
         # pickle data read
         for i, folder in enumerate(folders):
             name = names[i]
             save_folder = os.path.join(self.FACE_IMAGES_FOLDER, name)
             mean_features = self.calMeanFeature(imageFolder=save_folder)
-            precompute_features.append({"name": name, "features": mean_features})
+            targetStuffList.append({"name": name, "features": mean_features})
+            # precompute_features.append({"name": name, "features": mean_features})
 
             # 대표 이미지 저장을 위하여 피클 생성 폴더 이미지 리스트 조회
             imgs = os.listdir(save_folder)
@@ -170,7 +177,7 @@ class recognitionFace(object):
                     break
 
         # 피클 파일 생성
-        pickleStuff(pickleFilePath, precompute_features)
+        pickleStuff(pickleFilePath, targetStuffList)
 
 
         if os.path.isfile(pickleFilePath):
@@ -378,14 +385,6 @@ class recognitionFace(object):
         return resized_img, (x_a, y_a, x_b - x_a, y_b - y_a)
 
     def identify_face(self, features, threshold=100):
-
-        # name 변경용 dict
-        # nameChDict = dict()
-        # nameChDict['로제'] = 'Rose'
-        # nameChDict['제니'] = 'Jennie'
-        # nameChDict['리사'] = 'Lisa'
-        # nameChDict['지수'] = 'Jisoo'
-
         distances = []
         for person in self.precompute_features_map:
             person_features = person.get("features")
@@ -399,7 +398,6 @@ class recognitionFace(object):
 
         if min_distance_value < threshold:
             return str(self.precompute_features_map[min_distance_index].get("name")), str(min_distance_value)
-            # return nameChDict[str(self.precompute_features_map[min_distance_index].get("name"))], str(min_distance_value)
         else:
             return "???", "???"
 
