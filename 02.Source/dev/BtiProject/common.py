@@ -884,8 +884,14 @@ class common(object):
         else:
             self.video_player.afc.save_afcVideoFile(self.video_player.cap, self.out)
 
-    def saveCoordFile(self,resultList,file_name,type='CSV',):
-
+    def saveCoordFile(self,resultList, file_name, type='CSV'):
+        """
+        검출 좌표 결과 파일 다운로드
+            :param saveFileNm: 확장자를 제외한 저장 파일명 (Default 는 영상파일명)
+            :param coordList: 좌표 리스트(X,Y 조합이므로 홀수가 될 수 없음)
+            :param type: 저장 확장자 명 (CSV, JSON 지원)
+            :return: bool
+        """
         if type == 'CSV':
             import csv
             resultList[0][0]['frame_num'] = None
