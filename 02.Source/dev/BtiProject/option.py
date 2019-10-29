@@ -30,6 +30,8 @@ class Option(object):
             self.ui.opt_lineEdit_urlSaveDir.setText(selected_directory)
         elif button.objectName() == "opt_pushButton_saveDir":
             self.ui.opt_lineEdit_saveDir.setText(selected_directory)
+        elif button.objectName() == "opt_pushButton_saveImgDir":
+            self.ui.opt_lineEdit_saveImgDir.setText(selected_directory)
 
     def get_urlSaveDir(self):
         return self.ui.opt_lineEdit_urlSaveDir.Text()

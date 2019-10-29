@@ -369,7 +369,7 @@ class Ui_Form(QtCore.QObject):
         font.setPointSize(12)
         self.afc_pushButton_mdDown.setFont(font)
         self.afc_pushButton_mdDown.setObjectName("afc_pushButton_mdDown")
-        self.afc_pushButton_mdDown.setVisible(False)
+        self.afc_pushButton_mdDown.setVisible(True)
         self.afc_horizontalLayout_top.addWidget(self.afc_pushButton_mdDown)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.afc_horizontalLayout_top.addItem(spacerItem3)
@@ -476,6 +476,9 @@ class Ui_Form(QtCore.QObject):
         self.afc_horizontalSlider = QtWidgets.QSlider(self.tab_afc)
         self.afc_horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
         self.afc_horizontalSlider.setObjectName("afc_horizontalSlider")
+
+        # 슬라이드바 hidden 처리
+        self.afc_horizontalSlider.setVisible(False)
         self.afc_horizontalLayout_mid1.addWidget(self.afc_horizontalSlider)
         spacerItem5 = QtWidgets.QSpacerItem(40,20,QtWidgets.QSizePolicy.Preferred,QtWidgets.QSizePolicy.Minimum)
         self.afc_horizontalLayout_mid1.addItem(spacerItem5)
@@ -1235,7 +1238,7 @@ class Ui_Form(QtCore.QObject):
         self.ext_pushButton_urlUpload.setText(QtWidgets.QApplication.translate("Form", "URL 업로드", None, -1))
         self.ext_pushButton_startExt.setText(QtWidgets.QApplication.translate("Form", "검출 시작", None, -1))
         self.ext_pushButton_mdDown.setText(QtWidgets.QApplication.translate("Form", "영상 내려받기", None, -1))
-        self.ext_pushButton_mdDown.setVisible(False)
+        self.ext_pushButton_mdDown.setVisible(True)
         # self.ext_label_extMd.setText(QtWidgets.QApplication.translate("Form", "Video Area", None, -1))
         self.ext_video_time.setText(QtWidgets.QApplication.translate("Form", "00:00:00 / 00:00:00", None, -1))
         self.ext_pushButton_allClear.setText(QtWidgets.QApplication.translate("Form", "검출 내역 초기화", None, -1))
@@ -1453,7 +1456,6 @@ class Ui_Form(QtCore.QObject):
         # self.afc.changePixmap.connect(self.process_afc)
         self.cm.video_player.afc.changePixmap.connect(self.process_afc)
         self.cm.video_player.finishAfc.connect(self.enabled_afc_horizontalSlider)
-
         # 수동학습
         self.cm.video_player.changePixmap.connect(self.setAlrPixMap)
         self.cm.video_player.changeTime.connect(self.set_alr_time)
@@ -1811,6 +1813,13 @@ class Ui_Form(QtCore.QObject):
         :return:
         """
         print("click_ext_pushButton_stop")
+        self.extClass.clearRowData()
+        self.cm.quit_videoPlayer()
+        self.initVideoLabel()
+
+        # 검출 전체 데이터 초기화
+        self.cm.video_player.totalExtData = list()
+        self.cm.video_player.totalExtImgs = list()
 
     def click_ext_pushButton_allClear(self):
         """
@@ -2176,6 +2185,7 @@ class Ui_Form(QtCore.QObject):
         if self.cm.create_massage_box("yesno", text="학습을 진행하시겠습니까?"):
             # 로딩바 on
             self.stackedLayout.setCurrentIndex(0)
+
             retCode, picklePath = self.cm.video_player.learningPickle()
             if retCode == True:
                 # 로딩바 off
@@ -2290,15 +2300,21 @@ class Ui_Form(QtCore.QObject):
             import subprocess, platform
             # OS 별 File Seperator 설정
             pSysNm = platform.system()
+            imgDir = self.opt_lineEdit_saveImgDir.text()
             if pSysNm is "Windows":
-                path = self.opt.get_saveImgDir().replace('\\', '/')
+                path = imgDir.replace('\\', '/')
                 subprocess.run(['explorer', os.path.realpath(path)])
             elif pSysNm is "Darwin":
-                path = self.opt.get_saveImgDir().replace('\\', '/')
+                path = imgDir.replace('\\', '/')
                 subprocess.run(['nautilus', os.path.realpath(path)])
             elif str(pSysNm) == "Linux":
-                path = self.opt.get_saveImgDir().replace('\\', '/')
+                path = imgDir.replace('\\', '/')
                 subprocess.run(['nautilus', os.path.realpath(path)])
+
+        # 이미지 저장 경로 설정
+        self.cm.video_player.vggRecogModel.FACE_IMAGES_FOLDER = self.opt_lineEdit_saveImgDir.text()
+
+
 
     @QtCore.Slot(dict)
     def saveFaceInitAlr(self):
@@ -2320,7 +2336,7 @@ class Ui_Form(QtCore.QObject):
         if self.cm.classCheckBoxOnOffHandler("ext", "clear"):
             self.cm.classCheckBoxOnOffHandler("ext", "show")
         self.cm.create_massage_box("Confirm", "영상 검출이 완료되었습니다.")
-        self.ext_pushButton_mdDown.setVisible(True)
+        # self.ext_pushButton_mdDown.setVisible(True)
 
     @QtCore.Slot(list)
     def insertAtResultListData(self,image,dataList):
@@ -2428,9 +2444,11 @@ class Ui_Form(QtCore.QObject):
         self.alr_video_time.setText(update_time)
 
     @QtCore.Slot(int)
-    def enabled_afc_horizontalSlider(self,state):
-        self.afc_horizontalSlider.setDisabled(state)
-        self.afc_pushButton_mdDown.setVisible(state)
+    def enabled_afc_horizontalSlider(self, state):
+        # self.afc_horizontalSlider.setDisabled(state)
+        if self.cm.create_massage_box("yesno", text='영상 오토포커싱이 완료되었습니다.\n결과 영상을 재생하시겠습니까?'):
+            self.cm.video_player.moveFrame(0)
+            self.cm.video_player.playVideo()
 
     def initVideoLabel(self):
         black_image = QtGui.QImage(1920,1280,QtGui.QImage.Format_Indexed8)

@@ -207,18 +207,20 @@ class cv_video_player(QThread):
                     self.changePixmap.emit(convertToQtFormat.copy())
                     # print("self.cur_frame % self.fps :: ", self.cur_frame % self.fps)
                 else:
-                    self.moveFrame(0)
+                    # self.moveFrame(0)
                     self.play = False
                     # 영상 종료 시 각 탭별 상태값 변경
+
                     if self.ext_state == 1:
                         self.ext_state = 2
                         self.endExt.emit()
-
                     if self.afc_state == 1:
                         self.afc_state = 2
                         self.finishAfc.emit(True)
                     if self.alr_state == 1:
+                        self.moveFrame(0)
                         self.alr_state = 2
+                        self.current_workingFrame = 0
                         self.alrExtEnd.emit()
 
             time.sleep(self.getWaitTime(start_time,self.fps)*0.9)
@@ -692,13 +694,14 @@ class common(object):
         """
         # 학습 대상 클래스 리스트 불러오기
         self.classImgCount = 0
-        # self.classListDict = self.selectClassImgList()          # 기존 클래스 리스트 리턴
         self.classListDict = self.selectPickleFeatureImgList(self.selectLastUptPickleFeatureList("feature"))  # vggface2 형태로 변경
 
         # checkbox Group
         btnGrp = QtWidgets.QButtonGroup()
         for classListDictKey, classListDictValue in self.classListDict.items():
             thumbnailImgInExt = self.createThumnail_filePath("pixmap", os.path.abspath(classListDictValue), 50, 50, 80)
+
+            print("classListDictKey : {}, classListDictValue : {}".format(classListDictKey, classListDictValue))
 
             extImgItem = QLabel()
             extImgItem.setPixmap(thumbnailImgInExt)

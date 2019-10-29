@@ -83,6 +83,7 @@ class recognitionFace(object):
         self.model = None
 
         self.FACE_IMAGES_FOLDER = "./00.Resource/tmp"
+        # self.FACE_IMAGES_FOLDER = ""
         self.osName = ""  # OS명
         self.face_cascade = ""  # cascade 타겟변수
         self.faceSize = face_size  # 얼굴 검출 사진 사이즈
@@ -128,8 +129,6 @@ class recognitionFace(object):
         :return:
         """
         if self.model == None:
-            # print("model :: ", self.model)
-            # print("model type :: ", type(self.model))
             self.model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg')  # pooling: None, avg or max
             self.model.predict(np.zeros((1, 224, 224, 3)))
             self.session = K.get_session()
@@ -144,6 +143,7 @@ class recognitionFace(object):
         pickle 파일을 생성한다.
         :return: 저장 성공여부
         """
+
         folders = list(glob.iglob(os.path.join(self.FACE_IMAGES_FOLDER, "*")))
         names = [os.path.basename(folder) for folder in folders]
 
@@ -179,7 +179,8 @@ class recognitionFace(object):
         # 피클 파일 생성
         pickleStuff(pickleFilePath, targetStuffList)
 
-
+        # 피클파일명 초기화
+        self.savePkNm = "savePickle_"
         if os.path.isfile(pickleFilePath):
             return True, pickleFilePath
         else:
