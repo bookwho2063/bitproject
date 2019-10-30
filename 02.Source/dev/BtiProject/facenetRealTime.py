@@ -19,13 +19,13 @@ class facenetRealtime():
             self.osName = "Windows"
             self.employee_pictures = "/home/bit/Downloads/blackpink_crop"
             # self.employee_pictures = "/home/bit/Downloads/crop_twice"
-            self.cap = cv2.VideoCapture("/home/bit/Downloads/bp1.mp4")  # videoFile
+            self.cap = cv2.VideoCapture("/home/bit/Downloads/BPFullCut.mp4")  # videoFile
 
         elif platform.system() == "Linux":
             self.osName = "Linux"
-            self.employee_pictures = "F:/sampleData/blackpink_crop"
-            # self.employee_pictures = "/home/bit/Downloads/crop_twice"
-            self.cap = cv2.VideoCapture("F:/sampleData/bp1.mp4")  # videoFile
+            # self.employee_pictures = "F:/sampleData/blackpink_crop"
+            self.employee_pictures = "/home/bit/Downloads/crop_twice"
+            self.cap = cv2.VideoCapture("/home/bit/Downloads/BPFullCut.mp4")  # videoFile
 
         self.model = None
         self.faces = ""

@@ -38,7 +38,7 @@ class openfaceRealTime():
         self.face_cascade = ""
         self.dump = False
         self.model = ""
-        self.color = (0, 255, 0)
+        self.color = (255, 0, 0)
 
         self.employees = dict()
         self.metric = "euclidean"
@@ -440,14 +440,14 @@ class openfaceRealTime():
                     print("Percent :: {} %".format(str(round(similarity, 2))))
 
                     if similarity != 0 and label_name != "Unknown":
-                        cv2.putText(img, label_name, (int(x + w + 15), int(y - 64)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),2)
+                        cv2.putText(img, label_name, (int(x + w + 15), int(y - 64)), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 3)
 
                         if self.dump:
                             print("call dump----------------------")
 
                         # connect face and text
-                        cv2.line(img, (x + w, y - 64), (x + w - 25, y - 64), self.color, 1)
-                        cv2.line(img, (int(x + w / 2), y), (x + w - 25, y - 64), self.color, 1)
+                        cv2.line(img, (x + w, y - 64), (x + w - 25, y - 64), self.color, 3)
+                        cv2.line(img, (int(x + w / 2), y), (x + w - 25, y - 64), self.color, 3)
 
                         # 검출 결과 데이터 저장
                         extDict['x'] = x

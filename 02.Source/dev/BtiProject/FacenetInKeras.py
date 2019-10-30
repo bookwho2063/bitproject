@@ -253,50 +253,50 @@ class facenetInKeras():
         return results, face_array
 
 
-# if __name__ == "__main__":
-#     print("run facenet Keras")
-#
-#     from time import sleep
-#
-#     # facenet class init
-#     faceNet = facenetInKeras()
-#
-#     imgFace = cv2.imread("/home/bit/Downloads/지수.jpg", cv2.IMREAD_COLOR)
-#     faceDetResults, faceImgArr = faceNet.extract_face(imgFace)
-#
-#     # print("faceDetResults :: ")
-#     # print(faceDetResults)
-#     #
-#     # print("faceImgArr :: ")
-#     # print(faceImgArr)
-#
-#     # 박스 갯수만큼 루프
-#     for boxData in faceDetResults:
-#         x, y, w, h = boxData['box']
-#         print("{} :: {} :: {} :: {} ".format(x, y, w, h))
-#
-#         # bug fix
-#         x, y = abs(x), abs(y)
-#         x2, y2 = x + w, y + h
-#
-#         # extract the face
-#         # faceImg = imgFace[y:y2, x:x2]
-#
-#         cv2.rectangle(imgFace, (x, y), (x2, y2), (0, 255, 0), 2)
-#         cv2.putText(imgFace, "NAME", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-#
-#     faceImg = cv2.resize(imgFace, dsize=(1280, 720), interpolation=cv2.INTER_AREA)
-#     cv2.imwrite("./twice_box.jpg", faceImg)
+if __name__ == "__main__":
+    print("run facenet Keras")
+
+    from time import sleep
+
+    # facenet class init
+    faceNet = facenetInKeras()
+
+    imgFace = cv2.imread("/home/bit/Downloads/지수.jpg", cv2.IMREAD_COLOR)
+    faceDetResults, faceImgArr = faceNet.extract_face(imgFace)
+
+    # print("faceDetResults :: ")
+    # print(faceDetResults)
+    #
+    # print("faceImgArr :: ")
+    # print(faceImgArr)
+
+    # 박스 갯수만큼 루프
+    for boxData in faceDetResults:
+        x, y, w, h = boxData['box']
+        print("{} :: {} :: {} :: {} ".format(x, y, w, h))
+
+        # bug fix
+        x, y = abs(x), abs(y)
+        x2, y2 = x + w, y + h
+
+        # extract the face
+        # faceImg = imgFace[y:y2, x:x2]
+
+        cv2.rectangle(imgFace, (x, y), (x2, y2), (255, 0, 0), 3)
+        cv2.putText(imgFace, "NAME", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 3)
+
+    faceImg = cv2.resize(imgFace, dsize=(1280, 720), interpolation=cv2.INTER_AREA)
+    # cv2.imwrite("./twice_box.jpg", faceImg)
 
     # 프레임 내 얼굴갯수만큼 루프
-    # for idx in range(len(faceImgArr)):
-    #     print("============== Run Target")
-    #     imgToEmd = faceNet.getEmbedding(faceNet.faceModel, faceImgArr[idx])
-    #     predictNm, predictPer = faceNet.predictImg(imgToEmd)
-    #     # sleep(3)
-    #     # crop img save
-    #     cv2.imwrite("./twice{}_{}_{}.jpg".format(idx, predictNm, predictPer), faceImgArr[idx])
-    #     print("============== End Target")
+    for idx in range(len(faceImgArr)):
+        print("============== Run Target")
+        imgToEmd = faceNet.getEmbedding(faceNet.faceModel, faceImgArr[idx])
+        predictNm, predictPer = faceNet.predictImg(imgToEmd)
+        # sleep(3)
+        # crop img save
+        cv2.imwrite("./twice{}_{}_{}.jpg".format(idx, predictNm, predictPer), faceImgArr[idx])
+        print("============== End Target")
 
     # while(True):
     #     faceNet.predictDatasetImg()     # 데이터셋 이미지로 테스트 펑션

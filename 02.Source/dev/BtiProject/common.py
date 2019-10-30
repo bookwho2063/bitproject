@@ -66,6 +66,7 @@ class cv_video_player(QThread):
         # 얼굴 검출 관련 클래스 설정
         # facenet / facenet2 / openface / vggface / vggalr
         self.usedFaceStateNm = "vggface"
+        # self.usedFaceStateNm = "facenet2"
         self.model = None
         self.vggRecogModel = None
         self.targetPicklePath = self.selectLastUptPickleFeatureList("path")
@@ -78,8 +79,6 @@ class cv_video_player(QThread):
 
         # 검출알고리즘에 따른 선택 분기
         self.initModel()
-
-
 
     def selectLastUptPickleFeatureList(self, flag):
         """
@@ -160,6 +159,10 @@ class cv_video_player(QThread):
 
                         # 검출수행(openface)
                         if self.usedFaceStateNm == "openface":
+                            rgbImage, resultData = self.extractFaceOrder(rgbImage)
+
+                        # 검출수행(facenet2)
+                        if self.usedFaceStateNm == "facenet2":
                             rgbImage, resultData = self.extractFaceOrder(rgbImage)
 
                         # 검출수행(vggface)
@@ -254,7 +257,9 @@ class cv_video_player(QThread):
             rgbImage, resultData = self.faceRecog_keras_facenet(rgbImage)
         elif str(self.usedFaceStateNm) == "facenet2":
             # keras_facenet #2
-            rgbImage, resultData = self.faceRecog_keras_facenet2(rgbImage)
+            rgbImage = self.faceRecog_keras_facenet2(rgbImage)
+            resultData = list()
+            # rgbImage, resultData = self.faceRecog_keras_facenet2(rgbImage)
         elif str(self.usedFaceStateNm) == "openface":
             # openface run
             rgbImage, resultData = self.faceRecog_keras_openface(rgbImage)
@@ -316,9 +321,10 @@ class cv_video_player(QThread):
         :return:rgbImage
         """
         # print("======================검출을 수행합니다.(faceRecog_keras_facenet)")
-        rgbImage, resultData = self.model.runFacenet(rgbImage)
+        # rgbImage, resultData = self.model.runFacenet(rgbImage)
+        rgbImage = self.model.runFacenet(rgbImage)
         # rgbImage = self.model.run(rgbImage)
-        return rgbImage, resultData
+        return rgbImage
 
     def faceRecog_keras_openface(self, rgbImage):
         """

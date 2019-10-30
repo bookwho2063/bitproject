@@ -478,7 +478,7 @@ class Ui_Form(QtCore.QObject):
         self.afc_horizontalSlider.setObjectName("afc_horizontalSlider")
 
         # 슬라이드바 hidden 처리
-        self.afc_horizontalSlider.setVisible(False)
+        self.afc_horizontalSlider.setVisible(True)
         self.afc_horizontalLayout_mid1.addWidget(self.afc_horizontalSlider)
         spacerItem5 = QtWidgets.QSpacerItem(40,20,QtWidgets.QSizePolicy.Preferred,QtWidgets.QSizePolicy.Minimum)
         self.afc_horizontalLayout_mid1.addItem(spacerItem5)
@@ -1433,9 +1433,9 @@ class Ui_Form(QtCore.QObject):
         self.afc_btnGrp = self.cm.createTargetClassList("afc")
         self.alr_btnGrp = self.cm.createTargetClassList("alr")
 
-        print("self.ext_btnGrp :: ", self.ext_btnGrp)
-        print("self.afc_btnGrp :: ", self.afc_btnGrp)
-        print("self.alr_btnGrp :: ", self.alr_btnGrp)
+        # print("self.ext_btnGrp :: ", self.ext_btnGrp)
+        # print("self.afc_btnGrp :: ", self.afc_btnGrp)
+        # print("self.alr_btnGrp :: ", self.alr_btnGrp)
 
         # 검출 대상 리스트 이벤트 핸들러 추가
         self.ext_btnGrp.buttonClicked.connect(self.click_ext_btnGrp)
@@ -1467,9 +1467,11 @@ class Ui_Form(QtCore.QObject):
         :return:
         '''
         # TODO : 19.10.21 Select Target Class Sort
-        print("click_ext_btnGrp")
+        # print("click_ext_btnGrp")
         # print("현재 선택된 class : {}".format(self.cm.getSelectedClassList('ext')))
 
+        # 클래스 리스트 체크박스 초기화
+        self.cm.getSelectedClassList("clear")
         selectClass = self.cm.getSelectedClassList('ext')
 
         if len(self.cm.video_player.totalExtData) <= 0:
@@ -1497,19 +1499,19 @@ class Ui_Form(QtCore.QObject):
         :return:
         '''
 
-        print("click_afc_btnGrp")
-        print("selected Class")
+        # print("click_afc_btnGrp")
+        # print("selected Class")
         self.cm.video_player.pauseVideo()
         changed_className = self.cm.getSelectedClassList('afc')
 
         if not self.afc.getClassName() == changed_className:
-            print("Change Class Name")
+            # print("Change Class Name")
             self.afc.setClassName(changed_className)
 
         # 클래스 변경 전 일시정지 -> 이름 변경 -> 검출시작 버튼 클릭 순
         # 영상재생 상태 1 -> 선택처리
         if self.cm.video_player.afc_state == 1:
-            print("검출 클래스 변경!!")
+            # print("검출 클래스 변경!!")
             self.cm.video_player.pauseVideo()
             self.click_afc_pushButton_startExt()
 
@@ -1612,11 +1614,6 @@ class Ui_Form(QtCore.QObject):
     ###########
     def eventFilter(self, object, event):
         # TODO : 영상 추출, 오토포커싱 초기화
-
-        # print("object :: ", object)
-
-        if event.type() == QtCore.QEvent.MouseButtonPress:
-            print("click object :: ", object)
 
         if object is self.mainTabWidget.tabBar() and event.type() == QtCore.QEvent.MouseButtonPress :
             # print(event.type())
@@ -1792,7 +1789,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.play 버튼 클릭
         :return:
         """
-        print("click_ext_pushButton_play")
+        # print("click_ext_pushButton_play")
         # if self.cm.video_player.isRunning():
         #     if self.cm.create_massage_box("yesno","기 추출된 내역이 모두 삭제됩니다\n계속하시겠습니까?"):
         #         self.extClass.clearRowData()
@@ -1804,7 +1801,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.일시정지 버튼 클릭
         :return:
         """
-        print("click_ext_pushButton_pause")
+        # print("click_ext_pushButton_pause")
         self.cm.video_player.pauseVideo()
 
     def click_ext_pushButton_stop(self):
@@ -1812,7 +1809,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.정지 버튼 클릭
         :return:
         """
-        print("click_ext_pushButton_stop")
+        # print("click_ext_pushButton_stop")
         self.extClass.clearRowData()
         self.cm.quit_videoPlayer()
         self.initVideoLabel()
@@ -1826,7 +1823,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.검출내역테이블 초기화 버튼 클릭
         :return:
         """
-        print("click_ext_pushButton_allClear")
+        # print("click_ext_pushButton_allClear")
         self.clearYN = self.cm.create_massage_box("YesNo", text="모든 검출 내역이 초기화 됩니다 계속하시겠습니까?")
 
         if self.clearYN:
@@ -1837,7 +1834,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.검출내역테이블 선택삭제 버튼 클릭
         :return:
         """
-        print("click_ext_pushButton_selectDelete")
+        # print("click_ext_pushButton_selectDelete")
 
         ## 체크한 인덱스 혹은 modelrow 추출
 
@@ -1879,7 +1876,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 영상검출.검출시작 버튼 클릭
         :return:
         """
-        print("click_ext_pushButton_startExt")
+        # print("click_ext_pushButton_startExt")
         # TODO : Upload Ext Click
 
         if self.cm.classCheckBoxOnOffHandler("ext", "clear"):
@@ -1889,10 +1886,14 @@ class Ui_Form(QtCore.QObject):
             self.cm.video_player.totalExtData = list()
 
         self.cm.video_player.pauseVideo()
+
+        # TODO : 191029 JK
         self.cm.video_player.usedFaceStateNm = "vggface"
+        # self.cm.video_player.usedFaceStateNm = "facenet2"
 
         # 가장 최신의 피클파일로 설정
-        self.cm.video_player.vggRecogModel.precompute_features_map = self.cm.selectLastUptPickleFeatureList("map")
+        if self.cm.video_player.usedFaceStateNm == "vggface":
+            self.cm.video_player.vggRecogModel.precompute_features_map = self.cm.selectLastUptPickleFeatureList("map")
 
         if self.cm.video_player.ext_state == 0 or self.cm.video_player.ext_state == 2:
             self.cm.video_player.ext_state = 1
@@ -1909,7 +1910,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱 탭 클릭
         :return:
         """
-        print("click_tab_afc123132")
+        # print("click_tab_afc123132")
 
 
     def click_afc_pushButton_localUpload(self):
@@ -1938,7 +1939,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱, 검출 시작 버튼
         :return:
         """
-        print("afc_pushButton_startExt")
+        # print("afc_pushButton_startExt")
         class_name = self.cm.getSelectedClassList("afc")
         if not class_name == []:
             self.afc.setClassName(class_name[0])
@@ -1964,7 +1965,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱 영상 내려받기 버튼 클릭
         :return:
         """
-        print("afc_pushButton_mdDown")
+        # print("afc_pushButton_mdDown")
         ###########################
         # loading 창 띄우기
         ############################
@@ -2038,7 +2039,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱. 원본 영상 일시정지 버튼 클릭
         :return:
         """
-        print("afc_pushButton_pause")
+        # print("afc_pushButton_pause")
         self.cm.video_player.pauseVideo()
 
         # if self.cm.video_player.isRunning():
@@ -2051,7 +2052,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱. 원본 영상 정지 버튼 클릭
         :return:
         """
-        print("afc_pushButton_stop")
+        # print("afc_pushButton_stop")
 
         # TODO : 초기화 붙이기
         self.afc.quit_afcProcess()
@@ -2067,14 +2068,14 @@ class Ui_Form(QtCore.QObject):
         MEMO : 오토포커싱. 원본 영상 화면라벨영역 클릭
         :return:
         """
-        print("afc_label_before_Md")
+        # print("afc_label_before_Md")
 
     def afc_label_after_Md(self):
         """
         MEMO : 오토포커싱. 포커싱 영상 화면라벨영역 버튼 클릭
         :return:
         """
-        print("afc_label_after_Md")
+        # print("afc_label_after_Md")
 
     def chaened_afc_horizontalSlider(self):
         # print("slider min,max {} {}".format(self.afc_horizontalSlider.minimum(),self.afc_horizontalSlider.maximum()))
@@ -2098,7 +2099,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 학습.로컬업로드 버튼 클릭
         :return:
         """
-        print("click_alr_pushButton_localUpload")
+        # print("click_alr_pushButton_localUpload")
         self.cm.video_player.buffertime = int(self.opt.get_buffertime()[0])
 
         if self.cm.video_player.isRunning() and self.cm.video_player.ext_state:
@@ -2116,7 +2117,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 학습 이미지 추출 버튼 클릭
         :return:
         """
-        print("click_alr_pushButton_extImage")
+        # print("click_alr_pushButton_extImage")
         className = ""
         # 추출 파일명 확인 없으면 메시지 리턴
         if self.cm.inputAlrClassName() == "":
@@ -2159,7 +2160,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 학습. 폴더 열기 버튼 클릭
         :return:
         """
-        print("click_alr_pushButton_openFolder")
+        # print("click_alr_pushButton_openFolder")
         import subprocess, platform
         # OS 별 File Seperator 설정
         pSysNm = platform.system()
@@ -2174,14 +2175,13 @@ class Ui_Form(QtCore.QObject):
             path = self.opt.get_saveImgDir().replace('\\', '/')
             subprocess.run(['nautilus', os.path.realpath(path)])
 
-
     def click_alr_pushButton_startLearning(self):
         """
         MEMO : 학습. 학습 시작 버튼 클릭
         :param self:
         :return:
         """
-        print("click_alr_pushButton_startLearning")
+        # print("click_alr_pushButton_startLearning")
         if self.cm.create_massage_box("yesno", text="학습을 진행하시겠습니까?"):
             # 로딩바 on
             self.stackedLayout.setCurrentIndex(0)
@@ -2221,7 +2221,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 학습. 영상 재생 버튼 클릭
         :return:
         """
-        print("click_alr_pushButton_play")
+        # print("click_alr_pushButton_play")
         self.cm.video_player.playVideo()
 
     def click_alr_pushButton_pause(self):
@@ -2229,7 +2229,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 학습. 영상 일시정지 버튼 클릭
         :return:
         """
-        print("click_alr_pushButton_pause")
+        # print("click_alr_pushButton_pause")
         self.cm.video_player.pauseVideo()
 
     def click_alr_pushButton_stop(self):
@@ -2237,7 +2237,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 학습. 영상 정지 버튼 클릭
         :return:
         """
-        print("click_alr_pushButton_stop")
+        # print("click_alr_pushButton_stop")
         ###########
         # 클릭 이벤트  수동학습 탭 end
         ###########
@@ -2252,14 +2252,14 @@ class Ui_Form(QtCore.QObject):
         MEMO : 설정탭 클릭
         :return:
         """
-        print("click_tab_opt")
+        # print("click_tab_opt")
 
     def click_opt_pushButton_urlDownDir(self):
         """
         MEMO : 설정 URL 저장 파일 경로 폴더찾기 버튼 클릭
         :return:
         """
-        print("opt_pushButton_urlDownDir")
+        # print("opt_pushButton_urlDownDir")
         # self.opt_lineEdit_urlSaveDir.setText(self.cm.optUrlSaveFileDir())
         button = self.sender()
         self.opt.set_directory(button)
@@ -2269,7 +2269,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 설정 내려받기 저장 파일 경로 폴더찾기 버튼 클릭
         :return:
         """
-        print("opt_pushButton_saveDir")
+        # print("opt_pushButton_saveDir")
         # self.opt_lineEdit_saveDir.setText(self.cm.optUrlSaveFileDir())
         button = self.sender()
         self.opt.set_directory(button)
@@ -2280,7 +2280,7 @@ class Ui_Form(QtCore.QObject):
         MEMO : 설정 내려받기 저장 파일 경로 폴더찾기 버튼 클릭
         :return:
         """
-        print("opt_pushButton_saveDir")
+        # print("opt_pushButton_saveDir")
         # self.opt_lineEdit_saveDir.setText(self.cm.optUrlSaveFileDir())
         button = self.sender()
         self.opt.set_directory(button)
