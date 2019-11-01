@@ -1467,11 +1467,10 @@ class Ui_Form(QtCore.QObject):
         :return:
         '''
         # TODO : 19.10.21 Select Target Class Sort
-        # print("click_ext_btnGrp")
-        # print("현재 선택된 class : {}".format(self.cm.getSelectedClassList('ext')))
+        print("click_ext_btnGrp")
+        print("현재 선택된 class : {}".format(self.cm.getSelectedClassList('ext')))
 
         # 클래스 리스트 체크박스 초기화
-        self.cm.getSelectedClassList("clear")
         selectClass = self.cm.getSelectedClassList('ext')
 
         if len(self.cm.video_player.totalExtData) <= 0:
@@ -1644,11 +1643,11 @@ class Ui_Form(QtCore.QObject):
                     # print(object.preIndex,currentIndex,movedIndex)
 
                     # 탭 검출대상 리스트 초기화
-                    self.ext_btnGrp = self.cm.createTargetClassList("ext")
+                    # self.ext_btnGrp = self.cm.createTargetClassList("ext")
                     self.afc_btnGrp = self.cm.createTargetClassList("afc")
                     self.alr_btnGrp = self.cm.createTargetClassList("alr")
 
-                    self.ext_btnGrp.buttonClicked.connect(self.click_ext_btnGrp)
+                    # self.ext_btnGrp.buttonClicked.connect(self.click_ext_btnGrp)
                     self.afc_btnGrp.buttonClicked.connect(self.click_afc_btnGrp)
                 else:
                     event.ignore()
